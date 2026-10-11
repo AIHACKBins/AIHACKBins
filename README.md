@@ -1,36 +1,29 @@
-# AIHACKBins | Practical AI Security Reference
+# AIHACKBins | Practical AI Security Field Reference
 
-Official site: https://aihackbins.org
+Website: https://aihackbins.org/
 
-An open reference for authorised AI security assessments. Twelve concise research linked entries with usable assessment payloads, placement guidance, observable evidence, MITRE ATLAS mappings, and original researcher attribution.
+Twelve curated research cases with directly accessible assessment probes, visible payload provenance, OWASP LLM Top 10 (2025) category mapping and justified MITRE ATLAS mappings. Dark and light mode supported.
 
-## Evidence matters
+## Research integrity
 
-An AIHACKBins assessment payload is a functional input, not automatically the same as the original disclosed exploit. No entry claims that an original product vulnerability remains exploitable or that the historical exploit has been independently reproduced by AIHACKBins.
+Historical exploit reports are linked to their original researchers. AIHACKBins has not independently reproduced historical product exploitation. Most test inputs are adapted for authorized assessment. An adapted canary payload is not the original exploit chain. Where original disclosed bytes are not accessible, no byte identical original claim is made.
 
-The main catalogue has no required Python lab runner. Read an entry, copy its payload, and apply it in a system you own or are authorised to test. Some entries require a supporting application feature or test account.
+RC-010 includes the readable historical prompt excerpt supplied from HackerOne report 2372363, together with a Unicode tag reconstruction clearly marked as such and a separate fictional researcher variant. example.com is used for the sample XSS URL.
 
-## Run locally
+## What is mapped
 
-```sh
-python -m http.server 8080
-```
+MITRE ATLAS mapping is shown wherever the specific technique justifies it. Conventional flaws are left unmapped instead of forcing a false match. OWASP GenAI LLM Top 10 (2025) links are classification references, not independent reproduction evidence. The OWASP reference gallery links to the official upstream project.
 
-Open http://localhost:8080. The site is static and also runs on Cloudflare Workers static hosting.
+## Quality checks
 
-## Validate
-
-```sh
+```powershell
 python scripts/validate.py
-node --check app.js
 ```
 
-## Attribution
+Open this static site via a local web server, for example `python -m http.server 8080`, or deploy the files to Cloudflare. The site requires no Python runtime for visitors.
 
-Original technical research is linked from each case. The sample payloads were authored or adapted for assessment use and should not be presented as the researchers' original bytes unless independently verified. The catalogue provides both dark and light themes.
+## Community
 
-## Contribute
+https://github.com/AIHACKBins/.github/discussions
 
-https://github.com/AIHACKBins/AIHACKBins/issues
-
-The project welcomes reproducible evidence, corrections, version specific observations, and negative results.
+Original sources remain owned by their respective authors. No third party payload collection is bulk republished.
