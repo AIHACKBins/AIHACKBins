@@ -31,3 +31,7 @@ node --check app.js
 ```
 
 Publish only research that permits public disclosure. Credit the original researcher and link the primary evidence. Test only against authorised systems.
+
+## Unicode payloads
+
+RC-004 and RC-010 include real Unicode tag code points in `data/cases.json` and the website copy controls. The original HackerOne disclosure is linked as provenance, but the payload wording is an adapted canary and the demonstration hostname is `example.com`. No present day target exploitability is asserted.

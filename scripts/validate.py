@@ -13,3 +13,12 @@ for f in root.rglob('*'):
   txt=f.read_text(encoding='utf8')
   assert not any(x in txt for x in ('<<<<<<< HEAD','=======\n>>>>>>>','>>>>>>> ')),f'Merge conflict in {f}'
 print(f'PASS: {len(records)} unique published cases, URLs, payloads, ATLAS metadata and merge marker checks')
+
+# Reject fake code block placeholders in direct Unicode payloads.
+for ident in ('RC-004','RC-010'):
+ rec=next(r for r in records if r['id']==ident)
+ assert any(0xE0020 <= ord(ch) <= 0xE007E for ch in rec['payload']), f'Missing real Unicode tag payload in {ident}'
+ assert '[UNICODE TAG PAYLOAD' not in rec['payload'],f'Placeholder in {ident}'
+assert 'https://example.com/' in next(r for r in records if r['id']=='RC-010')['payload']
+assert all('rez0' not in r['payload'].lower() for r in records)
+print('PASS: two encoded Unicode payloads, safe sample URL and no fake Unicode placeholders')
