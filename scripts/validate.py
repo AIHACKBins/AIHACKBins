@@ -2,7 +2,7 @@ import json, pathlib, re
 root=pathlib.Path(__file__).resolve().parents[1]
 cases=json.loads((root/'data/cases.json').read_text(encoding='utf-8'))
 risks=json.loads((root/'data/owasp_2025.json').read_text(encoding='utf-8'))
-assert len(cases)==12 and len({r['id'] for r in cases})==12
+assert len(cases)==16 and len({r['id'] for r in cases})==16
 assert len(risks)==10 and {r['id'] for r in risks}=={f'LLM{i:02d}' for i in range(1,11)}
 for r in cases:
  for k in ('title','source_url','payload','expected_test','placement','payload_origin','research_verified','owasp_ids','test_steps'):
@@ -24,4 +24,4 @@ for f in root.rglob('*'):
   assert not any(z in s for z in ('<' * 7 + ' HEAD','\n' + '=' * 7 + '\n','>' * 7 + ' ')),f'Merge conflict in {f}'
 assert 'id="theme"' in (root/'index.html').read_text()
 assert all(f'id="go-{pos}"' in (root/'index.html').read_text() for pos in ('up','down'))
-print('PASS: 12 records, 10 OWASP risks, original excerpt provenance, Unicode encoding, MITRE ATLAS mapping, no merge conflicts.')
+print('PASS: 16 records, 10 OWASP risks, original excerpt provenance, Unicode encoding, MITRE ATLAS mapping, no merge conflicts.')

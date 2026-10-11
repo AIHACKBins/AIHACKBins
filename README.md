@@ -1,29 +1,30 @@
-# AIHACKBins | Practical AI Security Field Reference
+# AIHACKBins | Practical AI Security Reference
 
-Website: https://aihackbins.org/
+https://aihackbins.org
 
-Twelve curated research cases with directly accessible assessment probes, visible payload provenance, OWASP LLM Top 10 (2025) category mapping and justified MITRE ATLAS mappings. Dark and light mode supported.
+An open, GTFOBins inspired index of practical research inputs, technical evidence, and source attribution for authorised AI security assessments.
 
-## Research integrity
+## What is included
 
-Historical exploit reports are linked to their original researchers. AIHACKBins has not independently reproduced historical product exploitation. Most test inputs are adapted for authorized assessment. An adapted canary payload is not the original exploit chain. Where original disclosed bytes are not accessible, no byte identical original claim is made.
+16 source linked technical records. Each record shows exact test input or a clearly labelled adaptation, placement, expected observation, original disclosure, MITRE ATLAS classification where justified, and OWASP LLM Top 10 2025 classification.
 
-RC-010 includes the readable historical prompt excerpt supplied from HackerOne report 2372363, together with a Unicode tag reconstruction clearly marked as such and a separate fictional researcher variant. example.com is used for the sample XSS URL.
+The OWASP categories are catalogue filters, not ten separate explanatory pages.
 
-## What is mapped
+The original HackerOne Hai visible excerpt is included with a separately labelled Unicode encoded reconstruction and a fictional researcher adaptation. Historical publication does not establish vulnerability of current products.
 
-MITRE ATLAS mapping is shown wherever the specific technique justifies it. Conventional flaws are left unmapped instead of forcing a false match. OWASP GenAI LLM Top 10 (2025) links are classification references, not independent reproduction evidence. The OWASP reference gallery links to the official upstream project.
+Some records document original vendor lab inputs; others are research questions, inspection utilities, or assessment adaptations. They must not be represented as independently verified original product exploits.
 
-## Quality checks
+## Validation
 
-```powershell
+```bash
 python scripts/validate.py
+node --check app.js
 ```
 
-Open this static site via a local web server, for example `python -m http.server 8080`, or deploy the files to Cloudflare. The site requires no Python runtime for visitors.
+## Contribution standard
 
-## Community
+Provide original source URL, license/provenance, affected configuration, exact test input, evidence observed, reproduction prerequisites, defensive controls, MITRE ATLAS mapping with rationale (or no justified mapping), and OWASP mapping. No fabricated exploit payloads or inflated reproduction claims.
 
-https://github.com/AIHACKBins/.github/discussions
+## Licence and attribution
 
-Original sources remain owned by their respective authors. No third party payload collection is bulk republished.
+Original researchers retain credit and rights to their work. The source linked examples are not claimed as original AIHACKBins discoveries. Use only on owned or authorised systems.
