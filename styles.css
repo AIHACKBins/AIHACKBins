@@ -23,3 +23,17 @@
 
 /* Context selection inspired by function and execution context tabs. */
 .variant-tabs{display:flex;gap:7px;flex-wrap:wrap;margin-top:14px}.variant-tab{border:1px solid var(--stroke);background:var(--surface);color:var(--text);border-radius:8px;padding:8px 12px;font-size:13px}.variant-tab.active{border-color:var(--accent);color:var(--accent);font-weight:700}.variant-tab:hover{border-color:var(--accent)}
+
+/* Guided offline terminal */
+.practice-entry{border:1px solid var(--stroke);border-radius:15px;background:var(--surface);padding:15px 18px;margin:0 0 16px;display:flex;justify-content:space-between;align-items:center;gap:16px}
+.practice-entry p,.practice-top p{margin:5px 0 0;color:var(--muted);font-size:13px}
+.practice-panel{border-color:var(--accent)}
+.practice-top{display:flex;justify-content:space-between;align-items:start;gap:12px}
+.practice-quick{display:flex;gap:7px;flex-wrap:wrap;margin:18px 0}
+.practice-chip{background:var(--surface);border:1px solid var(--stroke);border-radius:7px;color:var(--text);font:12px/1.4 monospace;padding:7px 10px;cursor:pointer}
+.practice-chip:hover{border-color:var(--accent)}
+.practice-log{min-height:240px;max-height:440px;overflow:auto;overflow-wrap:anywhere;background:#061015;color:#cdf6ea;border:1px solid #34505b;border-radius:10px;padding:15px;font:12px/1.65 'JetBrains Mono',monospace;white-space:pre-wrap}
+.practice-line{margin-bottom:13px}.practice-line.command{color:#57edcd}.practice-line.error{color:#ffb5a9}.practice-line.system{color:#98b6c1}
+.practice-form{display:flex;align-items:center;gap:9px;margin:12px 0}.practice-form label{white-space:nowrap}.practice-form input{flex:1;min-width:0;background:var(--surface);color:var(--text);border:1px solid var(--stroke);border-radius:9px;padding:12px}
+.practice-disclaimer{font-size:12px!important;color:var(--muted)}
+@media(max-width:580px){.practice-entry{flex-direction:column;align-items:stretch}.practice-form{flex-wrap:wrap}.practice-form input{flex-basis:100%;order:2}.practice-form button{order:3}}

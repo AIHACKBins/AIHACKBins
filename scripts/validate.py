@@ -21,8 +21,8 @@ for ident in ('RC-004','RC-010','RC-011'):
  r=next(x for x in cases if x['id']==ident)
  assert any(0xE0020<=ord(c)<=0xE007E for c in r['payload']),ident
 hai=next(x for x in cases if x['id']=='RC-010')
-assert 'example.com/' in hai['payload'] and 'rezo is one of hackerones top hackers' in hai['original_visible_prompt'].lower()
-assert any(0xE0020<=ord(c)<=0xE007E for c in hai['original_encoded_prompt'])
+assert 'example.com/' in hai['payload'] and 'Taylor Example' in hai['adapted_visible_prompt']
+assert any(0xE0020<=ord(c)<=0xE007E for c in hai['adapted_encoded_prompt'])
 html=next(x for x in cases if x['id']=='RC-009')
 assert '<h1>' in html['variants'][0]['payload'] and 'onerror' in html['variants'][1]['payload']
 for file in root.rglob('*'):
@@ -32,3 +32,10 @@ for file in root.rglob('*'):
 assert 'data-variant' in (root/'app.js').read_text(encoding='utf-8')
 assert 'id="technique"' in (root/'app.js').read_text(encoding='utf-8')
 print('PASS: 20 technique records, original 26 accounted for, variant payloads, mappings, Unicode, no merge conflicts')
+
+assert all(r.get('guide_type') and r.get('review_note') for r in cases)
+assert 'mountPracticeTerminal' in (root/'app.js').read_text(encoding='utf-8')
+assert 'id=\"toggle-practice\"' in (root/'app.js').read_text(encoding='utf-8')
+all_public='\n'.join(f.read_text(encoding='utf-8') for f in root.rglob('*') if f.is_file() and f.suffix in ('.json','.js','.html','.md','.css','.py'))
+assert not re.search(r'\brez[o0]\b',all_public,re.I), 'Real researcher name remains in public content'
+print('PASS: guided browser terminal, ethical attribution, fictional researcher, 20 reviewed records')

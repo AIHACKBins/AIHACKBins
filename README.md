@@ -26,3 +26,14 @@ Run `python scripts/validate.py`. Static code may be previewed locally with `pyt
 https://github.com/AIHACKBins/.github/discussions
 
 Contributions should provide an accurate payload, prerequisites, tested context, reproducible observed evidence, original source attribution and precise version information. No invented exploit results.
+
+
+## Guided practice terminal
+
+Each entry provides an optional **Try in terminal** panel. It is a browser only guided reference console: `help`, `context`, `payload`, `steps`, `evidence`, `mappings`, `source`, `status`, `record <observation>`, and `clear`. It shows the selected context's **actual catalogue payload** and required evidence, not fake agent output. `record` retains notes only in the current panel while it is open. It cannot execute shell commands, talk to a model, perform tool calls or demonstrate success. Live testing happens separately, in a system you have permission to assess.
+
+The HackerOne Hai entry preserves the original public report URL, but uses a fictional researcher in all displayed payloads and explanations. The invisible Unicode tag text is a new adaptation, not a byte accurate historical exploit.
+
+## Entry audit
+
+All 20 distinct records from the previous consolidation were reviewed for payload classification. Source linked research references and inspection tools remain explicitly distinct from demonstrated exploitation. See `data/audit.json` for the merge ledger. No additional exploit verification is claimed in this release.
