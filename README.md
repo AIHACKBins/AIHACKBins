@@ -37,3 +37,15 @@ The HackerOne Hai entry preserves the original public report URL, but uses a fic
 ## Entry audit
 
 All 20 distinct records from the previous consolidation were reviewed for payload classification. Source linked research references and inspection tools remain explicitly distinct from demonstrated exploitation. See `data/audit.json` for the merge ledger. No additional exploit verification is claimed in this release.
+
+## Markdown contribution workflow
+
+Each entry is authored in `techniques/RC-XXX.md` with YAML frontmatter and a Markdown description. Use `techniques/_template.md` to start a new contribution. Install the importer dependency with `python -m pip install -r scripts/requirements.txt`, then run `python scripts/import_md.py` and `python scripts/validate.py`. Commit the Markdown file **and** regenerated JSON. Do not set model verification fields, status or severity without reproducible evidence and a versioned test record. Blank values mean not assessed, rather than Low severity.
+
+## Static data and feed
+
+The static endpoints are `/data/cases.json`, `/data/changelog.json`, and `/data/chains.json`. The curated learning paths are at `#/chains` and API usage at `#/api`. `python scripts/gen_feed.py` regenerates `feed.xml` from changelog records.
+
+## Reuse and licensing
+
+Original AIHACKBins data and code written for this repository are offered under the MIT License in `LICENSE`. This does not grant any rights to third party publications, exploit demonstrations, trademarks or linked research. All original researchers retain attribution. Never claim historical vulnerabilities are active without an independently documented retest.
