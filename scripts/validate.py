@@ -5,7 +5,7 @@ risks=json.loads((root/'data/owasp_2025.json').read_text(encoding='utf-8'))
 assert len(cases)==26 and len({r['id'] for r in cases})==26
 assert len(risks)==10 and {r['id'] for r in risks}=={f'LLM{i:02d}' for i in range(1,11)}
 for r in cases:
- for k in ('title','source_url','payload','expected_test','placement','payload_origin','research_verified','owasp_ids','test_steps'):
+ for k in ('title','source_url','payload','expected_test','placement','payload_origin','research_verified','owasp_ids','test_steps','entry_kind','evidence_level','test_scope','reproduction_status'):
   assert r.get(k),f'Missing {k}: {r["id"]}'
  assert len(r['test_steps'])>=3 and r['source_url'].startswith('https://')
  assert set(r['owasp_ids'])<=set(x['id'] for x in risks)
@@ -22,6 +22,9 @@ for f in root.rglob('*'):
  if f.is_file() and f.suffix in ('.json','.js','.html','.css','.md','.py'):
   s=f.read_text(encoding='utf-8')
   assert not any(z in s for z in ('<' * 7 + ' HEAD','\n' + '=' * 7 + '\n','>' * 7 + ' ')),f'Merge conflict in {f}'
+assert all(r['id'] != 'RC-008' or 'disposable test account' in r['payload'] for r in cases)
+assert 'SELECT name' in next(r for r in cases if r['id']=='RC-016')['payload']
 assert 'id="theme"' in (root/'index.html').read_text()
 assert all(f'id="go-{pos}"' in (root/'index.html').read_text() for pos in ('up','down'))
-print('PASS: 26 records, 10 OWASP risks, original excerpt provenance, Unicode encoding, MITRE ATLAS mapping, no merge conflicts.')
+assert 'id="technique"' in (root/'app.js').read_text(encoding='utf-8')
+print('PASS: 26 records, 10 OWASP risks, generic techniques, original excerpt provenance, Unicode encoding, MITRE ATLAS mapping, no merge conflicts.')

@@ -1,34 +1,21 @@
-# AIHACKBins | Practical AI Security Reference
+# AIHACKBins | Open Knowledge. Stronger Security.
 
-https://aihackbins.org
+Public site: https://aihackbins.org
 
-An open, GTFOBins inspired index of practical research inputs, technical evidence, and source attribution for authorised AI security assessments.
+AIHACKBins is a practical AI security technique reference inspired by GTFOBins. Entries are organised by reusable attack mechanisms rather than by product, author, or laboratory. Every record has an assessment input or command, test placement, expected evidence, original sources, and relevant OWASP and MITRE ATLAS mappings.
 
-## What is included
+## Evidence policy
 
-26 source linked technical records, including ten new OWASP 2025 test scenarios. Each record shows exact test input or a clearly labelled adaptation, placement, expected observation, original disclosure, MITRE ATLAS classification where justified, and OWASP LLM Top 10 2025 classification.
+**Do not conflate a test probe with an exploit.** An instruction canary establishes an instruction boundary weakness, not necessarily code execution, credential theft, or tool abuse. Model archive inspection is not deserialization exploitation. A test question is not a model poisoning procedure. Published historical behaviour does not establish that today's product version is vulnerable.
 
-The OWASP categories are catalogue filters, not ten separate explanatory pages.
+Entries are labelled with their provenance. Some are generic adaptations, some are historical disclosed instructions, and some are research or inspection references. No independent product exploit reproduction is claimed.
 
-The original HackerOne Hai visible excerpt is included with a separately labelled Unicode encoded reconstruction and a fictional researcher adaptation. Historical publication does not establish vulnerability of current products.
+## Contribute
 
-Some records document original vendor lab inputs; others are research questions, inspection utilities, or assessment adaptations. They must not be represented as independently verified original product exploits.
+Propose improvements at https://github.com/AIHACKBins/AIHACKBins/issues. Supply an authoritative source, tested versions, reproducible steps, exact placement, expected and actual observations, remediation, and appropriate ATLAS and OWASP classifications. Do not include real personal data or credentials.
 
-## Validation
+## Validate
 
-```bash
-python scripts/validate.py
-node --check app.js
-```
+Run `python scripts/validate.py` from the repository root. Open `index.html` through a static server, or deploy through the existing Cloudflare workflow.
 
-## Contribution standard
-
-Provide original source URL, license/provenance, affected configuration, exact test input, evidence observed, reproduction prerequisites, defensive controls, MITRE ATLAS mapping with rationale (or no justified mapping), and OWASP mapping. No fabricated exploit payloads or inflated reproduction claims.
-
-## Licence and attribution
-
-Original researchers retain credit and rights to their work. The source linked examples are not claimed as original AIHACKBins discoveries. Use only on owned or authorised systems.
-
-## OWASP practical scenario coverage
-
-The additions SC-001 through SC-010 provide one distinct assessment fixture for each OWASP LLM 2025 category. These are explicitly adapted tests, not verbatim exploit artifacts or independently verified vulnerabilities. Original research sources are linked individually. The MITRE ATLAS mapping is applied only where supported by the exact scenario; a blank mapping is deliberate.
+Only test systems you own or are authorised to assess.
