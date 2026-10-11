@@ -1,21 +1,28 @@
-# AIHACKBins | Open Knowledge. Stronger Security.
+# AIHACKBins | Practical AI security techniques
 
-Public site: https://aihackbins.org
+Official site: https://aihackbins.org/
 
-AIHACKBins is a practical AI security technique reference inspired by GTFOBins. Entries are organised by reusable attack mechanisms rather than by product, author, or laboratory. Every record has an assessment input or command, test placement, expected evidence, original sources, and relevant OWASP and MITRE ATLAS mappings.
+This release audits the original 26 catalogue records and presents **20 distinct entries**. Six duplicate catalogue cards were merged into context variants, with the source references retained. The catalogue is not a list of twenty verified exploits.
 
-## Evidence policy
+## Using an entry
 
-**Do not conflate a test probe with an exploit.** An instruction canary establishes an instruction boundary weakness, not necessarily code execution, credential theft, or tool abuse. Model archive inspection is not deserialization exploitation. A test question is not a model poisoning procedure. Published historical behaviour does not establish that today's product version is vulnerable.
+1. Select a technique from search or the complete dropdown.
+2. Where available, choose an execution context. The payload, placement, expected output and steps change with the selected context.
+3. Copy the exact shown test input and use it only on an authorised target or disposable lab environment.
+4. Compare the observed result against the entry's success criterion and the original research.
 
-Entries are labelled with their provenance. Some are generic adaptations, some are historical disclosed instructions, and some are research or inspection references. No independent product exploit reproduction is claimed.
+## Content accuracy
 
-## Contribute
+The catalogue explicitly distinguishes practical assessment inputs, original published probes, and research or inspection references. A canary response is **not** proof of code execution, account deletion, or exfiltration. Model archive inspection is not exploitation. HTML injection and browser XSS are separate contexts within the output rendering entry. OWASP and MITRE ATLAS mappings describe matching observed mechanisms, not automatic associations with every risk category. Unmapped cases remain unmapped.
 
-Propose improvements at https://github.com/AIHACKBins/AIHACKBins/issues. Supply an authoritative source, tested versions, reproducible steps, exact placement, expected and actual observations, remediation, and appropriate ATLAS and OWASP classifications. Do not include real personal data or credentials.
+Original public research remains linked. Historical case studies may describe patched software. None of the entries have been independently reproduced against named product versions by this project.
 
 ## Validate
 
-Run `python scripts/validate.py` from the repository root. Open `index.html` through a static server, or deploy through the existing Cloudflare workflow.
+Run `python scripts/validate.py`. Static code may be previewed locally with `python -m http.server 8080`. No lab runner is required to read or copy reference inputs.
 
-Only test systems you own or are authorised to assess.
+## Contribute
+
+https://github.com/AIHACKBins/.github/discussions
+
+Contributions should provide an accurate payload, prerequisites, tested context, reproducible observed evidence, original source attribution and precise version information. No invented exploit results.
