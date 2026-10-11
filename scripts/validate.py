@@ -22,3 +22,8 @@ for ident in ('RC-004','RC-010'):
 assert 'https://example.com/' in next(r for r in records if r['id']=='RC-010')['payload']
 assert all('rez0' not in r['payload'].lower() for r in records)
 print('PASS: two encoded Unicode payloads, safe sample URL and no fake Unicode placeholders')
+
+assert all(len(r.get('test_steps',[]))>=3 for r in records), 'Every case needs practical steps'
+assert all(r['payload'].strip() and len(r['payload'])>40 for r in records), 'Unexpected empty probe'
+assert 'id="go-up"' in (root/'index.html').read_text() and 'id="go-down"' in (root/'index.html').read_text()
+print('PASS: steps for ten cases, navigation controls, ready to copy inputs')

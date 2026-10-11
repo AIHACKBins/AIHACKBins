@@ -6,7 +6,7 @@ Website: https://aihackbins.org
 
 ## What visitors get
 
-* Ten historical research cases, each attributed to its original publication.
+* Ten historical research cases, each attributed to its original publication, with concrete copyable probes and a short per case application checklist.
 * Copyable, non destructive assessment probes and explicit expected observations.
 * MITRE ATLAS mapping on cards and detailed pages, when justified.
 * Search by researcher, product, technique or CVE; ATLAS filters.
@@ -35,3 +35,9 @@ Publish only research that permits public disclosure. Credit the original resear
 ## Unicode payloads
 
 RC-004 and RC-010 include real Unicode tag code points in `data/cases.json` and the website copy controls. The original HackerOne disclosure is linked as provenance, but the payload wording is an adapted canary and the demonstration hostname is `example.com`. No present day target exploitability is asserted.
+
+## Navigation and design
+
+The theme switch is the final header control, positioned to the far right. Floating up and down arrows appear when additional content exists above or below the viewport. Dark and light modes remain available.
+
+The snippets are adapted assessment probes, not exact original exploit code unless expressly documented. No local runner is needed. Use against authorised test targets only.
