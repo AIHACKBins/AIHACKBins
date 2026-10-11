@@ -1,43 +1,36 @@
-# AIHACKBins
+# AIHACKBins | Practical AI Security Reference
 
-AI security field reference inspired by the clarity of GTFOBins.
+Official site: https://aihackbins.org
 
-Website: https://aihackbins.org
+An open reference for authorised AI security assessments. Twelve concise research linked entries with usable assessment payloads, placement guidance, observable evidence, MITRE ATLAS mappings, and original researcher attribution.
 
-## What visitors get
+## Evidence matters
 
-* Ten historical research cases, each attributed to its original publication, with concrete copyable probes and a short per case application checklist.
-* Copyable, non destructive assessment probes and explicit expected observations.
-* MITRE ATLAS mapping on cards and detailed pages, when justified.
-* Search by researcher, product, technique or CVE; ATLAS filters.
-* Dark and light modes, persistent where browser storage allows.
-* No mandatory local lab runner or Python dependencies to use the website.
+An AIHACKBins assessment payload is a functional input, not automatically the same as the original disclosed exploit. No entry claims that an original product vulnerability remains exploitable or that the historical exploit has been independently reproduced by AIHACKBins.
 
-## Honest verification
+The main catalogue has no required Python lab runner. Read an entry, copy its payload, and apply it in a system you own or are authorised to test. Some entries require a supporting application feature or test account.
 
-Published exploits have not been independently reproduced by AIHACKBins. Payloads are clearly labelled as **adapted assessment probes**, not original working product exploits. Their effectiveness against current vendor versions is unknown. Avoid claiming that canary output equals arbitrary command execution or data exfiltration.
+## Run locally
 
-A reference case without a defensible MITRE ATLAS mapping remains unmapped.
+```sh
+python -m http.server 8080
+```
 
-## Use and publishing
+Open http://localhost:8080. The site is static and also runs on Cloudflare Workers static hosting.
 
-Deploy the complete static site directory to your web server or Cloudflare Workers static assets. Website visitors can browse without a runtime installation. To preview locally, run `python -m http.server 8080` from the root and open `http://localhost:8080`.
+## Validate
 
-Validate before release:
-
-```bash
+```sh
 python scripts/validate.py
 node --check app.js
 ```
 
-Publish only research that permits public disclosure. Credit the original researcher and link the primary evidence. Test only against authorised systems.
+## Attribution
 
-## Unicode payloads
+Original technical research is linked from each case. The sample payloads were authored or adapted for assessment use and should not be presented as the researchers' original bytes unless independently verified. The catalogue provides both dark and light themes.
 
-RC-004 and RC-010 include real Unicode tag code points in `data/cases.json` and the website copy controls. The original HackerOne disclosure is linked as provenance, but the payload wording is an adapted canary and the demonstration hostname is `example.com`. No present day target exploitability is asserted.
+## Contribute
 
-## Navigation and design
+https://github.com/AIHACKBins/AIHACKBins/issues
 
-The theme switch is the final header control, positioned to the far right. Floating up and down arrows appear when additional content exists above or below the viewport. Dark and light modes remain available.
-
-The snippets are adapted assessment probes, not exact original exploit code unless expressly documented. No local runner is needed. Use against authorised test targets only.
+The project welcomes reproducible evidence, corrections, version specific observations, and negative results.
