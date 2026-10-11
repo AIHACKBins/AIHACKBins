@@ -1,41 +1,33 @@
-# AIHACKBins | Practical field reference
+# AIHACKBins
 
-Official website: https://aihackbins.org
+AI security field reference inspired by the clarity of GTFOBins.
 
-## Editorial standard
+Website: https://aihackbins.org
 
-The practical catalogue contains eight reproducible **local** practical labs. Each entry provides the exact command, expected observation, source reference, tested environment and clear limitations. All eight local exercises use Python standard library fixtures; none establishes exploitation of a third party product or an actual LLM.
+## What visitors get
 
-The prior 47 entries remain in `data/research_queue.json` for manual technical review. They are **not** shown as verified exploits. An entry only graduates to the public main catalogue when its exact reproducer, tested environment and observed evidence are available. Published research can also be linked without claiming independent reproduction.
+* Ten historical research cases, each attributed to its original publication.
+* Copyable, non destructive assessment probes and explicit expected observations.
+* MITRE ATLAS mapping on cards and detailed pages, when justified.
+* Search by researcher, product, technique or CVE; ATLAS filters.
+* Dark and light modes, persistent where browser storage allows.
+* No mandatory local lab runner or Python dependencies to use the website.
 
-## Run locally
+## Honest verification
+
+Published exploits have not been independently reproduced by AIHACKBins. Payloads are clearly labelled as **adapted assessment probes**, not original working product exploits. Their effectiveness against current vendor versions is unknown. Avoid claiming that canary output equals arbitrary command execution or data exfiltration.
+
+A reference case without a defensible MITRE ATLAS mapping remains unmapped.
+
+## Use and publishing
+
+Deploy the complete static site directory to your web server or Cloudflare Workers static assets. Website visitors can browse without a runtime installation. To preview locally, run `python -m http.server 8080` from the root and open `http://localhost:8080`.
+
+Validate before release:
 
 ```bash
-python3 -m http.server 8080
+python scripts/validate.py
+node --check app.js
 ```
 
-Open http://localhost:8080 and try a lab:
-
-```bash
-python3 labs/run.py document
-python3 labs/run.py mcp
-python3 labs/run.py rag
-python3 labs/run.py agency
-python3 labs/run.py jsroutes
-python3 labs/run.py bola
-python3 labs/run.py sinks
-python3 labs/run.py report
-python3 scripts/validate.py
-```
-
-## Contributions
-
-Submit a small, specific technique with a tested target version, explicit prerequisites, the minimal reproducible input or command, expected and observed output, limitations and attribution. Test only on systems you are authorised to assess. Avoid publishing protected data or embargoed details.
-
-Community: https://github.com/AIHACKBins/.github/discussions
-
-## Published research cases
-
-`data/case_studies.json` contains 10 historically documented findings. Case detail pages include the original author, published source, entry point, reported result, safe reproduction outline, defensive control, and MITRE ATLAS crosswalk. Every case is explicitly labelled as NOT independently reproduced against the named software. The offline concept lab is NOT the original exploit.
-
-Mappings use the official MITRE ATLAS website (https://atlas.mitre.org/) rather than reproducing third party mapping articles. AML.T0051 is applied only when the documented behavior involves prompt injection. Cases with a conventional software weakness are left unmapped. Review mappings as ATLAS updates.
+Publish only research that permits public disclosure. Credit the original researcher and link the primary evidence. Test only against authorised systems.
