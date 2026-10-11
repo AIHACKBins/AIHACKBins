@@ -1,49 +1,38 @@
-# AIHACKBins | Open Knowledge. Stronger Security.
+# AIHACKBins
 
-Official community site: https://aihackbins.org
+**Open Knowledge. Stronger Security.**
 
-<<<<<<< HEAD
-This is the complete static v0.3 website. It has 36 unique **source-verified** field notes split evenly between Hacking AI and Hacking with AI. Source-verified means an established primary technical source documents the underlying technique or workflow. **No individual lab exercise in this release has been independently executed or peer-reviewed by AIHACKBins.** The UI discloses this clearly.
-=======
-This is the complete static v0.2 website. It has 12 unique **source-verified** field notes split evenly between Hacking AI and Hacking with AI. Source-verified means an established primary technical source documents the underlying technique or workflow. **No individual lab exercise in this release has been independently executed or peer-reviewed by AIHACKBins.** The UI discloses this clearly.
->>>>>>> d72deb3519d459e994d1376bf65b17141bba627e
+Official website: https://aihackbins.org
 
-## Features
+AIHACKBins is an open-source, community-driven knowledge base covering **Hacking AI** and **Hacking with AI**.
 
-- New modular AIHACKBins SVG logo and favicon
-<<<<<<< HEAD
-- Responsive homepage, track navigation, search, categories and 36 field-note pages
-=======
-- Responsive homepage, track navigation, search, categories and 12 field-note pages
->>>>>>> d72deb3519d459e994d1376bf65b17141bba627e
-- Individual reproducible synthetic fixtures, expected observations and references
-- No external JavaScript, fonts, analytics, trackers, user accounts or build dependencies
-- Dedicated community About and Contribute pages
-- Standalone structured content in `data/entries.json`
+## Explore
 
-## Preview
+The current field guide contains **36 distinct, source-backed entries** across two research tracks. Each entry includes an objective, prerequisites, synthetic examples, validation guidance, and relevant references.
 
-Run `python -m http.server 8080` in this folder and open http://localhost:8080. The JSON data is loaded with `fetch` and therefore a local HTTP server is needed.
-
-## Deployment
-
-Cloudflare Workers & Pages: production branch `main`, static assets from repository root, no build command. Publish the entire contents of this ZIP at repository root, **not** the ZIP itself.
-
-## Editorial requirements
-
-Content is source-backed and includes links to primary references. Lab reproductions, observed results, model versions, contributors and peer review need to be added before any specific technique can be marked lab verified.
+**Source-backed does not mean independently lab-verified.** Individual exercises have not yet been independently reproduced or peer-reviewed by AIHACKBins. We welcome corrections and reproducibility reports.
 
 ## Community
 
-Contributions: https://github.com/AIHACKBins/.github/blob/main/CONTRIBUTING.md
-Discussions: https://github.com/AIHACKBins/.github/discussions
-Charter: https://github.com/AIHACKBins/.github/blob/main/CHARTER.md
-<<<<<<< HEAD
+- [Join Discussions](https://github.com/AIHACKBins/.github/discussions)
+- [Contribute](https://github.com/AIHACKBins/.github/blob/main/CONTRIBUTING.md)
+- [Community Charter](https://github.com/AIHACKBins/.github/blob/main/CHARTER.md)
+- [Security Policy](https://github.com/AIHACKBins/.github/blob/main/SECURITY.md)
 
-## Expansion v0.3
+## Run locally
 
-Adds 24 original, source-backed research notes covering prompt injection, MCP, RAG, agent authorization, output handling, data protection, model testing, code review, identity, API security, cloud, Active Directory and evidence-based reporting. Each note is labelled **Source verified / Not independently reproduced**. This describes the reference support, not proof the provided test has been performed.
+From the project root:
 
-Importing jailbreak collections requires provenance and permission review first. The project links to external sources rather than republishing their text wholesale.
-=======
->>>>>>> d72deb3519d459e994d1376bf65b17141bba627e
+```sh
+python -m http.server 8080
+```
+
+Open http://localhost:8080. The website fetches `data/entries.json` over HTTP.
+
+## Deploy
+
+Deploy the repository root as static assets on Cloudflare. No build command is required. Files and directories, including `data/entries.json`, must be present in the published output.
+
+## Content quality
+
+Run `python scripts/validate.py` before publishing. This validates the JSON schema, entries, references and absence of merge-conflict markers. Original research attribution and lab reproduction remain community editorial tasks.
