@@ -466,6 +466,7 @@
     "evidence": "Source verified",
     "lab_status": "Not independently reproduced",
     "updated": "2026-10-11"
+<<<<<<< HEAD
   },
   {
     "id": "HA-007",
@@ -1356,3 +1357,7 @@
     "updated": "2026-10-11"
   }
 ]
+=======
+  }
+]
+>>>>>>> d72deb3519d459e994d1376bf65b17141bba627e
