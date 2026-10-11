@@ -1,4 +1,4 @@
-name: Validate website and content
+name: Validate practical field reference
 on:
   push:
     branches: [main]
@@ -11,7 +11,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Check content and merge conflicts
+      - name: Validate all local labs and content
         run: python scripts/validate.py
-      - name: Check JavaScript syntax
+      - name: JavaScript syntax
         run: node --check app.js

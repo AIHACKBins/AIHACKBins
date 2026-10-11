@@ -1,13 +1,3 @@
-# Research topics
+# Research intake
 
-## Hacking AI
-
-Prompt Injection, Jailbreaking, Model Security, Agent Security, MCP Security, RAG Security, Output Handling, Multimodal Security, AI/ML Infrastructure, Model File Security, AI Supply Chain.
-
-## Hacking with AI
-
-Reconnaissance, JavaScript Analysis, API Security, Authentication, Authorization, Source Code Review, Active Directory, Detection Engineering, Secret Triage, Security Reporting.
-
-## Research sources
-
-PortSwigger, OWASP GenAI, Embrace The Red, Huntr and public Mozilla 0DIN disclosures. Researchers and original publishers retain credit.
+Use original research from PortSwigger, Huntr, Mozilla 0DIN, Embrace The Red, OWASP and maintainers of affected projects as leads. Their findings require independent source and reproduction review before inclusion in the main catalogue. Preserve publication attribution and explain product versions and conditions.

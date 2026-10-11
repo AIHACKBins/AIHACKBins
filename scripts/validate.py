@@ -1,36 +1,33 @@
 #!/usr/bin/env python3
-"""Fail CI for invalid AIHACKBins content or unresolved Git merge conflicts."""
-import json
-from pathlib import Path
-
-ROOT = Path(__file__).resolve().parents[1]
-MARKERS = ('<<<<<<< ', '=======\n', '>>>>>>> ')
-required = ['index.html', 'styles.css', 'app.js', 'README.md', 'data/entries.json', 'assets/logo.svg', 'assets/favicon.svg']
-for name in required:
-    assert (ROOT / name).is_file(), f'Missing required file: {name}'
+"""Validate field reference and execute every bundled local demonstration."""
+import json, pathlib, subprocess, sys
+ROOT=pathlib.Path(__file__).resolve().parents[1]
 for path in ROOT.rglob('*'):
-    if not path.is_file() or path == Path(__file__).resolve() or '.git' in path.parts or path.suffix not in {'.json', '.md', '.js', '.css', '.html', '.svg', '.yml', '.yaml'}:
-        continue
-    text = path.read_text(encoding='utf-8')
-    assert not any(marker in text for marker in MARKERS), f'Unresolved Git merge marker in: {path.relative_to(ROOT)}'
-entries = json.loads((ROOT / 'data/entries.json').read_text(encoding='utf-8'))
-assert isinstance(entries, list) and len(entries) >= 47, 'Expected at least 42 entries'
-ids, slugs = set(), set()
-for index, entry in enumerate(entries, 1):
-    for key in ('id', 'slug', 'track', 'title', 'summary', 'objective', 'example', 'expected', 'defense', 'evidence', 'lab_status'):
-        assert isinstance(entry.get(key), str) and entry[key].strip(), f'Entry {index}: missing {key}'
-    assert entry.get('content_type') in {'Technique','Workflow','Case Study'}, f'Entry {index}: invalid content type'
-    assert entry['track'] in {'Hacking AI', 'Hacking with AI'}, f'Entry {index}: invalid track'
-    assert entry['id'] not in ids and entry['slug'] not in slugs, f'Entry {index}: duplicate id/slug'
-    ids.add(entry['id']); slugs.add(entry['slug'])
-    for key in ('prerequisites', 'steps', 'sources', 'tags'):
-        assert isinstance(entry.get(key), list) and entry[key], f'Entry {index}: empty {key}'
-    for source in entry['sources']:
-        assert isinstance(source, dict) and source.get('title') and str(source.get('url', '')).startswith('https://'), f'Entry {index}: invalid reference'
-for track in ('Hacking AI', 'Hacking with AI'):
-    assert sum(e['track'] == track for e in entries) >= 18, f'Not enough entries in {track}'
-assert sum(e['content_type'] == 'Case Study' for e in entries) >= 11
-print(f'PASS: {len(entries)} entries, unique ids/slugs, no merge markers, required files present')
-
-assert all(not x['slug'].startswith('/') for x in entries)
-print('PASS: 47+ records, with Huntr and 0DIN source attribution')
+    if path.is_file() and '.git' not in path.parts and path.suffix in {'.html','.js','.css','.json','.md','.yml','.svg'}:
+        content=path.read_text(encoding='utf-8')
+        for marker in ('<'+'<'+'<'+'<'+'<'+'<'+'<', '>'+'>'+'>'+'>'+'>'+'>'+'>' ):
+            assert marker not in content, f'Merge conflict in {path}'
+entries=json.loads((ROOT/'data/entries.json').read_text())
+assert len(entries)==8, 'Expected eight curated local labs'
+ids=set();slugs=set()
+for e in entries:
+    for key in ('id','slug','track','category','title','summary','scenario','scope','procedure','expected','defense','verification','independent_product_verification','command','tested_environment','source_title','source_url'):
+        assert isinstance(e.get(key),str) and e[key].strip(),f'Missing {key}'
+    assert e['id'] not in ids and e['slug'] not in slugs
+    assert e['source_url'].startswith('https://')
+    assert e['command']==f"python3 labs/run.py {e['scenario']}"
+    ids.add(e['id']);slugs.add(e['slug'])
+    out=subprocess.run([sys.executable,str(ROOT/'labs/run.py'),e['scenario']],capture_output=True,text=True,check=True)
+    assert 'PASS:' in out.stdout,(e['id'],out.stdout)
+queue=json.loads((ROOT/'data/research_queue.json').read_text())
+assert len(queue)==47,'Prior research queue must be preserved'
+cases=json.loads((ROOT/'data/case_studies.json').read_text())
+assert len(cases)==10
+assert len({x['slug'] for x in cases})==10
+for case in cases:
+    for key in ('target','title','researcher','source_url','mechanism','attack_surface','observed','procedure','defense','independent_verification'):
+        assert case.get(key), (case['id'],key)
+    assert case['source_url'].startswith('https://')
+    assert not case['atlas_id'] or case['atlas_id']=='AML.T0051'
+print(f'PASS: {len(cases)} documented cases with source attribution and ATLAS crosswalk')
+print(f'PASS: {len(entries)} local labs executed; {len(queue)} research leads retained separately; no merge markers')

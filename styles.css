@@ -13,3 +13,6 @@ html{background:var(--bg)}body{background:var(--bg);color:var(--text)}body:befor
 .record{transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease}.record:hover{transform:translateY(-4px);box-shadow:0 16px 40px #0000001f}
 .record .chip.researcher{font-size:10px;border-color:var(--accent);opacity:.88}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+
+/* Practical catalogue details */
+.mini-command{font:11px/1.55 ui-monospace,SFMono-Regular,Consolas,monospace;color:var(--text);background:var(--code-bg);border:1px solid var(--border);padding:11px;border-radius:8px;margin:auto 0 16px;overflow-wrap:anywhere}.mini-command span{color:var(--accent);font-weight:bold}.record-bottom{margin-top:0}.panel strong{color:var(--text)}.side-panel .chip{white-space:normal;line-height:1.6}.hero h1{font-size:clamp(42px,5vw,74px)}@media(max-width:640px){.brand{font-size:17px}.cards{grid-template-columns:1fr}.mini-command{font-size:10px}}

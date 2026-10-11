@@ -1,29 +1,41 @@
-# AIHACKBins
+# AIHACKBins | Practical field reference
 
-**Open Knowledge. Stronger Security.**
+Official website: https://aihackbins.org
 
-Official site: https://aihackbins.org
+## Editorial standard
 
-A community-maintained knowledge base for **Hacking AI** and **Hacking with AI**, inspired by Kerckhoffs's principle. The catalogue combines technique references, practical testing workflows and original research case studies.
+The practical catalogue contains eight reproducible **local** practical labs. Each entry provides the exact command, expected observation, source reference, tested environment and clear limitations. All eight local exercises use Python standard library fixtures; none establishes exploitation of a third party product or an actual LLM.
 
-## Research quality
+The prior 47 entries remain in `data/research_queue.json` for manual technical review. They are **not** shown as verified exploits. An entry only graduates to the public main catalogue when its exact reproducer, tested environment and observed evidence are available. Published research can also be linked without claiming independent reproduction.
 
-- 47 records: 36 field notes and 11 attributed case studies.
-- Primary source links accompany every record.
-- Original research is credited; public descriptions are independently authored.
-- No entry is labelled as independently reproduced by AIHACKBins without first-party evidence.
-- No proprietary 0DIN threat-feed material is included.
+## Run locally
 
-## Community
+```bash
+python3 -m http.server 8080
+```
 
-- [Contribute](https://github.com/AIHACKBins/.github/blob/main/CONTRIBUTING.md)
-- [Discussions](https://github.com/AIHACKBins/.github/discussions)
-- [Charter](https://github.com/AIHACKBins/.github/blob/main/CHARTER.md)
+Open http://localhost:8080 and try a lab:
 
-## Local preview
+```bash
+python3 labs/run.py document
+python3 labs/run.py mcp
+python3 labs/run.py rag
+python3 labs/run.py agency
+python3 labs/run.py jsroutes
+python3 labs/run.py bola
+python3 labs/run.py sinks
+python3 labs/run.py report
+python3 scripts/validate.py
+```
 
-Run `python -m http.server 8080`, then visit `http://localhost:8080`. No build step or third-party JavaScript library is required.
+## Contributions
 
-## Quality checks
+Submit a small, specific technique with a tested target version, explicit prerequisites, the minimal reproducible input or command, expected and observed output, limitations and attribution. Test only on systems you are authorised to assess. Avoid publishing protected data or embargoed details.
 
-Run `python scripts/validate.py`, then `node --check app.js` if Node.js is installed. The GitHub Actions workflow runs the content validation on updates.
+Community: https://github.com/AIHACKBins/.github/discussions
+
+## Published research cases
+
+`data/case_studies.json` contains 10 historically documented findings. Case detail pages include the original author, published source, entry point, reported result, safe reproduction outline, defensive control, and MITRE ATLAS crosswalk. Every case is explicitly labelled as NOT independently reproduced against the named software. The offline concept lab is NOT the original exploit.
+
+Mappings use the official MITRE ATLAS website (https://atlas.mitre.org/) rather than reproducing third party mapping articles. AML.T0051 is applied only when the documented behavior involves prompt injection. Cases with a conventional software weakness are left unmapped. Review mappings as ATLAS updates.
