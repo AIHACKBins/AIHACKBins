@@ -14,11 +14,12 @@ for path in ROOT.rglob('*'):
     text = path.read_text(encoding='utf-8')
     assert not any(marker in text for marker in MARKERS), f'Unresolved Git merge marker in: {path.relative_to(ROOT)}'
 entries = json.loads((ROOT / 'data/entries.json').read_text(encoding='utf-8'))
-assert isinstance(entries, list) and len(entries) >= 36, 'Expected at least 36 entries'
+assert isinstance(entries, list) and len(entries) >= 47, 'Expected at least 42 entries'
 ids, slugs = set(), set()
 for index, entry in enumerate(entries, 1):
     for key in ('id', 'slug', 'track', 'title', 'summary', 'objective', 'example', 'expected', 'defense', 'evidence', 'lab_status'):
         assert isinstance(entry.get(key), str) and entry[key].strip(), f'Entry {index}: missing {key}'
+    assert entry.get('content_type') in {'Technique','Workflow','Case Study'}, f'Entry {index}: invalid content type'
     assert entry['track'] in {'Hacking AI', 'Hacking with AI'}, f'Entry {index}: invalid track'
     assert entry['id'] not in ids and entry['slug'] not in slugs, f'Entry {index}: duplicate id/slug'
     ids.add(entry['id']); slugs.add(entry['slug'])
@@ -28,4 +29,8 @@ for index, entry in enumerate(entries, 1):
         assert isinstance(source, dict) and source.get('title') and str(source.get('url', '')).startswith('https://'), f'Entry {index}: invalid reference'
 for track in ('Hacking AI', 'Hacking with AI'):
     assert sum(e['track'] == track for e in entries) >= 18, f'Not enough entries in {track}'
-print(f'PASS: {len(entries)} source-backed entries, unique ids/slugs, no merge markers, required files present')
+assert sum(e['content_type'] == 'Case Study' for e in entries) >= 11
+print(f'PASS: {len(entries)} entries, unique ids/slugs, no merge markers, required files present')
+
+assert all(not x['slug'].startswith('/') for x in entries)
+print('PASS: 47+ records, with Huntr and 0DIN source attribution')

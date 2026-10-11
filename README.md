@@ -2,37 +2,28 @@
 
 **Open Knowledge. Stronger Security.**
 
-Official website: https://aihackbins.org
+Official site: https://aihackbins.org
 
-AIHACKBins is an open-source, community-driven knowledge base covering **Hacking AI** and **Hacking with AI**.
+A community-maintained knowledge base for **Hacking AI** and **Hacking with AI**, inspired by Kerckhoffs's principle. The catalogue combines technique references, practical testing workflows and original research case studies.
 
-## Explore
+## Research quality
 
-The current field guide contains **36 distinct, source-backed entries** across two research tracks. Each entry includes an objective, prerequisites, synthetic examples, validation guidance, and relevant references.
-
-**Source-backed does not mean independently lab-verified.** Individual exercises have not yet been independently reproduced or peer-reviewed by AIHACKBins. We welcome corrections and reproducibility reports.
+- 47 records: 36 field notes and 11 attributed case studies.
+- Primary source links accompany every record.
+- Original research is credited; public descriptions are independently authored.
+- No entry is labelled as independently reproduced by AIHACKBins without first-party evidence.
+- No proprietary 0DIN threat-feed material is included.
 
 ## Community
 
-- [Join Discussions](https://github.com/AIHACKBins/.github/discussions)
 - [Contribute](https://github.com/AIHACKBins/.github/blob/main/CONTRIBUTING.md)
-- [Community Charter](https://github.com/AIHACKBins/.github/blob/main/CHARTER.md)
-- [Security Policy](https://github.com/AIHACKBins/.github/blob/main/SECURITY.md)
+- [Discussions](https://github.com/AIHACKBins/.github/discussions)
+- [Charter](https://github.com/AIHACKBins/.github/blob/main/CHARTER.md)
 
-## Run locally
+## Local preview
 
-From the project root:
+Run `python -m http.server 8080`, then visit `http://localhost:8080`. No build step or third-party JavaScript library is required.
 
-```sh
-python -m http.server 8080
-```
+## Quality checks
 
-Open http://localhost:8080. The website fetches `data/entries.json` over HTTP.
-
-## Deploy
-
-Deploy the repository root as static assets on Cloudflare. No build command is required. Files and directories, including `data/entries.json`, must be present in the published output.
-
-## Content quality
-
-Run `python scripts/validate.py` before publishing. This validates the JSON schema, entries, references and absence of merge-conflict markers. Original research attribution and lab reproduction remain community editorial tasks.
+Run `python scripts/validate.py`, then `node --check app.js` if Node.js is installed. The GitHub Actions workflow runs the content validation on updates.
