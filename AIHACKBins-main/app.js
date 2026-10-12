@@ -1,589 +1,568 @@
-/* AIHACKBins app.js — redesigned UI */
-'use strict';
+/* AIHACKBins app.js — Option 1 "Exploit paper"
+ * Static SPA. No build step. Hash router. data/cases.json drives everything.
+ */
+(function () {
+  'use strict';
 
-// ── Utilities ────────────────────────────────────────────────
-const $ = s => document.querySelector(s);
-const $$ = s => [...document.querySelectorAll(s)];
-const esc = s => String(s ?? '').replace(/[&<>"']/g,
-  c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const link = (url, label) =>
-  `<a class="external" target="_blank" rel="noopener noreferrer" href="${esc(url)}">${esc(label)} ↗</a>`;
+  // ── State ──────────────────────────────────────────────────────────────────
+  let allRecords = [];
+  let filteredRecords = [];
+  let searchQuery = '';
+  let labCount = 0;
 
-// ── OWASP LLM 2025 ───────────────────────────────────────────
-const OWASP = {
-  LLM01:{name:'Prompt Injection',url:'https://genai.owasp.org/llmrisk/llm01-prompt-injection/'},
-  LLM02:{name:'Sensitive Info Disclosure',url:'https://genai.owasp.org/llmrisk/llm022025-sensitive-information-disclosure/'},
-  LLM03:{name:'Supply Chain',url:'https://genai.owasp.org/llmrisk/llm032025-supply-chain/'},
-  LLM04:{name:'Data & Model Poisoning',url:'https://genai.owasp.org/llmrisk/llm042025-data-and-model-poisoning/'},
-  LLM05:{name:'Improper Output Handling',url:'https://genai.owasp.org/llmrisk/llm052025-improper-output-handling/'},
-  LLM06:{name:'Excessive Agency',url:'https://genai.owasp.org/llmrisk/llm062025-excessive-agency/'},
-  LLM07:{name:'System Prompt Leakage',url:'https://genai.owasp.org/llmrisk/llm072025-system-prompt-leakage/'},
-  LLM08:{name:'Vector & Embedding Weaknesses',url:'https://genai.owasp.org/llmrisk/llm082025-vector-and-embedding-weaknesses/'},
-  LLM09:{name:'Misinformation',url:'https://genai.owasp.org/llmrisk/llm092025-misinformation/'},
-  LLM10:{name:'Unbounded Consumption',url:'https://genai.owasp.org/llmrisk/llm102025-unbounded-consumption/'},
-};
+  // ── Boot ───────────────────────────────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', () => {
+    initTheme();
+    initSidebar();
+    fetch('data/cases.json')
+      .then(r => r.json())
+      .then(data => {
+        allRecords = data;
+        filteredRecords = data;
+        labCount = data.filter(r => r.lab).length;
+        const labCountEl = document.getElementById('lab-count');
+        if (labCountEl) labCountEl.textContent = labCount;
+        if (window.AIHACKBinsLab) window.AIHACKBinsLab.init(data);
+        renderStats();
+        renderRecent();
+        route();
+      })
+      .catch(err => {
+        document.getElementById('main').innerHTML =
+          '<p style="color:var(--red);padding:32px">Failed to load cases.json: ' + esc(String(err)) + '</p>';
+      });
 
-// ── State ────────────────────────────────────────────────────
-let records = [], changes = [], chains = [];
-let filter = {q:'', atlas:'All', owasp:'All', severity:'All', status:'All'};
-let recentIds = [];
-try { recentIds = JSON.parse(localStorage.getItem('ahb-recent') || '[]'); } catch {}
+    window.addEventListener('hashchange', route);
 
-// ── Theme ────────────────────────────────────────────────────
-let theme = '';
-try { theme = localStorage.getItem('ahb-theme') || ''; } catch {}
-if (!theme) theme = window.matchMedia?.('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
-function setTheme(v) {
-  document.documentElement.dataset.theme = v;
-  $$('#theme-btn, #theme-btn-top').forEach(b => b.textContent = v === 'dark' ? '☀' : '☾');
-  try { localStorage.setItem('ahb-theme', v); } catch {}
-}
-setTheme(theme);
-$$('#theme-btn, #theme-btn-top').forEach(b =>
-  b.onclick = () => setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'));
-
-// ── Sidebar collapse ─────────────────────────────────────────
-try {
-  if (localStorage.getItem('ahb-sidebar') === '1') document.body.classList.add('sidebar-collapsed');
-} catch {}
-$('#sidebar-toggle').onclick = () => {
-  document.body.classList.toggle('sidebar-collapsed');
-  try { localStorage.setItem('ahb-sidebar', document.body.classList.contains('sidebar-collapsed') ? '1' : ''); } catch {}
-};
-// Mobile
-$('#topbar-menu').onclick = () => {
-  const s = $('#sidebar'), o = $('#sidebar-overlay');
-  s.classList.toggle('open');
-  o.classList.toggle('visible');
-  $('#topbar-menu').setAttribute('aria-expanded', s.classList.contains('open'));
-};
-$('#sidebar-overlay').onclick = () => {
-  $('#sidebar').classList.remove('open');
-  $('#sidebar-overlay').classList.remove('visible');
-  $('#topbar-menu').setAttribute('aria-expanded', 'false');
-};
-
-// ── Pill helpers ─────────────────────────────────────────────
-function severityPill(s) {
-  if (!s) return '';
-  const cls = {Critical:'pill-critical', High:'pill-high', Medium:'pill-medium', Low:'pill-low'}[s] || '';
-  return `<span class="pill ${cls}">${esc(s)}</span>`;
-}
-function statusPill(s) {
-  if (!s) return '';
-  const cls = {
-    Active:'pill-active',
-    'Partially-patched':'pill-partial',
-    Historic:'pill-historic',
-    'Model-dependent':'pill-modeldep',
-    Unverified:'pill-unverified',
-  }[s] || 'pill-unverified';
-  return `<span class="pill ${cls}">${esc(s)}</span>`;
-}
-function atlasPill(id) {
-  if (!id) return '';
-  return `<a class="pill pill-atlas" href="https://atlas.mitre.org/techniques/${encodeURIComponent(id)}/" target="_blank" rel="noopener">${esc(id)} ↗</a>`;
-}
-function owaspPill(id) {
-  if (!id || !OWASP[id]) return '';
-  return `<a class="pill pill-owasp" href="${esc(OWASP[id].url)}" target="_blank" rel="noopener">${esc(id)}</a>`;
-}
-function cvePill(cve) {
-  if (!cve) return '';
-  return `<a class="pill pill-cve" href="https://nvd.nist.gov/vuln/detail/${encodeURIComponent(cve)}" target="_blank" rel="noopener">${esc(cve)}</a>`;
-}
-
-// ── Recent tracking ──────────────────────────────────────────
-function trackRecent(id) {
-  recentIds = [id, ...recentIds.filter(x => x !== id)].slice(0, 5);
-  try { localStorage.setItem('ahb-recent', JSON.stringify(recentIds)); } catch {}
-  renderSidebarRecent();
-}
-function renderSidebarRecent() {
-  const el = $('#sidebar-recent');
-  if (!el || !recentIds.length) return;
-  el.innerHTML = `<div class="sidebar-recent-title">Recently viewed</div>` +
-    recentIds.map(id => {
-      const r = records.find(x => x.id === id);
-      return r ? `<a class="sidebar-recent-link" href="#/technique/${esc(id)}" title="${esc(r.title)}">${esc(id)} · ${esc(r.title)}</a>` : '';
-    }).join('');
-}
-
-// ── Active nav ───────────────────────────────────────────────
-function setActiveNav(route) {
-  $$('.nav-item').forEach(el => {
-    el.classList.toggle('active', el.dataset.route === route || (route === 'technique' && el.dataset.route === 'home'));
-  });
-}
-
-// ── Crumbs ───────────────────────────────────────────────────
-function setCrumbs(html) {
-  const el = $('#topbar-crumbs');
-  if (el) el.innerHTML = html;
-}
-
-// ── Code block helper ────────────────────────────────────────
-function codeBlock(text, id, label) {
-  return `<div class="code-wrap">
-    <div class="code-header">
-      <span>${esc(label)}</span>
-      <button class="copy-btn" data-copy="${esc(id)}">Copy</button>
-    </div>
-    <pre><code id="${esc(id)}">${esc(text)}</code></pre>
-  </div>`;
-}
-function mountCopyBtns(root = document) {
-  root.querySelectorAll('[data-copy]').forEach(btn => {
-    btn.onclick = async () => {
-      const el = document.getElementById(btn.dataset.copy);
-      if (!el) return;
-      try {
-        await navigator.clipboard.writeText(el.textContent);
-        btn.textContent = 'Copied!';
-        setTimeout(() => btn.textContent = 'Copy', 1800);
-      } catch {
-        const sel = window.getSelection(), r = document.createRange();
-        r.selectNodeContents(el); sel.removeAllRanges(); sel.addRange(r);
-        btn.textContent = 'Select to copy';
-      }
-    };
-  });
-}
-
-// ── Home / Catalogue ─────────────────────────────────────────
-function renderHome() {
-  setActiveNav('home');
-  setCrumbs('<span>Catalogue</span>');
-  const atlasIds = [...new Set(records.map(r => r.atlas_id).filter(Boolean))];
-  const activeCount = records.filter(r => r.status === 'Active').length;
-  const labCount = records.filter(r => r.lab).length;
-
-  $('#main').innerHTML = `
-    <div class="catalogue-header">
-      <h1 class="catalogue-title">AI attack <em>technique</em> reference</h1>
-      <p class="catalogue-lead">GTFOBins for LLMs — specific payloads, reproducible steps, MITRE ATLAS and OWASP LLM 2025 mappings. Security through openness.</p>
-      <div class="kerckhoff-note">
-        <span class="kerckhoff-icon">🔓</span>
-        <div><strong>Kerckhoff's principle:</strong> every technique here works even when defenders know about it. Publishing techniques is a feature — it lets you test your own systems before attackers do.</div>
-      </div>
-      <div class="stats-strip">
-        <div class="stat-chip"><span class="stat-chip-num accent">${records.length}</span><span class="stat-chip-label">Techniques</span></div>
-        <div class="stat-chip"><span class="stat-chip-num danger">${activeCount}</span><span class="stat-chip-label">Active status</span></div>
-        <div class="stat-chip"><span class="stat-chip-num">${atlasIds.length}</span><span class="stat-chip-label">ATLAS techniques</span></div>
-        <div class="stat-chip"><span class="stat-chip-num accent">${labCount}</span><span class="stat-chip-label">Lab scenarios</span></div>
-      </div>
-    </div>
-
-    <div class="filter-bar">
-      <input class="filter-input" type="search" id="search" placeholder="Search ID, title, CVE, researcher, target…" aria-label="Search techniques" autocomplete="off">
-      <select class="filter-select" id="atlas-filter" aria-label="Filter ATLAS">
-        <option value="All">All ATLAS</option>
-        <option value="None">Not mapped</option>
-        ${atlasIds.map(x => `<option>${esc(x)}</option>`).join('')}
-      </select>
-      <select class="filter-select" id="owasp-filter" aria-label="Filter OWASP">
-        <option value="All">All OWASP</option>
-        ${Object.entries(OWASP).map(([k,v]) => `<option value="${k}">${k} · ${esc(v.name)}</option>`).join('')}
-      </select>
-      <select class="filter-select" id="severity-filter" aria-label="Filter severity">
-        <option value="All">All severities</option>
-        ${['Critical','High','Medium','Low','Not assessed'].map(x => `<option>${esc(x)}</option>`).join('')}
-      </select>
-      <select class="filter-select" id="status-filter" aria-label="Filter status">
-        <option value="All">All statuses</option>
-        ${['Active','Partially-patched','Model-dependent','Historic','Unverified'].map(x => `<option>${esc(x)}</option>`).join('')}
-      </select>
-      <span class="filter-count" id="found"></span>
-    </div>
-
-    <div class="owasp-row">
-      ${Object.entries(OWASP).map(([k]) => `<button class="owasp-chip" data-owasp="${k}">${k}</button>`).join('')}
-      <button class="owasp-chip" data-owasp="All">Clear</button>
-    </div>
-
-    <div class="technique-list" id="list"></div>
-    <p class="empty-state" id="empty" hidden>No matching techniques. Try clearing filters or press <kbd>/</kbd> to search.</p>
-  `;
-
-  $('#search').oninput = e => { filter.q = e.target.value; renderList(); };
-  $('#atlas-filter').onchange = e => { filter.atlas = e.target.value; renderList(); };
-  $('#owasp-filter').onchange = e => { filter.owasp = e.target.value; renderList(); };
-  $('#severity-filter').onchange = e => { filter.severity = e.target.value; renderList(); };
-  $('#status-filter').onchange = e => { filter.status = e.target.value; renderList(); };
-  $$('[data-owasp]').forEach(btn => btn.onclick = () => {
-    filter.owasp = btn.dataset.owasp;
-    $('#owasp-filter').value = btn.dataset.owasp;
-    $$('[data-owasp]').forEach(b => b.classList.toggle('active', b.dataset.owasp === filter.owasp && filter.owasp !== 'All'));
-    renderList();
-  });
-  renderList();
-}
-
-function renderList() {
-  const list = records.filter(r =>
-    (filter.atlas === 'All' || (filter.atlas === 'None' ? !r.atlas_id : r.atlas_id === filter.atlas)) &&
-    (filter.owasp === 'All' || r.owasp_ids.includes(filter.owasp)) &&
-    (filter.severity === 'All' || (filter.severity === 'Not assessed' ? !r.severity : r.severity === filter.severity)) &&
-    (filter.status === 'All' || r.status === filter.status) &&
-    [r.id, r.title, r.target, r.researcher, r.cve, r.category, r.atlas_id, r.mechanism].join(' ')
-      .toLowerCase().includes(filter.q.toLowerCase())
-  );
-  const el = $('#list'), empty = $('#empty'), found = $('#found');
-  if (!el) return;
-  if (found) found.textContent = `${list.length} / ${records.length} techniques`;
-  if (!list.length) { el.innerHTML = ''; if (empty) empty.hidden = false; return; }
-  if (empty) empty.hidden = true;
-  el.innerHTML = list.map(r => {
-    const catShort = (r.category || '').split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase();
-    return `<a class="technique-row${r.lab ? ' has-lab' : ''}" href="#/technique/${esc(r.id)}">
-      <div class="tr-id">
-        <span class="tr-id-text">${esc(r.id)}</span>
-        <span class="tr-id-cat">${esc(catShort)}</span>
-      </div>
-      <div class="tr-body">
-        <div class="tr-title">${esc(r.title)}</div>
-        <div class="tr-mechanism">${esc(r.mechanism || r.observed || '')}</div>
-        <div class="tr-pills">
-          ${statusPill(r.status)}
-          ${severityPill(r.severity)}
-          ${r.atlas_id ? `<span class="pill pill-atlas">${esc(r.atlas_id)}</span>` : ''}
-          ${(r.owasp_ids || []).slice(0,3).map(k => `<span class="pill pill-owasp">${esc(k)}</span>`).join('')}
-          ${r.cve ? cvePill(r.cve) : ''}
-        </div>
-      </div>
-      <div class="tr-actions">
-        <span class="tr-target">${esc(r.target)}</span>
-        ${r.lab ? '<span class="tr-lab-badge">▶ Lab</span>' : ''}
-      </div>
-    </a>`;
-  }).join('');
-}
-
-// ── Detail page ───────────────────────────────────────────────
-function detail(id, variantIdx = 0, activeTab = 'reference') {
-  const r = records.find(x => x.id === id);
-  if (!r) { location.hash = '#/'; return; }
-  trackRecent(id);
-  setActiveNav('technique');
-  setCrumbs(`<a href="#/">Catalogue</a><span class="topbar-crumb-sep">/</span><span>${esc(r.id)}</span>`);
-
-  const v = r.variants?.[variantIdx] || r;
-  const tabs = [
-    {id:'reference', label:'Reference'},
-    {id:'lab', label:'Lab', hidden: !r.lab},
-    {id:'intel', label:'Intel'},
-  ];
-
-  $('#main').innerHTML = `
-    <div class="detail-wrap">
-      <div class="detail-hero">
-        <div class="detail-eyebrow">
-          <span class="pill pill-atlas">${esc(r.atlas_id || 'ATLAS not mapped')}</span>
-          ${(r.owasp_ids || []).map(k => `<span class="pill pill-owasp">${esc(k)}</span>`).join('')}
-        </div>
-        <h1 class="detail-title">${esc(r.title)}</h1>
-        <p style="color:var(--muted);font-size:15px;max-width:720px;margin:0 0 14px">${esc(r.mechanism || r.observed || '')}</p>
-        <div class="detail-actions">
-          ${statusPill(r.status || 'Unverified')}
-          ${severityPill(r.severity)}
-          ${r.cve ? cvePill(r.cve) : ''}
-          ${r.lab ? `<a class="btn-primary" href="#/lab/${esc(r.id)}">▶ Open in Lab</a>` : ''}
-          <button class="btn-secondary" id="copy-link-btn">⎋ Copy link</button>
-        </div>
-      </div>
-
-      <div class="detail-tabs" role="tablist">
-        ${tabs.filter(t => !t.hidden).map(t =>
-          `<button class="detail-tab${t.id === activeTab ? ' active' : ''}" role="tab" data-tab="${t.id}">${t.label}</button>`
-        ).join('')}
-      </div>
-
-      <!-- Reference tab -->
-      <div class="detail-panel${activeTab === 'reference' ? ' active' : ''}" id="tab-reference">
-        <div class="detail-columns">
-          <article>
-            ${r.variants?.length > 1 ? `
-              <div class="panel">
-                <h2>Variants</h2>
-                <div class="variant-tabs" role="group">
-                  ${r.variants.map((v2, i) => `<button class="variant-tab${i === variantIdx ? ' active' : ''}" data-variant="${i}">${esc(v2.name)}</button>`).join('')}
-                </div>
-              </div>
-            ` : ''}
-            <div class="panel">
-              <h2>1 · Copy the payload</h2>
-              <p>${esc(v.placement || r.placement || '')}</p>
-              ${codeBlock(v.payload || r.payload || '', 'payload', 'Test payload — copy into your authorised target')}
-              <div class="note-block">${esc(r.payload_note || '')}</div>
-              <div class="note-block warn" style="margin-top:8px"><strong>Provenance:</strong> ${esc(r.payload_origin || v.provenance || '')}</div>
-            </div>
-            <div class="panel">
-              <h2>2 · Apply the test</h2>
-              <p>${esc(r.test_scope || '')}</p>
-              <ol class="checklist">
-                ${(v.steps || r.test_steps || []).map(s => `<li>${esc(s)}</li>`).join('')}
-              </ol>
-            </div>
-            <div class="panel">
-              <h2>3 · Expected evidence</h2>
-              <p>${esc(v.expected || r.expected_test || '')}</p>
-              <div class="note-block">Capture request, response, model version and timestamp. Compare with a clean control that omits the payload.</div>
-            </div>
-          </article>
-          <aside>
-            <div class="aside-sticky">
-              <div class="aside-panel">
-                <h3>MITRE ATLAS</h3>
-                ${r.atlas_id ? `
-                  <p><strong>${esc(r.atlas_id)}</strong> · ${esc(r.atlas_name || '')}</p>
-                  <p style="margin-top:8px">${link(`https://atlas.mitre.org/techniques/${encodeURIComponent(r.atlas_id)}/`, 'Open in ATLAS')}</p>
-                  <p style="margin-top:6px;font-size:12px">${esc(r.atlas_reason || '')}</p>
-                ` : '<p>No ATLAS technique assigned.</p>'}
-              </div>
-              <div class="aside-panel">
-                <h3>OWASP LLM 2025</h3>
-                <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px">
-                  ${(r.owasp_ids || []).map(k => owaspPill(k)).join('')}
-                </div>
-                ${(r.owasp_ids || []).map(k => OWASP[k] ? `<p>${link(OWASP[k].url, k + ': ' + OWASP[k].name)}</p>` : '').join('')}
-              </div>
-              <div class="aside-panel">
-                <h3>Quick facts</h3>
-                <p><strong>Target:</strong> ${esc(r.target)}</p>
-                <p><strong>Surface:</strong> ${esc(r.attack_surface || '')}</p>
-                <p><strong>Status:</strong> ${esc(r.status || 'Unverified')}</p>
-                <p><strong>Verified:</strong> ${esc(r.last_verified || 'Not yet')}</p>
-                ${r.cve ? `<p><strong>CVE:</strong> ${link('https://nvd.nist.gov/vuln/detail/' + encodeURIComponent(r.cve), r.cve)}</p>` : ''}
-              </div>
-              <div class="aside-panel">
-                <h3>Contribute</h3>
-                <p>${link('https://github.com/AIHACKBins/AIHACKBins/issues/new', 'Suggest a correction')}</p>
-              </div>
-            </div>
-          </aside>
-        </div>
-      </div>
-
-      <!-- Lab tab (inline) -->
-      <div class="detail-panel${activeTab === 'lab' ? ' active' : ''}" id="tab-lab">
-        ${r.lab ? `<div id="inline-lab-host"></div>` : '<p class="empty-state">No lab scenario for this technique.</p>'}
-      </div>
-
-      <!-- Intel tab -->
-      <div class="detail-panel${activeTab === 'intel' ? ' active' : ''}" id="tab-intel">
-        <div class="detail-columns">
-          <article>
-            <div class="panel">
-              <h2>Original research</h2>
-              <p><strong>Researcher:</strong> ${esc(r.researcher)}</p>
-              <p><strong>Context:</strong> ${esc(r.research_context || r.target)}</p>
-              <p style="margin-top:10px">${esc(r.observed || '')}</p>
-              <p style="margin-top:10px">${link(r.source_url, 'Read original disclosure')}</p>
-              ${(r.related_research || []).map(x => `<p>${link(x.url, x.label)}</p>`).join('')}
-            </div>
-            <div class="panel">
-              <h2>Defence</h2>
-              <p>${esc(r.defense || '')}</p>
-            </div>
-            <div class="panel" style="border-left:3px solid var(--atlas)">
-              <h2>Defender notes</h2>
-              <p>${esc(r.blue_team || 'No specific detection guidance supplied.')}</p>
-            </div>
-            <div class="panel">
-              <h2>Model compatibility</h2>
-              ${r.model_tested?.length ? `
-                <div style="overflow-x:auto">
-                  <table class="model-table">
-                    <thead><tr><th>Model</th><th>Version</th><th>Result</th></tr></thead>
-                    <tbody>${r.model_tested.map(t => `<tr><td>${esc(t.model)}</td><td>${esc(t.version)}</td><td>${esc(t.result)}</td></tr>`).join('')}</tbody>
-                  </table>
-                </div>
-              ` : '<p>Not independently verified against a specific model version.</p>'}
-              <p style="font-family:var(--mono);font-size:11px;margin-top:8px;color:var(--dim)">Last verified: ${esc(r.last_verified || 'Not verified')}</p>
-            </div>
-            <div class="panel">
-              <h2>Related techniques</h2>
-              <div class="related-grid">
-                ${(r.related_ids || []).map(rid => {
-                  const t = records.find(q => q.id === rid);
-                  return t ? `<a class="related-pill" href="#/technique/${esc(rid)}">${esc(rid)} · ${esc(t.title)}</a>` : '';
-                }).join('') || '<p>No linked techniques yet.</p>'}
-              </div>
-            </div>
-          </article>
-          <aside>
-            <div class="aside-sticky">
-              <div class="aside-panel">
-                <h3>Validation</h3>
-                <p>${esc(r.evidence_level || '')}</p>
-                <p style="margin-top:6px">${esc(r.reproduction_status || '')}</p>
-              </div>
-              <div class="aside-panel">
-                <h3>Entry type</h3>
-                <p>${esc(r.entry_kind || r.type || '')}</p>
-              </div>
-            </div>
-          </aside>
-        </div>
-      </div>
-    </div>
-  `;
-
-  // Tabs
-  $$('.detail-tab').forEach(btn => btn.onclick = () => {
-    $$('.detail-tab').forEach(b => b.classList.remove('active'));
-    $$('.detail-panel').forEach(p => p.classList.remove('active'));
-    btn.classList.add('active');
-    $(`#tab-${btn.dataset.tab}`)?.classList.add('active');
-    if (btn.dataset.tab === 'lab' && r.lab && $('#inline-lab-host')) {
-      window.AIHACKBinsLab?.renderInline(r, $('#inline-lab-host'));
+    const searchEl = document.getElementById('sidebar-search');
+    if (searchEl) {
+      searchEl.addEventListener('input', () => {
+        searchQuery = searchEl.value.trim().toLowerCase();
+        filteredRecords = searchQuery
+          ? allRecords.filter(r =>
+              r.id.toLowerCase().includes(searchQuery) ||
+              (r.title || '').toLowerCase().includes(searchQuery) ||
+              (r.target || '').toLowerCase().includes(searchQuery) ||
+              (r.tags || []).some(t => t.toLowerCase().includes(searchQuery)) ||
+              (r.atlas_id || '').toLowerCase().includes(searchQuery) ||
+              (r.owasp_ids || []).some(o => o.toLowerCase().includes(searchQuery))
+            )
+          : allRecords;
+        const h = location.hash.replace('#/', '') || '';
+        if (!h || h === '/') renderCatalogue();
+      });
     }
   });
 
-  // Variant tabs
-  $$('[data-variant]').forEach(btn => btn.onclick = () => detail(id, Number(btn.dataset.variant), 'reference'));
+  // ── Router ─────────────────────────────────────────────────────────────────
+  function route() {
+    const raw = location.hash.replace(/^#\/?/, '');
+    const parts = raw.split('/');
+    const view = parts[0] || '';
+    const sub  = parts[1] ? decodeURIComponent(parts[1]) : null;
 
-  // Copy link
-  $('#copy-link-btn')?.addEventListener('click', async () => {
-    const url = location.href.split('#')[0] + '#/technique/' + encodeURIComponent(id);
-    try { await navigator.clipboard.writeText(url); $('#copy-link-btn').textContent = 'Copied!'; setTimeout(() => $('#copy-link-btn').textContent = '⎋ Copy link', 1800); }
-    catch { $('#copy-link-btn').textContent = 'Copy failed'; }
-  });
+    document.querySelectorAll('.nav-link').forEach(a => {
+      const r = a.dataset.route || '';
+      a.classList.toggle('active',
+        r === 'home'   ? view === '' :
+        r === 'lab'    ? view === 'lab' :
+        r === 'chains' ? view === 'chains' :
+        r === 'api'    ? view === 'api' : false
+      );
+    });
 
-  // If lab tab was opened directly
-  if (activeTab === 'lab' && r.lab && $('#inline-lab-host')) {
-    window.AIHACKBinsLab?.renderInline(r, $('#inline-lab-host'));
+    if (view === '') {
+      setBreadcrumb([{label:'Catalogue'}]);
+      renderCatalogue();
+    } else if (view === 'technique' && sub) {
+      setBreadcrumb([{label:'Catalogue', href:'#/'}, {label: sub}]);
+      renderDetail(sub);
+    } else if (view === 'lab') {
+      setBreadcrumb(sub
+        ? [{label:'Catalogue', href:'#/'}, {label:'Lab', href:'#/lab'}, {label: sub}]
+        : [{label:'Catalogue', href:'#/'}, {label:'Lab'}]
+      );
+      if (window.AIHACKBinsLab) window.AIHACKBinsLab.render(sub || null);
+    } else if (view === 'chains') {
+      setBreadcrumb([{label:'Catalogue', href:'#/'}, {label:'Attack chains'}]);
+      renderChains();
+    } else if (view === 'api') {
+      setBreadcrumb([{label:'Catalogue', href:'#/'}, {label:'API / data'}]);
+      renderApi();
+    } else {
+      setBreadcrumb([{label:'404'}]);
+      document.getElementById('main').innerHTML = '<p style="padding:32px">Not found.</p>';
+    }
   }
 
-  mountCopyBtns();
-}
+  // ── Theme ──────────────────────────────────────────────────────────────────
+  function initTheme() {
+    const saved = localStorage.getItem('aihb-theme') || 'light';
+    document.documentElement.dataset.theme = saved;
+    updateThemeBtns(saved);
 
-// ── Chains ────────────────────────────────────────────────────
-function renderChains() {
-  setActiveNav('chains');
-  setCrumbs(`<a href="#/">Catalogue</a><span class="topbar-crumb-sep">/</span><span>Attack chains</span>`);
-  $('#main').innerHTML = `
-    <div class="chains-header">
-      <h1>Attack chains</h1>
-      <p>Curated multi-step sequences combining techniques. Each step links to a technique entry. These are not verified end-to-end exploits.</p>
-    </div>
-    ${chains.map(ch => `
-      <div class="chain-card">
-        <h2>${esc(ch.title)}</h2>
-        <p>${esc(ch.description)}</p>
-        <div class="chain-steps">
-          ${ch.steps.map((sid, i) => {
-            const t = records.find(x => x.id === sid);
-            return `<div class="chain-node">
-              ${i ? '<span class="chain-arr">→</span>' : ''}
-              <a class="chain-link" href="#/technique/${esc(sid)}">
-                <small>${esc(sid)}</small>
-                <strong>${esc(t?.title || 'Unknown technique')}</strong>
-              </a>
-            </div>`;
-          }).join('')}
-        </div>
-      </div>
-    `).join('') || '<p class="empty-state">No chains defined yet.</p>'}
-  `;
-}
-
-// ── API page ──────────────────────────────────────────────────
-function renderApi() {
-  setActiveNav('api');
-  setCrumbs(`<a href="#/">Catalogue</a><span class="topbar-crumb-sep">/</span><span>API</span>`);
-  $('#main').innerHTML = `
-    <div class="api-header">
-      <h1>Static JSON API</h1>
-      <p>No authentication, no backend. Data updates with every deployment. MIT licensed.</p>
-    </div>
-    <div class="panel">
-      <h2>Endpoints</h2>
-      <p><a class="external" href="data/cases.json">data/cases.json</a> — technique records (${records.length} entries)</p>
-      <p><a class="external" href="data/changelog.json">data/changelog.json</a> — recent updates</p>
-      <p><a class="external" href="data/chains.json">data/chains.json</a> — attack chains</p>
-      <p><a class="external" href="feed.xml">feed.xml</a> — Atom updates feed</p>
-    </div>
-    <div class="panel">
-      <h2>CLI examples</h2>
-      ${codeBlock('curl -fsSL https://aihackbins.org/data/cases.json | jq \'.[] | {id,title,owasp_ids,atlas_id}\'', 'api1', 'List all technique IDs with mappings')}
-      ${codeBlock('curl -fsSL https://aihackbins.org/data/cases.json | jq -r \'.[] | select(.atlas_id == "AML.T0051.001") | .title\'', 'api2', 'Filter by ATLAS technique')}
-      ${codeBlock('curl -fsSL https://aihackbins.org/data/cases.json | jq \'.[] | select(.status == "Active") | {id,title,cve}\'', 'api3', 'Active status techniques only')}
-      ${codeBlock('curl -fsSL https://aihackbins.org/data/cases.json | jq \'.[] | select(.lab != null) | .id\'', 'api4', 'Techniques with lab scenarios')}
-    </div>
-    ${mountCopyBtns.toString().includes('return') ? '' : ''}
-  `;
-  mountCopyBtns();
-}
-
-// ── Lab page (list view) ──────────────────────────────────────
-function renderLabList() {
-  setActiveNav('lab');
-  setCrumbs(`<a href="#/">Catalogue</a><span class="topbar-crumb-sep">/</span><span>Lab</span>`);
-  window.AIHACKBinsLab?.render(null);
-}
-
-// ── Router ────────────────────────────────────────────────────
-function route() {
-  const path = decodeURIComponent(location.hash.replace(/^#\/?/, ''));
-  if (path.startsWith('technique/')) detail(path.slice(10));
-  else if (path.startsWith('lab/')) window.AIHACKBinsLab?.render(path.slice(4));
-  else if (path === 'lab') renderLabList();
-  else if (path === 'chains') renderChains();
-  else if (path === 'api') renderApi();
-  else renderHome();
-  window.scrollTo(0, 0);
-}
-
-// ── Keyboard shortcut ─────────────────────────────────────────
-document.addEventListener('keydown', e => {
-  if (e.key === '/' && !['INPUT','TEXTAREA'].includes(document.activeElement.tagName)) {
-    e.preventDefault();
-    const s = $('#search') || $('#sidebar-search');
-    if (s) { s.focus(); s.select(); }
+    ['theme-btn', 'theme-btn-top'].forEach(id => {
+      const btn = document.getElementById(id);
+      if (!btn) return;
+      btn.addEventListener('click', () => {
+        const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+        document.documentElement.dataset.theme = next;
+        localStorage.setItem('aihb-theme', next);
+        updateThemeBtns(next);
+      });
+    });
   }
-});
 
-// ── Sidebar search routes to catalogue ───────────────────────
-$('#sidebar-search')?.addEventListener('input', e => {
-  const val = e.target.value;
-  const path = decodeURIComponent(location.hash.replace(/^#\/?/, ''));
-  if (!path.startsWith('technique/') && path !== 'chains' && path !== 'api' && !path.startsWith('lab')) {
-    if ($('#search')) { $('#search').value = val; filter.q = val; renderList(); }
-    else { location.hash = '#/'; setTimeout(() => { const s = $('#search'); if (s) { s.value = val; filter.q = val; renderList(); } }, 50); }
+  function updateThemeBtns(theme) {
+    ['theme-btn', 'theme-btn-top'].forEach(id => {
+      const btn = document.getElementById(id);
+      if (btn) btn.textContent = theme === 'dark' ? 'light' : 'dark';
+    });
   }
-});
 
-// ── Bootstrap ─────────────────────────────────────────────────
-addEventListener('hashchange', route);
+  // ── Sidebar ────────────────────────────────────────────────────────────────
+  function initSidebar() {
+    const menuBtn   = document.getElementById('menu-btn');
+    const closeBtn  = document.getElementById('sidebar-close');
+    const overlay   = document.getElementById('overlay');
+    const sidebar   = document.getElementById('sidebar');
 
-Promise.all([
-  'data/cases.json',
-  'data/changelog.json',
-  'data/chains.json',
-].map(url => fetch(url, {cache:'no-cache'}).then(r => { if (!r.ok) throw Error('HTTP ' + r.status); return r.json(); })))
-.then(([data, log, paths]) => {
-  if (!Array.isArray(data) || !data.length) throw Error('Catalogue invalid');
-  records = data;
-  changes = log.sort((a, b) => b.date.localeCompare(a.date));
-  chains = paths;
+    function open()  { sidebar.classList.add('open'); overlay.classList.add('open'); document.body.style.overflow='hidden'; }
+    function close() { sidebar.classList.remove('open'); overlay.classList.remove('open'); document.body.style.overflow=''; }
 
-  // Init lab
-  window.AIHACKBinsLab?.init(data);
+    if (menuBtn)  menuBtn.addEventListener('click', open);
+    if (closeBtn) closeBtn.addEventListener('click', close);
+    if (overlay)  overlay.addEventListener('click', close);
+  }
 
-  // Sidebar stats
-  const statsEl = $('#sidebar-stats');
-  if (statsEl) statsEl.innerHTML =
-    `${records.length} techniques<br>${records.filter(r => r.lab).length} lab scenarios<br>${records.filter(r => r.status === 'Active').length} active`;
+  // ── Sidebar stats / recent ─────────────────────────────────────────────────
+  function renderStats() {
+    const el = document.getElementById('sidebar-stats');
+    if (!el) return;
+    const active = allRecords.filter(r => r.status === 'Active').length;
+    el.innerHTML =
+      '<div class="sidebar-stats-inner">' +
+        '<span>' + allRecords.length + ' techniques</span>' +
+        '<span>' + active + ' active</span>' +
+        '<span>' + labCount + ' labs</span>' +
+      '</div>';
+  }
 
-  // Lab nav badge
-  const labBadge = $('#lab-count');
-  if (labBadge) labBadge.textContent = records.filter(r => r.lab).length;
+  function renderRecent() {
+    const el = document.getElementById('sidebar-recent');
+    if (!el) return;
+    const recent = allRecords.slice(0, 5);
+    el.innerHTML =
+      '<div class="sidebar-recent-head">Recent</div>' +
+      recent.map(r =>
+        '<a class="sidebar-recent-link" href="#/technique/' + encodeURIComponent(r.id) + '">' +
+          '<span class="srlink-id">' + esc(r.id) + '</span> ' +
+          '<span class="srlink-title">' + esc(r.title || '') + '</span>' +
+        '</a>'
+      ).join('');
+  }
 
-  renderSidebarRecent();
-  route();
-})
-.catch(e => {
-  $('#main').innerHTML = `<div class="panel"><h2>Failed to load catalogue</h2><p>Check that data/cases.json is deployed correctly.</p><pre>${esc(String(e))}</pre></div>`;
-  console.error(e);
-});
+  // ── Breadcrumb ─────────────────────────────────────────────────────────────
+  function setBreadcrumb(crumbs) {
+    const el = document.getElementById('breadcrumb');
+    if (!el) return;
+    el.innerHTML = crumbs.map((c, i) =>
+      i < crumbs.length - 1 && c.href
+        ? '<a href="' + c.href + '">' + esc(c.label) + '</a><span class="bc-sep">/</span>'
+        : '<span>' + esc(c.label) + '</span>'
+    ).join('');
+  }
+
+  // ── Catalogue ──────────────────────────────────────────────────────────────
+  function renderCatalogue() {
+    const main = document.getElementById('main');
+    const records = filteredRecords;
+
+    const cats = {};
+    records.forEach(r => {
+      const cat = r.category || 'Uncategorised';
+      if (!cats[cat]) cats[cat] = [];
+      cats[cat].push(r);
+    });
+
+    let html =
+      '<div class="cat-head">' +
+        '<h1 class="cat-title">AIHACKBins</h1>' +
+        '<p class="cat-lead">GTFOBins for AI/LLM attack techniques. Practical payloads mapped to MITRE ATLAS and OWASP LLM Top 10 2025.</p>' +
+        '<p class="kerck-note">Each technique follows Kerckhoff\'s principle: the technique works even when the target knows about it. Use against systems you own or have authorisation to test.</p>' +
+      '</div>';
+
+    if (searchQuery && records.length === 0) {
+      html += '<p class="empty-state">No techniques match "' + esc(searchQuery) + '".</p>';
+    }
+
+    Object.entries(cats).forEach(([cat, rows]) => {
+      html +=
+        '<div class="cat-section">' +
+          '<div class="cat-section-head">' + esc(cat) + '</div>' +
+          '<table class="tech-table">' +
+            '<thead><tr>' +
+              '<th class="th-id">ID</th>' +
+              '<th class="th-title">Technique</th>' +
+              '<th class="th-target">Target</th>' +
+              '<th class="th-atlas">ATLAS</th>' +
+              '<th class="th-owasp">OWASP</th>' +
+              '<th class="th-status">Status</th>' +
+              '<th class="th-lab">Lab</th>' +
+            '</tr></thead>' +
+            '<tbody>' +
+              rows.map(r => techRow(r)).join('') +
+            '</tbody>' +
+          '</table>' +
+        '</div>';
+    });
+
+    main.innerHTML = html;
+
+    main.querySelectorAll('.tech-row').forEach(row => {
+      row.addEventListener('click', () => {
+        location.hash = '#/technique/' + encodeURIComponent(row.dataset.id);
+      });
+    });
+  }
+
+  function techRow(r) {
+    const statusClass = {
+      'Active':'s-active', 'Partial':'s-partial', 'Historic':'s-historic',
+      'Model-dependent':'s-modeldep', 'Unverified':'s-unverif'
+    }[r.status] || 's-unverif';
+
+    return '<tr class="tech-row" data-id="' + esc(r.id) + '" tabindex="0">' +
+      '<td class="td-id">' + esc(r.id) + '</td>' +
+      '<td class="td-title">' + esc(r.title || '') + '</td>' +
+      '<td class="td-target">' + esc(r.target || '') + '</td>' +
+      '<td class="td-atlas">' + esc(r.atlas_id || '') + '</td>' +
+      '<td class="td-owasp">' +
+        (r.owasp_ids || []).slice(0, 2).map(o => '<span class="pill pill-owasp">' + esc(o) + '</span>').join(' ') +
+      '</td>' +
+      '<td class="td-status ' + statusClass + '">' + esc(r.status || '') + '</td>' +
+      '<td class="td-lab">' + (r.lab ? '<span class="lab-dot" title="Lab available">●</span>' : '') + '</td>' +
+    '</tr>';
+  }
+
+  // ── Detail ─────────────────────────────────────────────────────────────────
+  function renderDetail(id) {
+    const r = allRecords.find(rec => rec.id === id);
+    const main = document.getElementById('main');
+    if (!r) {
+      main.innerHTML = '<p style="padding:32px">Technique not found: ' + esc(id) + '</p>';
+      return;
+    }
+
+    const statusClass = {
+      'Active':'s-active', 'Partial':'s-partial', 'Historic':'s-historic',
+      'Model-dependent':'s-modeldep', 'Unverified':'s-unverif'
+    }[r.status] || 's-unverif';
+
+    const hasPoc = r.poc_steps && r.poc_steps.length;
+    const hasDefence = r.defences && r.defences.length;
+    const hasReferences = r.references && r.references.length;
+    const hasLab = !!r.lab;
+
+    main.innerHTML =
+      '<div class="detail">' +
+        '<div class="detail-head">' +
+          '<div class="detail-head-top">' +
+            '<span class="d-id">' + esc(r.id) + '</span>' +
+            (r.status ? '<span class="d-status ' + statusClass + '">' + esc(r.status) + '</span>' : '') +
+          '</div>' +
+          '<h1 class="d-title">' + esc(r.title || '') + '</h1>' +
+          '<div class="d-meta">' +
+            (r.target ? '<span class="d-target">' + esc(r.target) + '</span>' : '') +
+            (r.category ? '<span class="d-cat">' + esc(r.category) + '</span>' : '') +
+          '</div>' +
+          '<div class="d-pills">' +
+            (r.atlas_id
+              ? '<a class="pill pill-atlas" href="https://atlas.mitre.org/techniques/' + encodeURIComponent(r.atlas_id) + '/" target="_blank" rel="noopener">' +
+                  esc(r.atlas_id) + (r.atlas_name ? ' — ' + esc(r.atlas_name) : '') + ' ↗' +
+                '</a>'
+              : '') +
+            (r.owasp_ids || []).map(o =>
+              '<span class="pill pill-owasp">' + esc(o) + '</span>'
+            ).join('') +
+            (r.tags || []).map(t =>
+              '<span class="pill pill-tag">' + esc(t) + '</span>'
+            ).join('') +
+          '</div>' +
+        '</div>' +
+
+        '<div class="dtab-bar" role="tablist">' +
+          '<button class="dtab active" data-tab="overview" role="tab">Overview</button>' +
+          (hasPoc ? '<button class="dtab" data-tab="poc" role="tab">Proof of Concept</button>' : '') +
+          (hasDefence ? '<button class="dtab" data-tab="defence" role="tab">Defence</button>' : '') +
+          (hasReferences ? '<button class="dtab" data-tab="references" role="tab">References</button>' : '') +
+          (hasLab ? '<button class="dtab" data-tab="lab" role="tab">Lab</button>' : '') +
+        '</div>' +
+
+        '<div class="d-cols">' +
+          '<div class="d-main">' +
+
+            '<div class="dpanel active" data-panel="overview">' +
+              '<div class="d-section">' +
+                '<h2>Summary</h2>' +
+                '<p>' + esc(r.summary || '') + '</p>' +
+              '</div>' +
+              (r.description
+                ? '<div class="d-section"><h2>Description</h2><p>' + esc(r.description) + '</p></div>'
+                : '') +
+              (r.real_world_cases && r.real_world_cases.length
+                ? '<div class="d-section"><h2>Real-world cases</h2><ul class="d-list">' +
+                    r.real_world_cases.map(c => '<li>' + esc(c) + '</li>').join('') +
+                  '</ul></div>'
+                : '') +
+            '</div>' +
+
+            (hasPoc
+              ? '<div class="dpanel" data-panel="poc">' +
+                  '<div class="d-section">' +
+                    '<h2>Steps</h2>' +
+                    '<ol class="d-list">' +
+                      r.poc_steps.map(s => '<li>' + esc(s) + '</li>').join('') +
+                    '</ol>' +
+                  '</div>' +
+                  (r.payload_example
+                    ? '<div class="d-section"><h2>Payload example</h2>' +
+                        '<pre><code>' + esc(r.payload_example) + '</code></pre>' +
+                      '</div>'
+                    : '') +
+                '</div>'
+              : '') +
+
+            (hasDefence
+              ? '<div class="dpanel" data-panel="defence">' +
+                  '<div class="d-section">' +
+                    '<h2>Mitigations</h2>' +
+                    '<ul class="d-list">' +
+                      r.defences.map(d => '<li>' + esc(d) + '</li>').join('') +
+                    '</ul>' +
+                  '</div>' +
+                '</div>'
+              : '') +
+
+            (hasReferences
+              ? '<div class="dpanel" data-panel="references">' +
+                  '<div class="d-section">' +
+                    '<h2>References</h2>' +
+                    '<ul class="d-list">' +
+                      r.references.map(ref =>
+                        '<li>' + (ref.url
+                          ? '<a href="' + esc(ref.url) + '" target="_blank" rel="noopener">' + esc(ref.title || ref.url) + ' ↗</a>'
+                          : esc(ref.title || ref)) + '</li>'
+                      ).join('') +
+                    '</ul>' +
+                  '</div>' +
+                '</div>'
+              : '') +
+
+            (hasLab
+              ? '<div class="dpanel" data-panel="lab"><div id="lab-inline-host"></div></div>'
+              : '') +
+
+          '</div>' +
+          '<aside class="d-aside">' +
+            '<div class="d-aside-section">' +
+              '<h3>Mappings</h3>' +
+              (r.atlas_id
+                ? '<div class="d-aside-row">' +
+                    '<span class="d-aside-lbl">ATLAS</span>' +
+                    '<a href="https://atlas.mitre.org/techniques/' + encodeURIComponent(r.atlas_id) + '/" target="_blank" rel="noopener" class="d-aside-val">' + esc(r.atlas_id) + ' ↗</a>' +
+                  '</div>'
+                : '') +
+              (r.owasp_ids && r.owasp_ids.length
+                ? '<div class="d-aside-row">' +
+                    '<span class="d-aside-lbl">OWASP</span>' +
+                    '<span class="d-aside-val">' + r.owasp_ids.map(o => esc(o)).join(', ') + '</span>' +
+                  '</div>'
+                : '') +
+            '</div>' +
+            '<div class="d-aside-section">' +
+              '<h3>Details</h3>' +
+              (r.severity
+                ? '<div class="d-aside-row"><span class="d-aside-lbl">Severity</span><span class="d-aside-val sev-' + esc((r.severity||'').toLowerCase()) + '">' + esc(r.severity) + '</span></div>'
+                : '') +
+              (r.target
+                ? '<div class="d-aside-row"><span class="d-aside-lbl">Target</span><span class="d-aside-val">' + esc(r.target) + '</span></div>'
+                : '') +
+              (r.status
+                ? '<div class="d-aside-row"><span class="d-aside-lbl">Status</span><span class="d-aside-val ' + statusClass + '">' + esc(r.status) + '</span></div>'
+                : '') +
+              (r.affected_models && r.affected_models.length
+                ? '<div class="d-aside-row"><span class="d-aside-lbl">Models</span><span class="d-aside-val">' + r.affected_models.join(', ') + '</span></div>'
+                : '') +
+            '</div>' +
+            '<div class="d-aside-section">' +
+              '<a class="btn-ghost" href="#/">← Back to catalogue</a>' +
+              (hasLab ? '<a class="btn-ghost" href="#/lab/' + encodeURIComponent(r.id) + '">Open in Lab →</a>' : '') +
+            '</div>' +
+          '</aside>' +
+        '</div>' +
+      '</div>';
+
+    // Tab switching
+    const tabs = main.querySelectorAll('.dtab');
+    const panels = main.querySelectorAll('.dpanel');
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => { t.classList.remove('active'); t.setAttribute('aria-selected','false'); });
+        panels.forEach(p => p.classList.remove('active'));
+        tab.classList.add('active');
+        tab.setAttribute('aria-selected','true');
+        const target = main.querySelector('[data-panel="' + tab.dataset.tab + '"]');
+        if (target) {
+          target.classList.add('active');
+          // Mount lab inline when Lab tab is clicked
+          if (tab.dataset.tab === 'lab' && window.AIHACKBinsLab) {
+            const host = document.getElementById('lab-inline-host');
+            if (host && !host.dataset.mounted) {
+              window.AIHACKBinsLab.renderInline(r, host);
+              host.dataset.mounted = '1';
+            }
+          }
+        }
+      });
+    });
+
+    // Keyboard nav on table rows
+    main.querySelectorAll('.tech-row').forEach(row => {
+      row.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          location.hash = '#/technique/' + encodeURIComponent(row.dataset.id);
+        }
+      });
+    });
+  }
+
+  // ── Chains ─────────────────────────────────────────────────────────────────
+  function renderChains() {
+    const main = document.getElementById('main');
+
+    const chains = [
+      {
+        id: 'CHAIN-001',
+        title: 'Reconnaissance to Exfiltration',
+        description: 'A complete attack chain: probe the model\'s system prompt, inject a persistent instruction, then trigger data exfiltration via prompt injection in retrieved documents.',
+        steps: ['RC-001','RC-004','RC-008','RC-012'],
+        severity: 'Critical',
+      },
+      {
+        id: 'CHAIN-002',
+        title: 'Supply Chain Poisoning via RAG',
+        description: 'Poison a retrieval corpus with indirect prompt injection payloads that survive into production, then trigger them via normal user queries.',
+        steps: ['SC-001','SC-007','RC-103'],
+        severity: 'High',
+      },
+      {
+        id: 'CHAIN-003',
+        title: 'Model Inversion to Membership Inference',
+        description: 'Extract training data artefacts, then use membership inference to confirm presence of sensitive records in the training set.',
+        steps: ['RC-005','RC-111','RC-114'],
+        severity: 'High',
+      },
+    ];
+
+    main.innerHTML =
+      '<div class="cat-head">' +
+        '<h1 class="cat-title">Attack chains</h1>' +
+        '<p class="cat-lead">Multi-step attack sequences that combine individual techniques into end-to-end exploitation paths.</p>' +
+      '</div>' +
+      chains.map(chain => {
+        const steps = chain.steps.map(sid => allRecords.find(r => r.id === sid)).filter(Boolean);
+        return '<div class="chain-card">' +
+          '<div class="chain-card-head">' +
+            '<span class="chain-id">' + esc(chain.id) + '</span>' +
+            '<span class="chain-sev sev-' + esc(chain.severity.toLowerCase()) + '">' + esc(chain.severity) + '</span>' +
+          '</div>' +
+          '<h2 class="chain-title">' + esc(chain.title) + '</h2>' +
+          '<p class="chain-desc">' + esc(chain.description) + '</p>' +
+          '<div class="chain-steps">' +
+            steps.map((s, i) =>
+              '<a class="chain-lnk" href="#/technique/' + encodeURIComponent(s.id) + '">' +
+                '<span class="chain-lnk-n">' + (i + 1) + '</span>' +
+                '<span class="chain-lnk-id">' + esc(s.id) + '</span>' +
+                '<span class="chain-lnk-title">' + esc(s.title || '') + '</span>' +
+              '</a>'
+            ).join('<span class="chain-arrow">→</span>') +
+          '</div>' +
+        '</div>';
+      }).join('');
+  }
+
+  // ── API / data ─────────────────────────────────────────────────────────────
+  function renderApi() {
+    const main = document.getElementById('main');
+    const base = location.origin + location.pathname.replace(/[^/]*$/, '');
+
+    main.innerHTML =
+      '<div class="cat-head">' +
+        '<h1 class="cat-title">API / data</h1>' +
+        '<p class="cat-lead">All data is a static JSON file. No authentication. No rate limit. Use it freely.</p>' +
+      '</div>' +
+      '<div class="api-section">' +
+        '<div class="d-section">' +
+          '<h2>Endpoint</h2>' +
+          '<pre><code>GET ' + esc(base) + 'data/cases.json</code></pre>' +
+        '</div>' +
+        '<div class="d-section">' +
+          '<h2>Schema</h2>' +
+          '<pre><code>' + esc(`[
+  {
+    "id":           "RC-001",           // Technique identifier
+    "title":        "string",
+    "category":     "string",
+    "target":       "string",           // System / component targeted
+    "status":       "Active | Partial | Historic | Model-dependent | Unverified",
+    "severity":     "Critical | High | Medium | Low",
+    "summary":      "string",
+    "description":  "string",
+    "atlas_id":     "AML.TXXXX.XXX",   // MITRE ATLAS (optional)
+    "atlas_name":   "string",
+    "owasp_ids":    ["LLM01", ...],    // OWASP LLM Top 10 2025
+    "tags":         ["string"],
+    "affected_models": ["string"],
+    "poc_steps":    ["string"],
+    "payload_example": "string",
+    "defences":     ["string"],
+    "references":   [{"title":"string","url":"string"}],
+    "real_world_cases": ["string"],
+    "lab": {                            // Present when lab scenario exists
+      "terminal_title": "string",
+      "clean_prompt":   "string",
+      "inject_note":    "string",
+      "vuln_responses": [{"delay": 500, "text": "string"}],
+      "safe_response":  "string",
+      "expected_evidence": "string"
+    }
+  }
+]`) + '</code></pre>' +
+        '</div>' +
+        '<div class="d-section">' +
+          '<h2>Filter examples</h2>' +
+          '<pre><code>' + esc(
+`// Active techniques only
+const active = data.filter(r => r.status === 'Active');
+
+// By OWASP category
+const llm01 = data.filter(r => (r.owasp_ids||[]).includes('LLM01'));
+
+// By ATLAS technique
+const byAtlas = id => data.filter(r => r.atlas_id === id);
+
+// Lab scenarios only
+const labs = data.filter(r => r.lab);`) + '</code></pre>' +
+        '</div>' +
+      '</div>';
+  }
+
+  // ── Helpers ────────────────────────────────────────────────────────────────
+  function esc(s) {
+    return String(s ?? '').replace(/[&<>"']/g,
+      c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+})();

@@ -3,78 +3,55 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#080d10">
-<meta name="description" content="AIHACKBins — GTFOBins for AI/LLM attack techniques. Practical payloads, MITRE ATLAS mappings, OWASP LLM 2025, interactive lab.">
-<title>AIHACKBins | AI attack technique reference</title>
+<meta name="description" content="AIHACKBins — GTFOBins for AI/LLM attack techniques. Practical payloads, MITRE ATLAS, OWASP LLM 2025.">
+<title>AIHACKBins</title>
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="styles.css">
 <link rel="alternate" type="application/atom+xml" title="AIHACKBins updates" href="feed.xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Serif:ital,wght@0,400;0,600;1,400&display=swap">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
 
-<!-- ── Sidebar ─────────────────────────────────────────── -->
-<nav class="sidebar" id="sidebar" aria-label="Main navigation">
-  <div class="sidebar-logo">
-    <a href="#/" class="brand-link">
-      <img src="assets/logo.svg" alt="" width="32" height="32">
-      <span class="brand-text">AIHACK<em>Bins</em></span>
-    </a>
-    <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Collapse sidebar" title="Collapse sidebar">‹</button>
-  </div>
-  <div class="sidebar-search">
-    <input type="search" id="sidebar-search" placeholder="Search techniques…" aria-label="Search techniques" autocomplete="off">
-    <kbd class="search-hint">/</kbd>
-  </div>
-  <ul class="nav-list">
-    <li><a class="nav-item active" href="#/" data-route="home">
-      <span class="nav-icon">⊞</span><span class="nav-label">Catalogue</span>
-    </a></li>
-    <li><a class="nav-item" href="#/lab" data-route="lab">
-      <span class="nav-icon">▶</span><span class="nav-label">Lab</span>
-      <span class="nav-badge" id="lab-count">0</span>
-    </a></li>
-    <li><a class="nav-item" href="#/chains" data-route="chains">
-      <span class="nav-icon">⛓</span><span class="nav-label">Attack chains</span>
-    </a></li>
-    <li><a class="nav-item" href="#/api" data-route="api">
-      <span class="nav-icon">{}</span><span class="nav-label">API / data</span>
-    </a></li>
-  </ul>
-  <div class="sidebar-footer">
-    <div class="sidebar-stats" id="sidebar-stats"></div>
-    <div class="sidebar-recent" id="sidebar-recent"></div>
-    <div class="sidebar-actions">
-      <button id="theme-btn" class="sidebar-action-btn" aria-label="Toggle theme">☀</button>
-      <a href="https://github.com/AIHACKBins/AIHACKBins" class="sidebar-action-btn" target="_blank" rel="noopener">⎋ GitHub</a>
+<div class="shell">
+  <nav class="sidebar" id="sidebar" aria-label="Main navigation">
+    <div class="sidebar-head">
+      <a href="#/" class="wordmark">AIHACK<span>Bins</span></a>
+      <button class="sidebar-close" id="sidebar-close" aria-label="Close navigation">×</button>
     </div>
-  </div>
-</nav>
-
-<!-- ── Main ───────────────────────────────────────────── -->
-<div class="layout">
-  <header class="topbar">
-    <button class="topbar-menu" id="topbar-menu" aria-label="Open menu" aria-expanded="false">☰</button>
-    <div class="topbar-crumbs" id="topbar-crumbs"></div>
-    <div class="topbar-actions">
-      <button id="theme-btn-top" class="icon-btn" aria-label="Toggle theme">☀</button>
+    <div class="sidebar-search-wrap">
+      <input type="search" id="sidebar-search" placeholder="search…" aria-label="Search techniques" autocomplete="off">
     </div>
-  </header>
-  <main id="main" class="main-content">
-    <div class="loading-screen">
-      <div class="loading-terminal">
-        <span class="loading-prompt">aihackbins $</span>
-        <span class="loading-cmd" id="loading-cmd">loading catalogue…</span>
-        <span class="cursor-blink">▌</span>
+    <ul class="nav-list">
+      <li><a class="nav-link active" href="#/" data-route="home">Catalogue</a></li>
+      <li><a class="nav-link" href="#/lab" data-route="lab">Lab <span class="nav-count" id="lab-count"></span></a></li>
+      <li><a class="nav-link" href="#/chains" data-route="chains">Attack chains</a></li>
+      <li><a class="nav-link" href="#/api" data-route="api">API / data</a></li>
+    </ul>
+    <div class="sidebar-foot">
+      <div id="sidebar-stats" class="sidebar-stats"></div>
+      <div id="sidebar-recent" class="sidebar-recent"></div>
+      <div class="sidebar-controls">
+        <button id="theme-btn" aria-label="Toggle theme">light</button>
+        <a href="https://github.com/AIHACKBins/AIHACKBins" target="_blank" rel="noopener">github ↗</a>
       </div>
     </div>
-  </main>
+  </nav>
+
+  <div class="body-wrap">
+    <header class="topbar">
+      <button class="menu-btn" id="menu-btn" aria-label="Open navigation" aria-expanded="false">☰ menu</button>
+      <div class="breadcrumb" id="breadcrumb"></div>
+      <button id="theme-btn-top" class="theme-top" aria-label="Toggle theme">light</button>
+    </header>
+    <main id="main" class="main">
+      <p class="loading-line">loading catalogue<span class="blink">_</span></p>
+    </main>
+  </div>
 </div>
 
-<!-- ── Mobile overlay ────────────────────────────────── -->
-<div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
+<div class="overlay" id="overlay"></div>
 
 <script src="lab.js" defer></script>
 <script src="app.js" defer></script>

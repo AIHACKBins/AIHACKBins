@@ -1,7 +1,6 @@
-/* AIHACKBins lab.js — interactive scenario terminal
+/* AIHACKBins lab.js — Option 1 "Exploit paper"
  * GTFOBins philosophy: each scenario is specific, reproducible, has a
- * verifiable canary string as pass/fail evidence. Kerckhoff-compliant:
- * the technique works even when the target knows about it.
+ * verifiable canary string as pass/fail evidence. Kerckhoff-compliant.
  * No real model is contacted. Simulation only.
  */
 (function () {
@@ -34,15 +33,6 @@
       const idx = labRecords.findIndex(r => r.id === targetId);
       currentIdx = idx >= 0 ? idx : 0;
     }
-
-    // Update nav
-    document.querySelectorAll('.nav-item').forEach(el => {
-      el.classList.toggle('active', el.dataset.route === 'lab');
-    });
-    const crumbs = document.getElementById('topbar-crumbs');
-    if (crumbs) crumbs.innerHTML = '<a href="#/">Catalogue</a><span class="topbar-crumb-sep">/</span><span>Lab</span>';
-
-    const r = labRecords[currentIdx];
     mainEl.innerHTML = '<div id="lab-full-host"></div>';
     renderLabPage(mainEl.querySelector('#lab-full-host'));
   }
@@ -61,25 +51,23 @@
 
   // ── Full page ──────────────────────────────────────────────
   function renderLabPage(host) {
+    const r = labRecords[currentIdx];
     host.innerHTML =
-      '<div class="lab-header">' +
-        '<h1>Interactive Lab</h1>' +
-        '<p>Simulated scenarios — no real model or network is contacted. Each scenario uses a canary string as objective pass/fail evidence, following Kerckhoff\'s principle.</p>' +
+      '<div class="cat-head">' +
+        '<h1 class="cat-title">Interactive Lab</h1>' +
+        '<p class="cat-lead">Simulated scenarios — no real model or network is contacted. Each scenario uses a canary string as objective pass/fail evidence, following Kerckhoff\'s principle.</p>' +
+        '<p class="lab-disclaimer"><strong>Simulation only.</strong> Scripted demonstrations of published techniques. Only test systems you own or have authorisation to assess.</p>' +
       '</div>' +
-      '<div class="lab-disclaimer">' +
-        '<span>⚠</span>' +
-        '<div><strong>Simulation only.</strong> Scripted demonstrations of published techniques. Only test systems you own or have authorisation to assess. The canary string is the only objective evidence of injection.</div>' +
-      '</div>' +
-      '<div class="lab-scenario-grid">' +
+      '<div class="scenario-list">' +
         labRecords.map((lr, i) =>
-          '<a class="lab-scenario-card' + (i === currentIdx ? ' active' : '') + '" href="#/lab/' + esc(lr.id) + '" data-idx="' + i + '">' +
-            '<div class="lsc-id">' + esc(lr.id) + '</div>' +
-            '<div class="lsc-title">' + esc(lr.title) + '</div>' +
-            '<div class="lsc-target">' + esc(lr.target) + '</div>' +
-            '<div class="lsc-pills">' +
-              (lr.atlas_id ? '<span class="pill pill-atlas" style="font-size:9px">' + esc(lr.atlas_id) + '</span>' : '') +
-              (lr.owasp_ids || []).slice(0,2).map(k => '<span class="pill pill-owasp" style="font-size:9px">' + esc(k) + '</span>').join('') +
-            '</div>' +
+          '<a class="scenario-item' + (i === currentIdx ? ' active' : '') + '" href="#/lab/' + esc(lr.id) + '" data-idx="' + i + '">' +
+            '<span class="s-id">' + esc(lr.id) + '</span>' +
+            '<span class="s-title">' + esc(lr.title) + '</span>' +
+            '<span class="s-target">' + esc(lr.target) + '</span>' +
+            '<span class="s-pills">' +
+              (lr.atlas_id ? '<span class="pill pill-atlas">' + esc(lr.atlas_id) + '</span>' : '') +
+              (lr.owasp_ids || []).slice(0, 1).map(k => '<span class="pill pill-owasp">' + esc(k) + '</span>').join('') +
+            '</span>' +
           '</a>'
         ).join('') +
       '</div>' +
@@ -105,31 +93,25 @@
 
     host.innerHTML =
       '<div class="lab-workspace">' +
-        '<div class="lab-terminal-card">' +
-          '<div class="lab-term-chrome">' +
-            '<div class="term-dots"><div class="term-dot"></div><div class="term-dot"></div><div class="term-dot"></div></div>' +
-            '<div class="term-title-text">' + esc(lab.terminal_title || r.id + ' · simulation') + '</div>' +
-            '<div class="lab-mode-toggle">' +
-              '<button class="lab-mode-btn' + (mode === 'single' ? ' active' : '') + '" data-mode="single">Terminal</button>' +
-              '<button class="lab-mode-btn' + (mode === 'compare' ? ' active' : '') + '" data-mode="compare">Compare</button>' +
+        '<div class="lab-term">' +
+          '<div class="lab-term-bar">' +
+            '<span class="lab-term-title">' + esc(lab.terminal_title || r.id + ' · simulation') + '</span>' +
+            '<div class="lab-mode-row">' +
+              '<button class="lab-modebn' + (mode === 'single' ? ' active' : '') + '" data-mode="single">Terminal</button>' +
+              '<button class="lab-modebn' + (mode === 'compare' ? ' active' : '') + '" data-mode="compare">Compare</button>' +
             '</div>' +
           '</div>' +
-          '<div id="lab-body-wrap">' +
-            (mode === 'single'
-              ? '<div class="lab-term-body" id="lab-term-body" role="log" aria-live="polite"></div>'
-              : buildCompareHTML(r, lab)
-            ) +
-          '</div>' +
           (mode === 'single'
-            ? '<div class="lab-input-bar">' +
-                '<label for="lab-input">$</label>' +
+            ? '<div class="lab-body" id="lab-body" role="log" aria-live="polite"></div>' +
+              '<div class="lab-input-row">' +
+                '<span class="lab-prompt-sym">$</span>' +
                 '<input id="lab-input" type="text" placeholder="Type a message or click Run Injection…" autocomplete="off" spellcheck="false">' +
-                '<button class="lab-run-btn" id="lab-run-btn">Run Injection</button>' +
+                '<button class="lab-run" id="lab-run">Run Injection</button>' +
               '</div>'
-            : ''
+            : buildCompareHTML(r, lab)
           ) +
         '</div>' +
-        '<div class="lab-sidebar">' + buildSidebarHTML(r, lab) + '</div>' +
+        '<div class="lab-side">' + buildSideHTML(r, lab) + '</div>' +
       '</div>';
 
     bindEvents(r, lab, host);
@@ -142,22 +124,22 @@
       if (!canary) return esc(text);
       const safe = canary.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       return esc(text).replace(new RegExp(safe, 'g'),
-        '<mark class="compare-canary">' + esc(canary) + '</mark>');
+        '<mark class="cmp-canary">' + esc(canary) + '</mark>');
     }
     const vulnText = (lab.vuln_responses || []).map(v => v.text).join('\n\n');
-    return '<div class="lab-compare">' +
-      '<div class="compare-pane vuln">' +
-        '<div class="compare-pane-header">⚠ Vulnerable response</div>' +
-        '<div class="compare-pane-body">' + hilite(vulnText) + '</div>' +
+    return '<div class="cmp-wrap">' +
+      '<div class="cmp-pane vuln">' +
+        '<div class="cmp-head">⚠ Vulnerable response</div>' +
+        '<div class="cmp-body">' + hilite(vulnText) + '</div>' +
       '</div>' +
-      '<div class="compare-pane safe">' +
-        '<div class="compare-pane-header">✓ Secure / patched response</div>' +
-        '<div class="compare-pane-body">' + esc(lab.safe_response || 'No safe response defined.') + '</div>' +
+      '<div class="cmp-pane safe">' +
+        '<div class="cmp-head">✓ Secure / patched response</div>' +
+        '<div class="cmp-body">' + esc(lab.safe_response || 'No safe response defined.') + '</div>' +
       '</div>' +
     '</div>';
   }
 
-  function buildSidebarHTML(r, lab) {
+  function buildSideHTML(r, lab) {
     const stepLabels = [
       'Inject payload into target',
       'Submit clean prompt',
@@ -165,39 +147,45 @@
       'Record findings',
     ];
     return (
-      '<div class="lab-card">' +
-        '<h3>Steps</h3>' +
-        '<div class="lab-steps">' +
+      '<div class="lab-side-section">' +
+        '<div class="lab-side-head">Steps</div>' +
+        '<div class="lab-side-body">' +
           stepLabels.map((s, i) =>
-            '<div class="lab-step" id="lab-step-' + i + '">' +
-              '<div class="lab-step-num">' + (i + 1) + '</div>' +
+            '<div class="lab-step-item" id="lab-step-' + i + '">' +
+              '<div class="lab-step-n">' + (i + 1) + '</div>' +
               '<span>' + esc(s) + '</span>' +
             '</div>'
           ).join('') +
         '</div>' +
       '</div>' +
-      '<div class="lab-card">' +
-        '<h3>Payload context</h3>' +
-        '<pre class="lab-payload-pre">' + esc(lab.inject_note || 'See technique entry for details') + '</pre>' +
-      '</div>' +
-      '<div class="lab-card">' +
-        '<h3>Mappings</h3>' +
-        '<div class="lab-map-row">' +
-          (r.atlas_id ? '<a class="pill pill-atlas" href="https://atlas.mitre.org/techniques/' + encodeURIComponent(r.atlas_id) + '/" target="_blank" rel="noopener">' + esc(r.atlas_id) + ' ↗</a>' : '') +
-          (r.owasp_ids || []).map(k => '<span class="pill pill-owasp">' + esc(k) + '</span>').join('') +
+      '<div class="lab-side-section">' +
+        '<div class="lab-side-head">Payload context</div>' +
+        '<div class="lab-side-body">' +
+          '<pre class="lab-payload-mono">' + esc(lab.inject_note || 'See technique entry for details') + '</pre>' +
         '</div>' +
-        (r.atlas_name ? '<p style="font-size:12px;color:var(--muted);margin-top:8px">' + esc(r.atlas_name) + '</p>' : '') +
       '</div>' +
-      '<div class="lab-card">' +
-        '<h3>Expected evidence (canary)</h3>' +
-        '<div class="lab-evidence">' + esc(lab.expected_evidence || '') + '</div>' +
+      '<div class="lab-side-section">' +
+        '<div class="lab-side-head">Mappings</div>' +
+        '<div class="lab-side-body">' +
+          (r.atlas_id
+            ? '<a class="pill pill-atlas" href="https://atlas.mitre.org/techniques/' + encodeURIComponent(r.atlas_id) + '/" target="_blank" rel="noopener">' + esc(r.atlas_id) + ' ↗</a>'
+            : '') +
+          (r.owasp_ids || []).map(k => '<span class="pill pill-owasp">' + esc(k) + '</span>').join('') +
+          (r.atlas_name ? '<p class="lab-atlas-name">' + esc(r.atlas_name) + '</p>' : '') +
+        '</div>' +
       '</div>' +
-      '<div class="lab-card">' +
-        '<h3>Your observations</h3>' +
-        '<div class="lab-notes">' +
-          '<textarea id="lab-note-input" placeholder="Record what you observed in your real test…"></textarea>' +
-          '<button class="lab-save-btn" id="lab-save-note">Save note</button>' +
-          '<ul class="lab-notes-list" id="lab-notes-list"></ul>' +
+      '<div class="lab-side-section">' +
+        '<div class="lab-side-head">Expected evidence (canary)</div>' +
+        '<div class="lab-side-body">' +
+          '<div class="lab-evidence-box">' + esc(lab.expected_evidence || '') + '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="lab-side-section">' +
+        '<div class="lab-side-head">Your observations</div>' +
+        '<div class="lab-side-body">' +
+          '<textarea class="lab-notes-area" id="lab-note-input" placeholder="Record what you observed in your real test…"></textarea>' +
+          '<button class="lab-save" id="lab-save-note">Save note</button>' +
+          '<ul class="lab-notes-log" id="lab-notes-list"></ul>' +
         '</div>' +
       '</div>'
     );
@@ -209,9 +197,9 @@
       btn.addEventListener('click', () => { mode = btn.dataset.mode; renderWorkspace(host); });
     });
 
-    const runBtn = host.querySelector('#lab-run-btn');
+    const runBtn  = host.querySelector('#lab-run');
     const inputEl = host.querySelector('#lab-input');
-    if (runBtn) runBtn.addEventListener('click', () => runInjection(r, lab, host));
+    if (runBtn)  runBtn.addEventListener('click', () => runInjection(r, lab, host));
     if (inputEl) inputEl.addEventListener('keydown', e => {
       if (e.key === 'Enter' && !running) {
         const val = inputEl.value.trim();
@@ -222,7 +210,7 @@
 
     const saveBtn = host.querySelector('#lab-save-note');
     if (saveBtn) saveBtn.addEventListener('click', () => {
-      const ta = host.querySelector('#lab-note-input');
+      const ta  = host.querySelector('#lab-note-input');
       const val = ta && ta.value.trim();
       if (!val) return;
       notes.push(val); ta.value = '';
@@ -233,17 +221,17 @@
 
   // ── Terminal init ──────────────────────────────────────────
   function initTerminal(lab, host) {
-    const body = host.querySelector('#lab-term-body');
+    const body = host.querySelector('#lab-body');
     if (!body) return;
     [
       ['tl-sys', 'AIHACKBins Lab — simulation mode'],
       ['tl-sys', 'No real model, shell or network contacted.'],
-      ['tl-sys', '────────────────────────────────────'],
+      ['tl-sys', '────────────────────────────────────────'],
       ['tl-text', 'Scenario: ' + (lab.terminal_title || 'unnamed')],
       ['tl-text', 'Clean prompt: "' + (lab.clean_prompt || '') + '"'],
-      ['tl-sys', '────────────────────────────────────'],
+      ['tl-sys', '────────────────────────────────────────'],
       ['tl-sys', 'Click [Run Injection] to simulate the vulnerable response.'],
-      ['tl-sys', 'Switch to Compare mode to see both outcomes side by side.'],
+      ['tl-sys', 'Switch to [Compare] to see both outcomes side by side.'],
     ].forEach(([cls, text]) => {
       const el = document.createElement('div');
       el.className = cls; el.textContent = text;
@@ -255,7 +243,7 @@
   async function runInjection(r, lab, host) {
     if (running) return;
     running = true;
-    const runBtn = host.querySelector('#lab-run-btn');
+    const runBtn = host.querySelector('#lab-run');
     if (runBtn) { runBtn.disabled = true; runBtn.textContent = 'Running…'; }
     setStep(host, 0);
 
@@ -265,9 +253,9 @@
     appendLine(host, 'tl-sys', '[Injection: ' + (lab.inject_note || 'payload embedded') + ']');
     await delay(800);
     setStep(host, 1);
-    appendLine(host, 'tl-sys', '── Vulnerable model response ─────────────────────');
+    appendLine(host, 'tl-sys', '── Vulnerable model response ────────────────────────');
 
-    const body = host.querySelector('#lab-term-body');
+    const body = host.querySelector('#lab-body');
     const vulnBlock = document.createElement('div');
     vulnBlock.className = 'tl-vuln'; body.appendChild(vulnBlock);
 
@@ -283,11 +271,11 @@
     const canary = extractCanary(lab);
     if (canary && vulnBlock.textContent.includes(canary)) {
       appendLine(host, 'tl-canary', '🚩 CANARY DETECTED: ' + canary);
-      appendLine(host, 'tl-warn',  '⚠ Injection followed — marker present in response');
+      appendLine(host, 'tl-warn',  '⚠  Injection followed — marker present in response');
     }
 
     await delay(700);
-    appendLine(host, 'tl-sys', '── Secure / patched response ──────────────────────');
+    appendLine(host, 'tl-sys', '── Secure / patched response ───────────────────────');
     const safeBlock = document.createElement('div');
     safeBlock.className = 'tl-safe'; body.appendChild(safeBlock);
     await typeText(safeBlock, lab.safe_response || '[No safe response defined]');
@@ -308,7 +296,7 @@
   }
 
   function appendLine(host, cls, text) {
-    const body = host.querySelector('#lab-term-body');
+    const body = host.querySelector('#lab-body');
     if (!body) return;
     const el = document.createElement('div');
     el.className = cls; el.textContent = text;
