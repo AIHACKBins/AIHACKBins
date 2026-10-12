@@ -188,8 +188,22 @@
     let html =
       '<div class="cat-head">' +
         '<h1 class="cat-title">AIHACKBins</h1>' +
-        '<p class="cat-lead">GTFOBins for AI/LLM attack techniques. Practical payloads mapped to MITRE ATLAS and OWASP LLM Top 10 2025.</p>' +
-        '<p class="kerck-note">Each technique follows Kerckhoff\'s principle: the technique works even when the target knows about it. Use against systems you own or have authorisation to test.</p>' +
+        '<p class="cat-lead">GTFOBins for AI/LLM attack techniques. Open security research — practical payloads mapped to MITRE ATLAS and OWASP LLM Top 10 2025, published so defenders can test their own systems and AI gets safer for everyone.</p>' +
+        '<p class="kerck-note">Kerckhoff\'s principle: every technique here works even when the target knows about it. Security through obscurity is not security. Test your own systems, share what you find, make AI better.</p>' +
+      '</div>' +
+      '<div class="mission-strip">' +
+        '<div class="mission-cell">' +
+          '<div class="mission-cell-label">Philosophy</div>' +
+          '<div class="mission-cell-text">Open publication of attack techniques is how defenders learn. Obscuring vulnerabilities protects no one.</div>' +
+        '</div>' +
+        '<div class="mission-cell">' +
+          '<div class="mission-cell-label">Mapped to</div>' +
+          '<div class="mission-cell-text">MITRE ATLAS (adversarial ML taxonomy) and OWASP LLM Top 10 2025 — the two authoritative frameworks for AI/LLM risk.</div>' +
+        '</div>' +
+        '<div class="mission-cell">' +
+          '<div class="mission-cell-label">Verifiable</div>' +
+          '<div class="mission-cell-text">Every lab scenario uses a canary string as objective pass/fail evidence. No vague claims — reproducible results only.</div>' +
+        '</div>' +
       '</div>';
 
     if (searchQuery && records.length === 0) {
