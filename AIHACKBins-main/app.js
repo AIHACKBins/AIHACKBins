@@ -1,47 +1,589 @@
-const $=s=>document.querySelector(s);const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));const link=(url,label)=>`<a class="external" target="_blank" rel="noopener noreferrer" href="${esc(url)}">${esc(label)} ↗</a>`;const atlasUrl=id=>`https://atlas.mitre.org/techniques/${encodeURIComponent(id)}/`;const OWASP=
-{"LLM01":{"name":"Prompt Injection","url":"https://genai.owasp.org/llmrisk/llm01-prompt-injection/","image":"https://genai.owasp.org/wp-content/uploads/2024/04/LLM01.25-300x154.png"},"LLM02":{"name":"Sensitive Information Disclosure","url":"https://genai.owasp.org/llmrisk/llm022025-sensitive-information-disclosure/","image":"https://genai.owasp.org/wp-content/uploads/2024/04/Slide02-300x154.png"},"LLM03":{"name":"Supply Chain","url":"https://genai.owasp.org/llmrisk/llm032025-supply-chain/","image":"https://genai.owasp.org/wp-content/uploads/2024/04/Slide03-300x154.png"},"LLM04":{"name":"Data and Model Poisoning","url":"https://genai.owasp.org/llmrisk/llm042025-data-and-model-poisoning/","image":"https://genai.owasp.org/wp-content/uploads/2024/04/Slide04-300x154.png"},"LLM05":{"name":"Improper Output Handling","url":"https://genai.owasp.org/llmrisk/llm052025-improper-output-handling/","image":"https://genai.owasp.org/wp-content/uploads/2024/04/Slide05-300x154.png"},"LLM06":{"name":"Excessive Agency","url":"https://genai.owasp.org/llmrisk/llm062025-excessive-agency/","image":"https://genai.owasp.org/wp-content/uploads/2024/04/Slide06-300x154.png"},"LLM07":{"name":"System Prompt Leakage","url":"https://genai.owasp.org/llmrisk/llm072025-system-prompt-leakage/","image":"https://genai.owasp.org/wp-content/uploads/2024/04/Slide07-300x154.png"},"LLM08":{"name":"Vector and Embedding Weaknesses","url":"https://genai.owasp.org/llmrisk/llm082025-vector-and-embedding-weaknesses/","image":"https://genai.owasp.org/wp-content/uploads/2024/04/Slide08-300x154.png"},"LLM09":{"name":"Misinformation","url":"https://genai.owasp.org/llmrisk/llm092025-misinformation/","image":"https://genai.owasp.org/wp-content/uploads/2024/04/Slide09-300x154.png"},"LLM10":{"name":"Unbounded Consumption","url":"https://genai.owasp.org/llmrisk/llm102025-unbounded-consumption/","image":"https://genai.owasp.org/wp-content/uploads/2024/04/Slide10-300x154.png"}};let records=[];let changes=[];let chains=[];let filter={q:'',atlas:'All',type:'All',owasp:'All',technique:'All',severity:'All',status:'All'};let saved='';try{saved=localStorage.getItem('aihackbins-theme')||''}catch{}const preferred=window.matchMedia?.('(prefers-color-scheme: light)').matches?'light':'dark';function setTheme(v){document.documentElement.dataset.theme=v;$('#theme').textContent=v==='dark'?'☀ Light':'☾ Dark';try{localStorage.setItem('aihackbins-theme',v)}catch{}}setTheme(saved||preferred);$('#theme').onclick=()=>setTheme(document.documentElement.dataset.theme==='dark'?'light':'dark');function pill(s,a=false){return `<span class="pill ${a?'a':''}">${esc(s)}</span>`}function renderHome(){const atlasIds=[...new Set(records.map(r=>r.atlas_id).filter(Boolean))];$('#main').innerHTML=`<section class="hero"><div><div class="eyebrow">OPEN AI SECURITY FIELD REFERENCE</div><h1>Find a technique.<br><span>Copy the payload.</span><br>Test the boundary.</h1><p class="lead">Reusable attack technique references informed by published research, with source links and MITRE ATLAS mappings. No installation or lab runner needed to browse or copy.</p><div class="stats"><span class="stat"><b>${records.length}</b> curated techniques</span><span class="stat"><b>${atlasIds.length}</b> mapped ATLAS techniques</span><span class="stat"><b>${records.reduce((n,r)=>n+(r.model_tested||[]).length,0)}</b> model specific verifications</span></div></div><div class="terminal"><strong>AIHACKBINS / FIELD MODE</strong><div class="line">01 SELECT TECHNIQUE<br>02 COPY INPUT<br>03 APPLY WITH AUTHORISATION<br>04 CAPTURE OBSERVED RESULT</div><div class="line"><strong>Evidence over claims.</strong><br>History is not current vulnerability status.</div></div></section><section id="catalogue"><div class="sectionhead"><div><div class="eyebrow">TECHNIQUE INDEX</div><h2>Explore the techniques</h2><p>Generic test inputs, real prerequisites, and original research links. No lab specific solutions or toy runner.</p></div></div><div class="finder"><input type="search" id="search" placeholder="Search product, technique, CVE, researcher…" aria-label="Search techniques"><select id="atlas" aria-label="Filter by MITRE ATLAS"><option value="All">All ATLAS mappings</option><option value="None">Not mapped</option>${atlasIds.map(x=>`<option>${esc(x)}</option>`).join('')}</select><select id="owasp" aria-label="Filter by OWASP 2025 risk"><option value="All">All OWASP risks</option>${Object.entries(OWASP).map(([k,v])=>`<option value="${k}">${k}: ${esc(v.name)}</option>`).join('')}</select><select id="type" aria-label="Filter by evidence type"><option value="All">All evidence types</option><option value="Published exploit procedure">Published exploit procedures</option><option value="Published initial probe">Published initial probes</option><option value="Practical assessment probe">Assessment probes</option><option value="Research or inspection reference">Research and inspection</option><option value="Research repository demonstration">Research demonstrations</option></select><select id="severity" aria-label="Filter severity"><option value="All">All severities</option>${["Critical","High","Medium","Low","Not assessed"].map(x=>`<option value="${x}">${x}</option>`).join("")}</select><select id="status" aria-label="Filter verification status"><option value="All">All statuses</option>${["Active","Partially-patched","Model-dependent","Historic","Unverified"].map(x=>`<option value="${x}">${x}</option>`).join("")}</select><select id="technique" aria-label="All techniques. Choose an individual entry"><option value="All">All techniques</option>${[...new Set(records.map(r=>r.category))].sort().map(cat=>`<optgroup label="${esc(cat)}">${records.filter(r=>r.category===cat).map(r=>`<option value="${esc(r.id)}">${esc(r.id)} · ${esc(r.title)}</option>`).join('')}</optgroup>`).join('')}</select></div><p class="searchhint">Press <kbd>/</kbd> to focus search</p><div class="badgeinfo" id="found"></div><div class="list" id="list"></div></section><section class="updates"><div class="sectionhead"><div><div class="eyebrow">PROJECT UPDATES</div><h2>Recently added / updated</h2></div><a href="feed.xml" class="external">Atom feed ↗</a></div><div id="recent-updates">${changes.slice(0,5).map(c=>`<a class="update-row" href="#/technique/${esc(c.id)}"><span class="mono">${esc(c.date)}</span><b>${esc(c.title)}</b><span>${esc(c.summary)}</span></a>`).join("")||"<p>No recent updates.</p>"}</div></section><section class="taxonomy"><div class="sectionhead"><div><div class="eyebrow">FIND TESTS BY OWASP CATEGORY</div><h2>Classifications, not extra content</h2><p>Choose a risk in the filter above to see matching practical entries. Each result also links its MITRE ATLAS mapping when applicable.</p></div></div><div class="risklinks">${Object.entries(OWASP).map(([id,v])=>`<button class="risklink" data-risk="${id}" aria-label="Filter ${id} ${esc(v.name)}">${id} · ${esc(v.name)}</button>`).join('')}</div></section><p class="disclosure">The catalogue clearly separates published laboratory exploitation procedures, published initial probes, independently authored assessments, and research references. They are not necessarily the original exploit payloads and are not independently verified against the named current products. Consult the primary disclosure for historical exploit prerequisites and versions.</p>`;$('#search').oninput=e=>{filter.q=e.target.value;renderList()};$('#atlas').onchange=e=>{filter.atlas=e.target.value;renderList()};$('#type').onchange=e=>{filter.type=e.target.value;renderList()};$('#severity').onchange=e=>{filter.severity=e.target.value;renderList()};$('#status').onchange=e=>{filter.status=e.target.value;renderList()};$('#technique').onchange=e=>{filter.technique=e.target.value;renderList()};$('#owasp').onchange=e=>{filter.owasp=e.target.value;renderList()};renderList();document.querySelectorAll('[data-risk]').forEach(btn=>btn.onclick=()=>{filter.owasp=btn.dataset.risk;$('#owasp').value=btn.dataset.risk;renderList();document.querySelector('#catalogue').scrollIntoView({behavior:'smooth'});});};function renderList(){let list=records.filter(r=>(filter.atlas==='All'||(filter.atlas==='None'?!r.atlas_id:r.atlas_id===filter.atlas))&&(filter.owasp==='All'||r.owasp_ids.includes(filter.owasp))&&(filter.type==='All'||r.entry_kind===filter.type)&&(filter.technique==='All'||r.id===filter.technique)&&(filter.severity==='All'||(filter.severity==='Not assessed'?!r.severity:r.severity===filter.severity))&&(filter.status==='All'||r.status===filter.status)&&[r.title,r.target,r.researcher,r.cve,r.category,r.atlas_id,r.mechanism].join(' ').toLowerCase().includes(filter.q.toLowerCase()));$('#found').textContent=`${list.length} matching techniques`;$('#list').innerHTML=list.length?list.map(r=>`<a class="tile" href="#/technique/${esc(r.id)}"><div class="pillrow">${pill(r.target)}${pill(r.entry_kind)}<span class="statusbadge status-${esc((r.status||'Unverified').toLowerCase().replace(/[^a-z]/g,''))}">${esc(r.status||'Unverified')}</span>${r.severity?pill(r.severity):pill('Severity not assessed')}${r.cve?pill(r.cve):''}${r.atlas_id?pill(r.atlas_id,true):pill('ATLAS not mapped')}${r.owasp_ids.map(k=>pill(k)).join('')}</div><h3>${esc(r.title)}</h3><p>${esc(r.mechanism)}</p><div class="bottom"><span>${esc(r.researcher)} <small class="mono">· verified ${esc(r.last_verified||"Not yet")}</small></span><span class="mono">VIEW CONTEXTS →</span></div></a>`).join(''):'<p class="empty">No matching cases.</p>'};function code(s,id,label){return `<div class="codehead"><span>${esc(label)}</span><button class="copy" data-copy="${esc(id)}">Copy</button></div><pre><code id="${esc(id)}">${esc(s)}</code></pre>`};function mountPracticeTerminal(r,index,host){
- const v=r.variants?.[index]||r;
- const steps=v.steps||r.test_steps;
- const observed=[];
- const menu=['help','context','payload','steps','evidence','mappings','source','status','clear'];
- host.innerHTML=`<section class="panel practice-panel" aria-label="Guided practice terminal"><div class="practice-top"><div><strong>AIHACKBins / Guided terminal</strong><p>Offline reference console. Reads this entry only. No AI model, shell, API or target is contacted.</p></div><span class="pill">NOT A LIVE EXPLOIT</span></div><div class="practice-quick">${menu.map(s=>`<button type="button" class="practice-chip" data-practice-cmd="${s}">${s}</button>`).join('')}</div><div id="practice-log" class="practice-log" role="log" aria-live="polite" aria-relevant="additions"></div><form id="practice-form" class="practice-form"><label for="practice-command" class="mono">aihackbins $</label><input id="practice-command" autocomplete="off" spellcheck="false" aria-label="Guided terminal command" placeholder="help, payload, steps, evidence, record your observation" maxlength="2000"><button class="primary" type="submit">Enter</button></form><p class="practice-disclaimer">To test a real application, copy the reference payload above into your authorised environment. The terminal cannot prove that exploitation succeeded.</p></section>`;
- const log=host.querySelector('#practice-log');const entry=host.querySelector('#practice-command');
- function add(role,message){const node=document.createElement('div');node.className='practice-line '+role;node.textContent=message;log.appendChild(node);log.scrollTop=log.scrollHeight}
- const responses={
-  help:'Commands: '+menu.join(', ')+'\nrecord <observation> stores a note in this browser session only. No execution or simulated successes.',
-  context:`TECHNIQUE: ${r.title}\nCONTEXT: ${v.name||r.attack_surface}\nPLACEMENT: ${v.placement||r.placement}\nPREREQUISITES: ${r.test_scope}`,
-  payload:`Copyable input below is exactly the reference payload for the selected context:\n\n${v.payload||r.payload}\n\nNote: submitting it here does NOT execute it. Use the Copy button in the reference.`,
-  steps:steps.map((s,i)=>`${i+1}. ${s}`).join('\n'),
-  evidence:`EXPECTED: ${v.expected||r.expected_test}\n\nObserve and record the actual result in the authorised target. Compare it with a clean control.`,
-  mappings:`MITRE ATLAS: ${r.atlas_id||'Not assigned'} ${r.atlas_name||''}\nOWASP: ${r.owasp_ids.join(', ')}\nThe classification is not proof of exploitation.`,
-  source:`Original research: ${v.source_url||r.source_url}\nProvenance: ${v.provenance||r.payload_origin}`,
-  status:`TYPE: ${r.guide_type}\nREVIEW: ${r.review_note}\nVALIDATION: ${r.reproduction_status}\nThis terminal makes no live verification claims.`
- };
- function execute(input){const trimmed=input.trim();if(!trimmed)return;add('command','$ '+trimmed);const cmd=trimmed.toLowerCase();if(cmd==='clear'){log.replaceChildren();add('system','Terminal cleared. No evidence or experiment was submitted.');return}if(cmd.startsWith('record ')){const note=trimmed.slice(7).trim();if(note){observed.push(note);add('output',`Recorded locally (${observed.length}): ${note}\nThis is your unverified observation, not an AIHACKBins result.`)}else add('output','Provide an observation after record.');return}if(cmd==='observations'){add('output',observed.length?observed.map((o,i)=>`${i+1}. ${o}`).join('\n'):'No observations recorded.');return}if(Object.hasOwn(responses,cmd)){add('output',responses[cmd]);return}add('error','Unknown guided command. Type help. Arbitrary system commands are intentionally disabled.')}
- host.querySelector('#practice-form').onsubmit=e=>{e.preventDefault();const value=entry.value;entry.value='';execute(value);entry.focus()};host.querySelectorAll('[data-practice-cmd]').forEach(b=>b.onclick=()=>execute(b.dataset.practiceCmd));add('system',`Ready: ${r.id} · ${r.title}\nSelected context: ${v.name||'Default'}\nType help. No model or shell is running.`);entry.focus();
-}
-function detail(id,variantIndex=0){const r=records.find(x=>x.id===id);if(!r){location.hash='#/';return}$('#main').innerHTML=`<a class="crumb" href="#/">← All techniques</a><div class="detailhead"><div class="eyebrow">${esc(r.id)} / ${esc(r.target)}</div><h1>${esc(r.title)}</h1><div class="detail-actions"><span class="statusbadge status-${esc((r.status||"Unverified").toLowerCase().replace(/[^a-z]/g,""))}">${esc(r.status||"Unverified")}</span>${r.severity?pill(r.severity):pill("Severity not assessed")}<button type="button" class="copy" id="copy-link">Copy link</button>${r.lab?`<a class="lab-open-btn" href="#/lab/${esc(r.id)}">▶ Open in Lab</a>`:''}</div><p class="lead">${esc(r.mechanism)}</p><div class="pillrow">${pill(r.entry_kind)}${pill(r.evidence_level)}${r.cve?pill(r.cve):''}${r.owasp_ids.map(k=>pill(k)).join('')}</div></div><div class="columns"><article><div class="practice-entry"><div><strong>Guided practice</strong><p>Explore this entry in a local browser terminal. No commands are executed and no success is simulated.</p></div><button type="button" class="primary" id="toggle-practice" aria-expanded="false" aria-controls="practice-host">Try in terminal ↗</button></div><div id="practice-host" hidden></div><div class="panel"><h2>1. Choose context and copy input</h2><p>${esc(r.placement)}</p>${r.variants?.length>1?`<div class="variant-tabs" role="group" aria-label="Test contexts">${r.variants.map((v,i)=>`<button type="button" class="variant-tab ${i===variantIndex?'active':''}" data-variant="${i}">${esc(v.name)}</button>`).join('')}</div>`:''}${code((r.variants?.[variantIndex]||r).payload,'payload','Copyable test input or command')}${r.variants?.length>1?`<div class="note"><strong>Placement:</strong> ${esc(r.variants[variantIndex].placement)}<p><strong>Expected result:</strong> ${esc(r.variants[variantIndex].expected)}</p><p><strong>Source:</strong> ${link(r.variants[variantIndex].source_url,'Supporting research')}</p><p><strong>Origin:</strong> ${esc(r.variants[variantIndex].provenance)}</p></div>`:''}<div class="note">${esc(r.payload_note)}</div><div class="note origin"><strong>Payload provenance:</strong> ${esc(r.payload_origin)}</div><div class="note"><strong>Scope:</strong> ${esc(r.test_scope)}<br><strong>Verification:</strong> ${esc(r.reproduction_status)}</div>${r.original_visible_prompt?`<section class="original-excerpt"><h3>Original disclosed instruction, visible excerpt</h3><p>The following is the historical text supplied from the linked report. The original encoded Unicode bytes were not retrieved. Names and reputation claims belong to that original report, not AIHACKBins.</p>${code(r.original_visible_prompt,'historical-prompt','Historical visible instruction')}<h3>Unicode reconstruction of that excerpt</h3><p>Real Unicode tag code points generated from the visible text above. This is a reconstruction, not a verified byte identical original artifact.</p>${code(r.original_encoded_prompt,'historical-encoded','Copy reconstructed encoded instruction')}<h3>Adapted fictional researcher version</h3>${code(r.adapted_visible_prompt,'adapted-visible','Copy readable adapted instruction')}${code(r.adapted_encoded_prompt,'adapted-encoded','Copy adapted Unicode instruction')}</section>`:''}${[...r.payload].some(c=>c.codePointAt(0)>=0xE0000&&c.codePointAt(0)<=0xE007F)?`<details class="unicode-details"><summary>Show hidden Unicode code points</summary><p>Unicode tag characters can look invisible in a normal editor. The preview below shows the encoded instruction as readable ASCII and its code point count.</p><div class="note">${esc([...r.payload].filter(c=>c.codePointAt(0)>=0xE0020&&c.codePointAt(0)<=0xE007E).map(c=>String.fromCodePoint(c.codePointAt(0)-0xE0000)).join(''))}</div><p class="mono">${[...r.payload].filter(c=>c.codePointAt(0)>=0xE0000&&c.codePointAt(0)<=0xE007F).length} Unicode tag code points</p></details>`:''}${['RC-004','RC-010','RC-011'].includes(r.id)?`<h3>Unicode tag generator</h3><p>Enter a harmless marker instruction to encode with Unicode tag characters. Copy the encoded result into the test content and inspect it with a Unicode viewer.</p><div class="generator"><input id="unicode-input" value="Output AIHACKBINS_CANARY_71" aria-label="Instruction to encode"><button id="generate" class="primary">Generate</button></div><div id="unicode-output"></div>`:''}</div><div class="panel"><h2>2. Apply the test</h2><ol class="checklist">${(r.variants?.[variantIndex]?.steps||r.test_steps).map(s=>`<li>${esc(s)}</li>`).join('')}</ol></div><div class="panel"><h2>3. Expected evidence</h2><p>${esc(r.variants?.[variantIndex]?.expected||r.expected_test)}</p><div class="note">Capture original request, submitted content, assistant response, model and product versions, and timestamps. Compare with a clean control sample.</div></div><div class="panel"><h2>4. Original research and disclosures</h2><p><strong>Original researcher:</strong> ${esc(r.researcher)}</p><p><strong>Documented product or lab:</strong> ${esc(r.research_context)}</p><p>${esc(r.observed)}</p><p>${link(r.source_url,'Read original disclosure')}</p>${(r.related_research||[]).map(x=>`<p>${link(x.url,x.label)}</p>`).join('')}</div><div class="panel"><h2>5. Mitigation</h2><p>${esc(r.defense)}</p></div><div class="panel defender-panel"><h2>6. Defender notes</h2><p>${esc(r.blue_team||"No specific detection guidance supplied.")}</p></div><div class="panel"><h2>7. Model compatibility</h2>${r.model_tested?.length?`<div class="responsive-table"><table><thead><tr><th>Model</th><th>Version</th><th>Result</th></tr></thead><tbody>${r.model_tested.map(t=>`<tr><td>${esc(t.model)}</td><td>${esc(t.version)}</td><td>${esc(t.result)}</td></tr>`).join("")}</tbody></table></div>`:"<p>Not independently verified against a specific model.</p>"}<p class="mono">Last verified: ${esc(r.last_verified||"Not verified")}</p></div><div class="panel"><h2>8. Related techniques</h2><div class="pillrow">${(r.related_ids||[]).map(id=>{const t=records.find(q=>q.id===id);return t?`<a class="related-pill" href="#/technique/${esc(id)}">${esc(id)} · ${esc(t.title)}</a>`:""}).join("")||"No linked techniques yet."}</div></div><div class="panel"><h2>9. Constraints</h2><p>Inputs are generic unless explicitly labelled otherwise. They may require changing a field name, delimiter, model configuration, or tool name. Research and inspection entries do not by themselves establish exploitation. Record actual outcomes rather than assuming an exploit succeeds.</p></div></article><aside class="aside"><h3>MITRE ATLAS</h3>${r.atlas_id?`<p><strong>${esc(r.atlas_id)}</strong></p><p>${esc(r.atlas_name)}</p><p>${link(atlasUrl(r.atlas_id),'Open in MITRE ATLAS')}</p>`:`<p>No justified ATLAS technique assigned for this case.</p>`}<p>${esc(r.atlas_reason)}</p><h3>OWASP LLM Top 10, 2025</h3>${r.owasp_ids.map(id=>`<p>${link(OWASP[id].url,id+': '+OWASP[id].name)}</p>`).join('')}<h3>Validation</h3><p>${esc(r.evidence_level)}</p><p><strong>Independent product reproduction:</strong> Not performed</p><h3>Test surface</h3><p>${esc(r.attack_surface)}</p><h3>Original reference</h3><p>${link(r.source_url,'View publication')}</p><h3>Contribute</h3><p>${link('https://github.com/AIHACKBins/AIHACKBins/issues/new','Suggest a correction')}</p></aside></div><p class="disclosure">Only test systems you own or have permission to assess. The original disclosure is the authority for its historical results, affected versions and prerequisites.</p>`;document.querySelectorAll('[data-variant]').forEach(btn=>btn.onclick=()=>detail(id,Number(btn.dataset.variant)));const copyLink=$('#copy-link');if(copyLink)copyLink.onclick=async()=>{const url=location.href.split('#')[0]+'#/technique/'+encodeURIComponent(id);try{await navigator.clipboard.writeText(url);copyLink.textContent='Copied'}catch{copyLink.textContent='Copy unavailable'}};const practiceToggle=$('#toggle-practice');const practiceHost=$('#practice-host');if(practiceToggle&&practiceHost){practiceToggle.onclick=()=>{const showing=!practiceHost.hidden;practiceHost.hidden=showing;practiceToggle.setAttribute('aria-expanded',String(!showing));practiceToggle.textContent=showing?'Try in terminal ↗':'Close terminal ↑';if(!showing)mountPracticeTerminal(r,variantIndex,practiceHost)}}document.querySelectorAll('[data-copy]').forEach(btn=>btn.onclick=async()=>{const t=document.getElementById(btn.dataset.copy).textContent;try{await navigator.clipboard.writeText(t);btn.textContent='Copied'}catch{const sel=window.getSelection();const range=document.createRange();range.selectNodeContents(document.getElementById(btn.dataset.copy));sel.removeAllRanges();sel.addRange(range);btn.textContent='Select and copy'}});const gen=$('#generate');if(gen)gen.onclick=()=>{const s=$('#unicode-input').value;const payload=[...s].map(c=>{let code=c.codePointAt(0);return code>=32&&code<=126?String.fromCodePoint(code+0xE0000):c}).join('');$('#unicode-output').innerHTML=code(payload,'generated','Unicode tag encoded text');$('#unicode-output [data-copy]').onclick=async e=>{try{await navigator.clipboard.writeText(payload);e.currentTarget.textContent='Copied'}catch{e.currentTarget.textContent='Select to copy'}}}};function renderChains(){
- $('#main').innerHTML=`<a href="#/" class="crumb">← Catalogue</a><section class="detailhead"><div class="eyebrow">ATTACK PATHS</div><h1>Technique chains</h1><p class="lead">Curated educational sequences. Each step links to a technique. These are not verified end to end exploits.</p></section>${chains.map(ch=>`<section class="panel"><h2>${esc(ch.title)}</h2><p>${esc(ch.description)}</p><div class="chain-steps">${ch.steps.map((id,i)=>{const r=records.find(x=>x.id===id);return `<div class="chain-node">${i?'<span aria-hidden="true" class="chain-arrow">→</span>':''}<a href="#/technique/${esc(id)}"><small>${esc(id)}</small><strong>${esc(r?.title||'Unknown technique')}</strong></a></div>`}).join('')}</div></section>`).join('')}`;
-}
-function renderApi(){
- $('#main').innerHTML=`<a href="#/" class="crumb">← Catalogue</a><section class="detailhead"><div class="eyebrow">OPEN DATA</div><h1>Static JSON API</h1><p class="lead">No authentication and no backend. Data updates with every deployment.</p></section><section class="panel"><h2>Endpoints</h2><p><a href="data/cases.json">data/cases.json</a> — technique records</p><p><a href="data/changelog.json">data/changelog.json</a> — recent updates</p><p><a href="data/chains.json">data/chains.json</a> — curated technique paths</p><p><a href="feed.xml">feed.xml</a> — Atom updates</p><h2>Command line examples</h2>${code('curl -fsSL https://aihackbins.org/data/cases.json | jq ".[] | {id,title,owasp_ids,atlas_id}"','api-code-1','All technique identifiers')}${code('curl -fsSL https://aihackbins.org/data/cases.json | jq -r ".[] | select(.atlas_id == \\"AML.T0051.001\\") | .title"','api-code-2','Filter by ATLAS technique')}${code('curl -fsSL https://aihackbins.org/data/chains.json | jq ".[].steps"','api-code-3','Chain step IDs')}<p>Cite individual IDs and original research URLs. The AIHACKBins authored catalogue data is intended to be MIT licensed; third party source material retains its own licence and attribution. Consult the repository LICENSE for authoritative terms.</p></section>`;
- document.querySelectorAll('[data-copy]').forEach(btn=>btn.onclick=async()=>{await navigator.clipboard.writeText(document.getElementById(btn.dataset.copy).textContent);btn.textContent='Copied'});
-}
-function route(){const path=decodeURIComponent(location.hash.replace(/^#\/?/,''));if(path.startsWith('technique/'))detail(path.slice(10));else if(path==='chains')renderChains();else if(path==='api')renderApi();else if(path.startsWith('lab/'))window.AIHACKBinsLab?.render(path.slice(4));else if(path==='lab')window.AIHACKBinsLab?.render(null);else renderHome();window.scrollTo(0,0)}addEventListener('hashchange',route);document.addEventListener('keydown',e=>{if(e.key==='/'&&!['INPUT','TEXTAREA'].includes(document.activeElement.tagName)&&$('#search')){e.preventDefault();$('#search').focus()}});Promise.all(['data/cases.json','data/changelog.json','data/chains.json'].map(url=>fetch(url,{cache:'no-cache'}).then(r=>{if(!r.ok)throw Error('HTTP '+r.status);return r.json()}))).then(([data,log,paths])=>{if(!Array.isArray(data)||data.length<1)throw Error('Catalogue invalid');records=data;changes=log.sort((a,b)=>b.date.localeCompare(a.date));chains=paths;window.AIHACKBinsLab?.init(data);route()}).catch(e=>{$('#main').innerHTML=`<section class="panel"><h1>Unable to load research cases</h1><p>Check that data/cases.json is deployed correctly.</p></section>`;console.error(e)});
+/* AIHACKBins app.js — redesigned UI */
+'use strict';
 
-// Navigation appears only when scrolling is useful and respects reduced motion.
-function updateScrollControls(){
- const max=Math.max(0,document.documentElement.scrollHeight-innerHeight);
- const up=document.getElementById('go-up'),down=document.getElementById('go-down');
- if(!up||!down)return;
- up.hidden=max<180||scrollY<140;
- down.hidden=max<180||scrollY>max-140;
+// ── Utilities ────────────────────────────────────────────────
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"']/g,
+  c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const link = (url, label) =>
+  `<a class="external" target="_blank" rel="noopener noreferrer" href="${esc(url)}">${esc(label)} ↗</a>`;
+
+// ── OWASP LLM 2025 ───────────────────────────────────────────
+const OWASP = {
+  LLM01:{name:'Prompt Injection',url:'https://genai.owasp.org/llmrisk/llm01-prompt-injection/'},
+  LLM02:{name:'Sensitive Info Disclosure',url:'https://genai.owasp.org/llmrisk/llm022025-sensitive-information-disclosure/'},
+  LLM03:{name:'Supply Chain',url:'https://genai.owasp.org/llmrisk/llm032025-supply-chain/'},
+  LLM04:{name:'Data & Model Poisoning',url:'https://genai.owasp.org/llmrisk/llm042025-data-and-model-poisoning/'},
+  LLM05:{name:'Improper Output Handling',url:'https://genai.owasp.org/llmrisk/llm052025-improper-output-handling/'},
+  LLM06:{name:'Excessive Agency',url:'https://genai.owasp.org/llmrisk/llm062025-excessive-agency/'},
+  LLM07:{name:'System Prompt Leakage',url:'https://genai.owasp.org/llmrisk/llm072025-system-prompt-leakage/'},
+  LLM08:{name:'Vector & Embedding Weaknesses',url:'https://genai.owasp.org/llmrisk/llm082025-vector-and-embedding-weaknesses/'},
+  LLM09:{name:'Misinformation',url:'https://genai.owasp.org/llmrisk/llm092025-misinformation/'},
+  LLM10:{name:'Unbounded Consumption',url:'https://genai.owasp.org/llmrisk/llm102025-unbounded-consumption/'},
+};
+
+// ── State ────────────────────────────────────────────────────
+let records = [], changes = [], chains = [];
+let filter = {q:'', atlas:'All', owasp:'All', severity:'All', status:'All'};
+let recentIds = [];
+try { recentIds = JSON.parse(localStorage.getItem('ahb-recent') || '[]'); } catch {}
+
+// ── Theme ────────────────────────────────────────────────────
+let theme = '';
+try { theme = localStorage.getItem('ahb-theme') || ''; } catch {}
+if (!theme) theme = window.matchMedia?.('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+function setTheme(v) {
+  document.documentElement.dataset.theme = v;
+  $$('#theme-btn, #theme-btn-top').forEach(b => b.textContent = v === 'dark' ? '☀' : '☾');
+  try { localStorage.setItem('ahb-theme', v); } catch {}
 }
-function jumpPage(to){const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;window.scrollTo({top:to==='top'?0:document.documentElement.scrollHeight,behavior:reduced?'instant':'smooth'});}
-document.getElementById('go-up').addEventListener('click',()=>jumpPage('top'));
-document.getElementById('go-down').addEventListener('click',()=>jumpPage('bottom'));
-addEventListener('scroll',updateScrollControls,{passive:true});
-addEventListener('resize',updateScrollControls);
-new MutationObserver(updateScrollControls).observe(document.getElementById('main'),{childList:true,subtree:true});
-addEventListener('load',updateScrollControls);
-updateScrollControls();
+setTheme(theme);
+$$('#theme-btn, #theme-btn-top').forEach(b =>
+  b.onclick = () => setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'));
+
+// ── Sidebar collapse ─────────────────────────────────────────
+try {
+  if (localStorage.getItem('ahb-sidebar') === '1') document.body.classList.add('sidebar-collapsed');
+} catch {}
+$('#sidebar-toggle').onclick = () => {
+  document.body.classList.toggle('sidebar-collapsed');
+  try { localStorage.setItem('ahb-sidebar', document.body.classList.contains('sidebar-collapsed') ? '1' : ''); } catch {}
+};
+// Mobile
+$('#topbar-menu').onclick = () => {
+  const s = $('#sidebar'), o = $('#sidebar-overlay');
+  s.classList.toggle('open');
+  o.classList.toggle('visible');
+  $('#topbar-menu').setAttribute('aria-expanded', s.classList.contains('open'));
+};
+$('#sidebar-overlay').onclick = () => {
+  $('#sidebar').classList.remove('open');
+  $('#sidebar-overlay').classList.remove('visible');
+  $('#topbar-menu').setAttribute('aria-expanded', 'false');
+};
+
+// ── Pill helpers ─────────────────────────────────────────────
+function severityPill(s) {
+  if (!s) return '';
+  const cls = {Critical:'pill-critical', High:'pill-high', Medium:'pill-medium', Low:'pill-low'}[s] || '';
+  return `<span class="pill ${cls}">${esc(s)}</span>`;
+}
+function statusPill(s) {
+  if (!s) return '';
+  const cls = {
+    Active:'pill-active',
+    'Partially-patched':'pill-partial',
+    Historic:'pill-historic',
+    'Model-dependent':'pill-modeldep',
+    Unverified:'pill-unverified',
+  }[s] || 'pill-unverified';
+  return `<span class="pill ${cls}">${esc(s)}</span>`;
+}
+function atlasPill(id) {
+  if (!id) return '';
+  return `<a class="pill pill-atlas" href="https://atlas.mitre.org/techniques/${encodeURIComponent(id)}/" target="_blank" rel="noopener">${esc(id)} ↗</a>`;
+}
+function owaspPill(id) {
+  if (!id || !OWASP[id]) return '';
+  return `<a class="pill pill-owasp" href="${esc(OWASP[id].url)}" target="_blank" rel="noopener">${esc(id)}</a>`;
+}
+function cvePill(cve) {
+  if (!cve) return '';
+  return `<a class="pill pill-cve" href="https://nvd.nist.gov/vuln/detail/${encodeURIComponent(cve)}" target="_blank" rel="noopener">${esc(cve)}</a>`;
+}
+
+// ── Recent tracking ──────────────────────────────────────────
+function trackRecent(id) {
+  recentIds = [id, ...recentIds.filter(x => x !== id)].slice(0, 5);
+  try { localStorage.setItem('ahb-recent', JSON.stringify(recentIds)); } catch {}
+  renderSidebarRecent();
+}
+function renderSidebarRecent() {
+  const el = $('#sidebar-recent');
+  if (!el || !recentIds.length) return;
+  el.innerHTML = `<div class="sidebar-recent-title">Recently viewed</div>` +
+    recentIds.map(id => {
+      const r = records.find(x => x.id === id);
+      return r ? `<a class="sidebar-recent-link" href="#/technique/${esc(id)}" title="${esc(r.title)}">${esc(id)} · ${esc(r.title)}</a>` : '';
+    }).join('');
+}
+
+// ── Active nav ───────────────────────────────────────────────
+function setActiveNav(route) {
+  $$('.nav-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.route === route || (route === 'technique' && el.dataset.route === 'home'));
+  });
+}
+
+// ── Crumbs ───────────────────────────────────────────────────
+function setCrumbs(html) {
+  const el = $('#topbar-crumbs');
+  if (el) el.innerHTML = html;
+}
+
+// ── Code block helper ────────────────────────────────────────
+function codeBlock(text, id, label) {
+  return `<div class="code-wrap">
+    <div class="code-header">
+      <span>${esc(label)}</span>
+      <button class="copy-btn" data-copy="${esc(id)}">Copy</button>
+    </div>
+    <pre><code id="${esc(id)}">${esc(text)}</code></pre>
+  </div>`;
+}
+function mountCopyBtns(root = document) {
+  root.querySelectorAll('[data-copy]').forEach(btn => {
+    btn.onclick = async () => {
+      const el = document.getElementById(btn.dataset.copy);
+      if (!el) return;
+      try {
+        await navigator.clipboard.writeText(el.textContent);
+        btn.textContent = 'Copied!';
+        setTimeout(() => btn.textContent = 'Copy', 1800);
+      } catch {
+        const sel = window.getSelection(), r = document.createRange();
+        r.selectNodeContents(el); sel.removeAllRanges(); sel.addRange(r);
+        btn.textContent = 'Select to copy';
+      }
+    };
+  });
+}
+
+// ── Home / Catalogue ─────────────────────────────────────────
+function renderHome() {
+  setActiveNav('home');
+  setCrumbs('<span>Catalogue</span>');
+  const atlasIds = [...new Set(records.map(r => r.atlas_id).filter(Boolean))];
+  const activeCount = records.filter(r => r.status === 'Active').length;
+  const labCount = records.filter(r => r.lab).length;
+
+  $('#main').innerHTML = `
+    <div class="catalogue-header">
+      <h1 class="catalogue-title">AI attack <em>technique</em> reference</h1>
+      <p class="catalogue-lead">GTFOBins for LLMs — specific payloads, reproducible steps, MITRE ATLAS and OWASP LLM 2025 mappings. Security through openness.</p>
+      <div class="kerckhoff-note">
+        <span class="kerckhoff-icon">🔓</span>
+        <div><strong>Kerckhoff's principle:</strong> every technique here works even when defenders know about it. Publishing techniques is a feature — it lets you test your own systems before attackers do.</div>
+      </div>
+      <div class="stats-strip">
+        <div class="stat-chip"><span class="stat-chip-num accent">${records.length}</span><span class="stat-chip-label">Techniques</span></div>
+        <div class="stat-chip"><span class="stat-chip-num danger">${activeCount}</span><span class="stat-chip-label">Active status</span></div>
+        <div class="stat-chip"><span class="stat-chip-num">${atlasIds.length}</span><span class="stat-chip-label">ATLAS techniques</span></div>
+        <div class="stat-chip"><span class="stat-chip-num accent">${labCount}</span><span class="stat-chip-label">Lab scenarios</span></div>
+      </div>
+    </div>
+
+    <div class="filter-bar">
+      <input class="filter-input" type="search" id="search" placeholder="Search ID, title, CVE, researcher, target…" aria-label="Search techniques" autocomplete="off">
+      <select class="filter-select" id="atlas-filter" aria-label="Filter ATLAS">
+        <option value="All">All ATLAS</option>
+        <option value="None">Not mapped</option>
+        ${atlasIds.map(x => `<option>${esc(x)}</option>`).join('')}
+      </select>
+      <select class="filter-select" id="owasp-filter" aria-label="Filter OWASP">
+        <option value="All">All OWASP</option>
+        ${Object.entries(OWASP).map(([k,v]) => `<option value="${k}">${k} · ${esc(v.name)}</option>`).join('')}
+      </select>
+      <select class="filter-select" id="severity-filter" aria-label="Filter severity">
+        <option value="All">All severities</option>
+        ${['Critical','High','Medium','Low','Not assessed'].map(x => `<option>${esc(x)}</option>`).join('')}
+      </select>
+      <select class="filter-select" id="status-filter" aria-label="Filter status">
+        <option value="All">All statuses</option>
+        ${['Active','Partially-patched','Model-dependent','Historic','Unverified'].map(x => `<option>${esc(x)}</option>`).join('')}
+      </select>
+      <span class="filter-count" id="found"></span>
+    </div>
+
+    <div class="owasp-row">
+      ${Object.entries(OWASP).map(([k]) => `<button class="owasp-chip" data-owasp="${k}">${k}</button>`).join('')}
+      <button class="owasp-chip" data-owasp="All">Clear</button>
+    </div>
+
+    <div class="technique-list" id="list"></div>
+    <p class="empty-state" id="empty" hidden>No matching techniques. Try clearing filters or press <kbd>/</kbd> to search.</p>
+  `;
+
+  $('#search').oninput = e => { filter.q = e.target.value; renderList(); };
+  $('#atlas-filter').onchange = e => { filter.atlas = e.target.value; renderList(); };
+  $('#owasp-filter').onchange = e => { filter.owasp = e.target.value; renderList(); };
+  $('#severity-filter').onchange = e => { filter.severity = e.target.value; renderList(); };
+  $('#status-filter').onchange = e => { filter.status = e.target.value; renderList(); };
+  $$('[data-owasp]').forEach(btn => btn.onclick = () => {
+    filter.owasp = btn.dataset.owasp;
+    $('#owasp-filter').value = btn.dataset.owasp;
+    $$('[data-owasp]').forEach(b => b.classList.toggle('active', b.dataset.owasp === filter.owasp && filter.owasp !== 'All'));
+    renderList();
+  });
+  renderList();
+}
+
+function renderList() {
+  const list = records.filter(r =>
+    (filter.atlas === 'All' || (filter.atlas === 'None' ? !r.atlas_id : r.atlas_id === filter.atlas)) &&
+    (filter.owasp === 'All' || r.owasp_ids.includes(filter.owasp)) &&
+    (filter.severity === 'All' || (filter.severity === 'Not assessed' ? !r.severity : r.severity === filter.severity)) &&
+    (filter.status === 'All' || r.status === filter.status) &&
+    [r.id, r.title, r.target, r.researcher, r.cve, r.category, r.atlas_id, r.mechanism].join(' ')
+      .toLowerCase().includes(filter.q.toLowerCase())
+  );
+  const el = $('#list'), empty = $('#empty'), found = $('#found');
+  if (!el) return;
+  if (found) found.textContent = `${list.length} / ${records.length} techniques`;
+  if (!list.length) { el.innerHTML = ''; if (empty) empty.hidden = false; return; }
+  if (empty) empty.hidden = true;
+  el.innerHTML = list.map(r => {
+    const catShort = (r.category || '').split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase();
+    return `<a class="technique-row${r.lab ? ' has-lab' : ''}" href="#/technique/${esc(r.id)}">
+      <div class="tr-id">
+        <span class="tr-id-text">${esc(r.id)}</span>
+        <span class="tr-id-cat">${esc(catShort)}</span>
+      </div>
+      <div class="tr-body">
+        <div class="tr-title">${esc(r.title)}</div>
+        <div class="tr-mechanism">${esc(r.mechanism || r.observed || '')}</div>
+        <div class="tr-pills">
+          ${statusPill(r.status)}
+          ${severityPill(r.severity)}
+          ${r.atlas_id ? `<span class="pill pill-atlas">${esc(r.atlas_id)}</span>` : ''}
+          ${(r.owasp_ids || []).slice(0,3).map(k => `<span class="pill pill-owasp">${esc(k)}</span>`).join('')}
+          ${r.cve ? cvePill(r.cve) : ''}
+        </div>
+      </div>
+      <div class="tr-actions">
+        <span class="tr-target">${esc(r.target)}</span>
+        ${r.lab ? '<span class="tr-lab-badge">▶ Lab</span>' : ''}
+      </div>
+    </a>`;
+  }).join('');
+}
+
+// ── Detail page ───────────────────────────────────────────────
+function detail(id, variantIdx = 0, activeTab = 'reference') {
+  const r = records.find(x => x.id === id);
+  if (!r) { location.hash = '#/'; return; }
+  trackRecent(id);
+  setActiveNav('technique');
+  setCrumbs(`<a href="#/">Catalogue</a><span class="topbar-crumb-sep">/</span><span>${esc(r.id)}</span>`);
+
+  const v = r.variants?.[variantIdx] || r;
+  const tabs = [
+    {id:'reference', label:'Reference'},
+    {id:'lab', label:'Lab', hidden: !r.lab},
+    {id:'intel', label:'Intel'},
+  ];
+
+  $('#main').innerHTML = `
+    <div class="detail-wrap">
+      <div class="detail-hero">
+        <div class="detail-eyebrow">
+          <span class="pill pill-atlas">${esc(r.atlas_id || 'ATLAS not mapped')}</span>
+          ${(r.owasp_ids || []).map(k => `<span class="pill pill-owasp">${esc(k)}</span>`).join('')}
+        </div>
+        <h1 class="detail-title">${esc(r.title)}</h1>
+        <p style="color:var(--muted);font-size:15px;max-width:720px;margin:0 0 14px">${esc(r.mechanism || r.observed || '')}</p>
+        <div class="detail-actions">
+          ${statusPill(r.status || 'Unverified')}
+          ${severityPill(r.severity)}
+          ${r.cve ? cvePill(r.cve) : ''}
+          ${r.lab ? `<a class="btn-primary" href="#/lab/${esc(r.id)}">▶ Open in Lab</a>` : ''}
+          <button class="btn-secondary" id="copy-link-btn">⎋ Copy link</button>
+        </div>
+      </div>
+
+      <div class="detail-tabs" role="tablist">
+        ${tabs.filter(t => !t.hidden).map(t =>
+          `<button class="detail-tab${t.id === activeTab ? ' active' : ''}" role="tab" data-tab="${t.id}">${t.label}</button>`
+        ).join('')}
+      </div>
+
+      <!-- Reference tab -->
+      <div class="detail-panel${activeTab === 'reference' ? ' active' : ''}" id="tab-reference">
+        <div class="detail-columns">
+          <article>
+            ${r.variants?.length > 1 ? `
+              <div class="panel">
+                <h2>Variants</h2>
+                <div class="variant-tabs" role="group">
+                  ${r.variants.map((v2, i) => `<button class="variant-tab${i === variantIdx ? ' active' : ''}" data-variant="${i}">${esc(v2.name)}</button>`).join('')}
+                </div>
+              </div>
+            ` : ''}
+            <div class="panel">
+              <h2>1 · Copy the payload</h2>
+              <p>${esc(v.placement || r.placement || '')}</p>
+              ${codeBlock(v.payload || r.payload || '', 'payload', 'Test payload — copy into your authorised target')}
+              <div class="note-block">${esc(r.payload_note || '')}</div>
+              <div class="note-block warn" style="margin-top:8px"><strong>Provenance:</strong> ${esc(r.payload_origin || v.provenance || '')}</div>
+            </div>
+            <div class="panel">
+              <h2>2 · Apply the test</h2>
+              <p>${esc(r.test_scope || '')}</p>
+              <ol class="checklist">
+                ${(v.steps || r.test_steps || []).map(s => `<li>${esc(s)}</li>`).join('')}
+              </ol>
+            </div>
+            <div class="panel">
+              <h2>3 · Expected evidence</h2>
+              <p>${esc(v.expected || r.expected_test || '')}</p>
+              <div class="note-block">Capture request, response, model version and timestamp. Compare with a clean control that omits the payload.</div>
+            </div>
+          </article>
+          <aside>
+            <div class="aside-sticky">
+              <div class="aside-panel">
+                <h3>MITRE ATLAS</h3>
+                ${r.atlas_id ? `
+                  <p><strong>${esc(r.atlas_id)}</strong> · ${esc(r.atlas_name || '')}</p>
+                  <p style="margin-top:8px">${link(`https://atlas.mitre.org/techniques/${encodeURIComponent(r.atlas_id)}/`, 'Open in ATLAS')}</p>
+                  <p style="margin-top:6px;font-size:12px">${esc(r.atlas_reason || '')}</p>
+                ` : '<p>No ATLAS technique assigned.</p>'}
+              </div>
+              <div class="aside-panel">
+                <h3>OWASP LLM 2025</h3>
+                <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px">
+                  ${(r.owasp_ids || []).map(k => owaspPill(k)).join('')}
+                </div>
+                ${(r.owasp_ids || []).map(k => OWASP[k] ? `<p>${link(OWASP[k].url, k + ': ' + OWASP[k].name)}</p>` : '').join('')}
+              </div>
+              <div class="aside-panel">
+                <h3>Quick facts</h3>
+                <p><strong>Target:</strong> ${esc(r.target)}</p>
+                <p><strong>Surface:</strong> ${esc(r.attack_surface || '')}</p>
+                <p><strong>Status:</strong> ${esc(r.status || 'Unverified')}</p>
+                <p><strong>Verified:</strong> ${esc(r.last_verified || 'Not yet')}</p>
+                ${r.cve ? `<p><strong>CVE:</strong> ${link('https://nvd.nist.gov/vuln/detail/' + encodeURIComponent(r.cve), r.cve)}</p>` : ''}
+              </div>
+              <div class="aside-panel">
+                <h3>Contribute</h3>
+                <p>${link('https://github.com/AIHACKBins/AIHACKBins/issues/new', 'Suggest a correction')}</p>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+
+      <!-- Lab tab (inline) -->
+      <div class="detail-panel${activeTab === 'lab' ? ' active' : ''}" id="tab-lab">
+        ${r.lab ? `<div id="inline-lab-host"></div>` : '<p class="empty-state">No lab scenario for this technique.</p>'}
+      </div>
+
+      <!-- Intel tab -->
+      <div class="detail-panel${activeTab === 'intel' ? ' active' : ''}" id="tab-intel">
+        <div class="detail-columns">
+          <article>
+            <div class="panel">
+              <h2>Original research</h2>
+              <p><strong>Researcher:</strong> ${esc(r.researcher)}</p>
+              <p><strong>Context:</strong> ${esc(r.research_context || r.target)}</p>
+              <p style="margin-top:10px">${esc(r.observed || '')}</p>
+              <p style="margin-top:10px">${link(r.source_url, 'Read original disclosure')}</p>
+              ${(r.related_research || []).map(x => `<p>${link(x.url, x.label)}</p>`).join('')}
+            </div>
+            <div class="panel">
+              <h2>Defence</h2>
+              <p>${esc(r.defense || '')}</p>
+            </div>
+            <div class="panel" style="border-left:3px solid var(--atlas)">
+              <h2>Defender notes</h2>
+              <p>${esc(r.blue_team || 'No specific detection guidance supplied.')}</p>
+            </div>
+            <div class="panel">
+              <h2>Model compatibility</h2>
+              ${r.model_tested?.length ? `
+                <div style="overflow-x:auto">
+                  <table class="model-table">
+                    <thead><tr><th>Model</th><th>Version</th><th>Result</th></tr></thead>
+                    <tbody>${r.model_tested.map(t => `<tr><td>${esc(t.model)}</td><td>${esc(t.version)}</td><td>${esc(t.result)}</td></tr>`).join('')}</tbody>
+                  </table>
+                </div>
+              ` : '<p>Not independently verified against a specific model version.</p>'}
+              <p style="font-family:var(--mono);font-size:11px;margin-top:8px;color:var(--dim)">Last verified: ${esc(r.last_verified || 'Not verified')}</p>
+            </div>
+            <div class="panel">
+              <h2>Related techniques</h2>
+              <div class="related-grid">
+                ${(r.related_ids || []).map(rid => {
+                  const t = records.find(q => q.id === rid);
+                  return t ? `<a class="related-pill" href="#/technique/${esc(rid)}">${esc(rid)} · ${esc(t.title)}</a>` : '';
+                }).join('') || '<p>No linked techniques yet.</p>'}
+              </div>
+            </div>
+          </article>
+          <aside>
+            <div class="aside-sticky">
+              <div class="aside-panel">
+                <h3>Validation</h3>
+                <p>${esc(r.evidence_level || '')}</p>
+                <p style="margin-top:6px">${esc(r.reproduction_status || '')}</p>
+              </div>
+              <div class="aside-panel">
+                <h3>Entry type</h3>
+                <p>${esc(r.entry_kind || r.type || '')}</p>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Tabs
+  $$('.detail-tab').forEach(btn => btn.onclick = () => {
+    $$('.detail-tab').forEach(b => b.classList.remove('active'));
+    $$('.detail-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    $(`#tab-${btn.dataset.tab}`)?.classList.add('active');
+    if (btn.dataset.tab === 'lab' && r.lab && $('#inline-lab-host')) {
+      window.AIHACKBinsLab?.renderInline(r, $('#inline-lab-host'));
+    }
+  });
+
+  // Variant tabs
+  $$('[data-variant]').forEach(btn => btn.onclick = () => detail(id, Number(btn.dataset.variant), 'reference'));
+
+  // Copy link
+  $('#copy-link-btn')?.addEventListener('click', async () => {
+    const url = location.href.split('#')[0] + '#/technique/' + encodeURIComponent(id);
+    try { await navigator.clipboard.writeText(url); $('#copy-link-btn').textContent = 'Copied!'; setTimeout(() => $('#copy-link-btn').textContent = '⎋ Copy link', 1800); }
+    catch { $('#copy-link-btn').textContent = 'Copy failed'; }
+  });
+
+  // If lab tab was opened directly
+  if (activeTab === 'lab' && r.lab && $('#inline-lab-host')) {
+    window.AIHACKBinsLab?.renderInline(r, $('#inline-lab-host'));
+  }
+
+  mountCopyBtns();
+}
+
+// ── Chains ────────────────────────────────────────────────────
+function renderChains() {
+  setActiveNav('chains');
+  setCrumbs(`<a href="#/">Catalogue</a><span class="topbar-crumb-sep">/</span><span>Attack chains</span>`);
+  $('#main').innerHTML = `
+    <div class="chains-header">
+      <h1>Attack chains</h1>
+      <p>Curated multi-step sequences combining techniques. Each step links to a technique entry. These are not verified end-to-end exploits.</p>
+    </div>
+    ${chains.map(ch => `
+      <div class="chain-card">
+        <h2>${esc(ch.title)}</h2>
+        <p>${esc(ch.description)}</p>
+        <div class="chain-steps">
+          ${ch.steps.map((sid, i) => {
+            const t = records.find(x => x.id === sid);
+            return `<div class="chain-node">
+              ${i ? '<span class="chain-arr">→</span>' : ''}
+              <a class="chain-link" href="#/technique/${esc(sid)}">
+                <small>${esc(sid)}</small>
+                <strong>${esc(t?.title || 'Unknown technique')}</strong>
+              </a>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+    `).join('') || '<p class="empty-state">No chains defined yet.</p>'}
+  `;
+}
+
+// ── API page ──────────────────────────────────────────────────
+function renderApi() {
+  setActiveNav('api');
+  setCrumbs(`<a href="#/">Catalogue</a><span class="topbar-crumb-sep">/</span><span>API</span>`);
+  $('#main').innerHTML = `
+    <div class="api-header">
+      <h1>Static JSON API</h1>
+      <p>No authentication, no backend. Data updates with every deployment. MIT licensed.</p>
+    </div>
+    <div class="panel">
+      <h2>Endpoints</h2>
+      <p><a class="external" href="data/cases.json">data/cases.json</a> — technique records (${records.length} entries)</p>
+      <p><a class="external" href="data/changelog.json">data/changelog.json</a> — recent updates</p>
+      <p><a class="external" href="data/chains.json">data/chains.json</a> — attack chains</p>
+      <p><a class="external" href="feed.xml">feed.xml</a> — Atom updates feed</p>
+    </div>
+    <div class="panel">
+      <h2>CLI examples</h2>
+      ${codeBlock('curl -fsSL https://aihackbins.org/data/cases.json | jq \'.[] | {id,title,owasp_ids,atlas_id}\'', 'api1', 'List all technique IDs with mappings')}
+      ${codeBlock('curl -fsSL https://aihackbins.org/data/cases.json | jq -r \'.[] | select(.atlas_id == "AML.T0051.001") | .title\'', 'api2', 'Filter by ATLAS technique')}
+      ${codeBlock('curl -fsSL https://aihackbins.org/data/cases.json | jq \'.[] | select(.status == "Active") | {id,title,cve}\'', 'api3', 'Active status techniques only')}
+      ${codeBlock('curl -fsSL https://aihackbins.org/data/cases.json | jq \'.[] | select(.lab != null) | .id\'', 'api4', 'Techniques with lab scenarios')}
+    </div>
+    ${mountCopyBtns.toString().includes('return') ? '' : ''}
+  `;
+  mountCopyBtns();
+}
+
+// ── Lab page (list view) ──────────────────────────────────────
+function renderLabList() {
+  setActiveNav('lab');
+  setCrumbs(`<a href="#/">Catalogue</a><span class="topbar-crumb-sep">/</span><span>Lab</span>`);
+  window.AIHACKBinsLab?.render(null);
+}
+
+// ── Router ────────────────────────────────────────────────────
+function route() {
+  const path = decodeURIComponent(location.hash.replace(/^#\/?/, ''));
+  if (path.startsWith('technique/')) detail(path.slice(10));
+  else if (path.startsWith('lab/')) window.AIHACKBinsLab?.render(path.slice(4));
+  else if (path === 'lab') renderLabList();
+  else if (path === 'chains') renderChains();
+  else if (path === 'api') renderApi();
+  else renderHome();
+  window.scrollTo(0, 0);
+}
+
+// ── Keyboard shortcut ─────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key === '/' && !['INPUT','TEXTAREA'].includes(document.activeElement.tagName)) {
+    e.preventDefault();
+    const s = $('#search') || $('#sidebar-search');
+    if (s) { s.focus(); s.select(); }
+  }
+});
+
+// ── Sidebar search routes to catalogue ───────────────────────
+$('#sidebar-search')?.addEventListener('input', e => {
+  const val = e.target.value;
+  const path = decodeURIComponent(location.hash.replace(/^#\/?/, ''));
+  if (!path.startsWith('technique/') && path !== 'chains' && path !== 'api' && !path.startsWith('lab')) {
+    if ($('#search')) { $('#search').value = val; filter.q = val; renderList(); }
+    else { location.hash = '#/'; setTimeout(() => { const s = $('#search'); if (s) { s.value = val; filter.q = val; renderList(); } }, 50); }
+  }
+});
+
+// ── Bootstrap ─────────────────────────────────────────────────
+addEventListener('hashchange', route);
+
+Promise.all([
+  'data/cases.json',
+  'data/changelog.json',
+  'data/chains.json',
+].map(url => fetch(url, {cache:'no-cache'}).then(r => { if (!r.ok) throw Error('HTTP ' + r.status); return r.json(); })))
+.then(([data, log, paths]) => {
+  if (!Array.isArray(data) || !data.length) throw Error('Catalogue invalid');
+  records = data;
+  changes = log.sort((a, b) => b.date.localeCompare(a.date));
+  chains = paths;
+
+  // Init lab
+  window.AIHACKBinsLab?.init(data);
+
+  // Sidebar stats
+  const statsEl = $('#sidebar-stats');
+  if (statsEl) statsEl.innerHTML =
+    `${records.length} techniques<br>${records.filter(r => r.lab).length} lab scenarios<br>${records.filter(r => r.status === 'Active').length} active`;
+
+  // Lab nav badge
+  const labBadge = $('#lab-count');
+  if (labBadge) labBadge.textContent = records.filter(r => r.lab).length;
+
+  renderSidebarRecent();
+  route();
+})
+.catch(e => {
+  $('#main').innerHTML = `<div class="panel"><h2>Failed to load catalogue</h2><p>Check that data/cases.json is deployed correctly.</p><pre>${esc(String(e))}</pre></div>`;
+  console.error(e);
+});

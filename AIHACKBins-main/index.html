@@ -1,1 +1,82 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0a1215"><meta name="description" content="AIHACKBins. Practical AI security payloads, original disclosures, OWASP 2025 and MITRE ATLAS mapping."><title>AIHACKBins | AI security field reference</title><link rel="icon" href="assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="styles.css"><link rel="alternate" type="application/atom+xml" title="AIHACKBins updates" href="feed.xml"></head><body><a class="skip" href="#main">Skip to content</a><header><div class="wrap top"><a href="#/" class="brand"><img src="assets/logo.svg" alt="" width="40" height="40"><span>AIHACK<em>Bins</em><small>OPEN AI SECURITY REFERENCE</small></span></a><div class="actions"><a class="navlink" href="#/chains">Attack chains</a><a class="navlink" href="#/lab">Lab</a><a class="navlink" href="#/api">API</a><a class="navlink" href="https://github.com/AIHACKBins/AIHACKBins" target="_blank" rel="noopener noreferrer">GitHub ↗</a><a class="navlink" href="https://github.com/AIHACKBins/.github/discussions" target="_blank" rel="noopener noreferrer">Community ↗</a><button id="theme" class="iconbtn theme-last" aria-label="Toggle dark or light mode">☀ Light</button></div></div></header><main id="main" class="wrap"><div class="loading">Loading techniques…</div></main><footer class="wrap"><strong>AIHACKBins</strong><p>Practical techniques. Transparent evidence. Original researchers credited.</p><a href="https://atlas.mitre.org/" target="_blank" rel="noopener noreferrer">MITRE ATLAS ↗</a> <a href="https://github.com/AIHACKBins/AIHACKBins" target="_blank" rel="noopener noreferrer">Source ↗</a></footer><nav class="page-scroll" aria-label="Page navigation"><button id="go-up" class="scroll-arrow" aria-label="Scroll to top" title="Scroll to top">↑</button><button id="go-down" class="scroll-arrow" aria-label="Scroll to bottom" title="Scroll to bottom">↓</button></nav><script src="lab.js" defer></script><script src="app.js" defer></script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#080d10">
+<meta name="description" content="AIHACKBins — GTFOBins for AI/LLM attack techniques. Practical payloads, MITRE ATLAS mappings, OWASP LLM 2025, interactive lab.">
+<title>AIHACKBins | AI attack technique reference</title>
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="styles.css">
+<link rel="alternate" type="application/atom+xml" title="AIHACKBins updates" href="feed.xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<!-- ── Sidebar ─────────────────────────────────────────── -->
+<nav class="sidebar" id="sidebar" aria-label="Main navigation">
+  <div class="sidebar-logo">
+    <a href="#/" class="brand-link">
+      <img src="assets/logo.svg" alt="" width="32" height="32">
+      <span class="brand-text">AIHACK<em>Bins</em></span>
+    </a>
+    <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Collapse sidebar" title="Collapse sidebar">‹</button>
+  </div>
+  <div class="sidebar-search">
+    <input type="search" id="sidebar-search" placeholder="Search techniques…" aria-label="Search techniques" autocomplete="off">
+    <kbd class="search-hint">/</kbd>
+  </div>
+  <ul class="nav-list">
+    <li><a class="nav-item active" href="#/" data-route="home">
+      <span class="nav-icon">⊞</span><span class="nav-label">Catalogue</span>
+    </a></li>
+    <li><a class="nav-item" href="#/lab" data-route="lab">
+      <span class="nav-icon">▶</span><span class="nav-label">Lab</span>
+      <span class="nav-badge" id="lab-count">0</span>
+    </a></li>
+    <li><a class="nav-item" href="#/chains" data-route="chains">
+      <span class="nav-icon">⛓</span><span class="nav-label">Attack chains</span>
+    </a></li>
+    <li><a class="nav-item" href="#/api" data-route="api">
+      <span class="nav-icon">{}</span><span class="nav-label">API / data</span>
+    </a></li>
+  </ul>
+  <div class="sidebar-footer">
+    <div class="sidebar-stats" id="sidebar-stats"></div>
+    <div class="sidebar-recent" id="sidebar-recent"></div>
+    <div class="sidebar-actions">
+      <button id="theme-btn" class="sidebar-action-btn" aria-label="Toggle theme">☀</button>
+      <a href="https://github.com/AIHACKBins/AIHACKBins" class="sidebar-action-btn" target="_blank" rel="noopener">⎋ GitHub</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ── Main ───────────────────────────────────────────── -->
+<div class="layout">
+  <header class="topbar">
+    <button class="topbar-menu" id="topbar-menu" aria-label="Open menu" aria-expanded="false">☰</button>
+    <div class="topbar-crumbs" id="topbar-crumbs"></div>
+    <div class="topbar-actions">
+      <button id="theme-btn-top" class="icon-btn" aria-label="Toggle theme">☀</button>
+    </div>
+  </header>
+  <main id="main" class="main-content">
+    <div class="loading-screen">
+      <div class="loading-terminal">
+        <span class="loading-prompt">aihackbins $</span>
+        <span class="loading-cmd" id="loading-cmd">loading catalogue…</span>
+        <span class="cursor-blink">▌</span>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ── Mobile overlay ────────────────────────────────── -->
+<div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
+
+<script src="lab.js" defer></script>
+<script src="app.js" defer></script>
+</body>
+</html>

@@ -1,448 +1,344 @@
-/* ─────────────────────────────────────────────────────────────
-   AIHACKBins / lab.js
-   In-browser scenario lab — no real model, no network calls.
-   All scenario data is pulled from the cases.json `lab` field.
-   ───────────────────────────────────────────────────────────── */
-
-(function (global) {
+/* AIHACKBins lab.js — interactive scenario terminal
+ * GTFOBins philosophy: each scenario is specific, reproducible, has a
+ * verifiable canary string as pass/fail evidence. Kerckhoff-compliant:
+ * the technique works even when the target knows about it.
+ * No real model is contacted. Simulation only.
+ */
+(function () {
   'use strict';
 
-  const esc = s => String(s ?? '').replace(/[&<>"']/g, c =>
-    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-
-  /* ── state ── */
-  let records = [];
+  // ── State ─────────────────────────────────────────────────
   let labRecords = [];
   let currentIdx = 0;
-  let completedSteps = new Set();
+  let mode = 'single'; // 'single' | 'compare'
+  let running = false;
+  let step = 0;
   let notes = [];
-  let typing = false;
-  let currentMode = 'single';
 
-  /* ── public init called by app.js once records are loaded ── */
-  function init(allRecords) {
-    records = allRecords;
-    labRecords = allRecords.filter(r => r.lab);
+  // ── Public API ────────────────────────────────────────────
+  window.AIHACKBinsLab = { init, render, renderInline };
+
+  function init(records) {
+    labRecords = records.filter(r => r.lab);
   }
 
-  /* ═══════════════════════════════════════════════════════════
-     RENDER — called by app.js route handler for #/lab and
-     #/lab/<id>
-  ═══════════════════════════════════════════════════════════ */
+  // Full-page lab: called by router for #/lab and #/lab/<id>
   function render(targetId) {
+    const mainEl = document.getElementById('main');
+    if (!mainEl) return;
     if (!labRecords.length) {
-      document.querySelector('#main').innerHTML =
-        '<section class="panel"><h1>No lab scenarios available</h1>' +
-        '<p>Add a <code>lab</code> field to entries in data/cases.json.</p></section>';
+      mainEl.innerHTML = '<p class="empty-state">No lab scenarios available.</p>';
       return;
     }
-
-    /* find starting index */
     if (targetId) {
       const idx = labRecords.findIndex(r => r.id === targetId);
-      if (idx >= 0) currentIdx = idx;
+      currentIdx = idx >= 0 ? idx : 0;
     }
 
-    completedSteps = new Set();
-    notes = [];
-    typing = false;
-    currentMode = 'single';
-
-    document.querySelector('#main').innerHTML = buildShell();
-    bindEvents();
-    renderSidebar();
-    initTerminal();
-  }
-
-  /* ── shell HTML ── */
-  function buildShell() {
-    return `
-<a class="crumb" href="#/">← All techniques</a>
-<div class="lab-wrap">
-  <div class="lab-topbar">
-    <div class="lab-logo">AIHACK<em>Bins</em> / <em>LAB</em></div>
-    <div class="lab-tabs" id="labTabs"></div>
-    <div class="lab-sandbox-badge">⬡ SANDBOX — NO REAL MODEL</div>
-  </div>
-
-  <div class="lab-workspace">
-
-    <!-- LEFT SIDEBAR -->
-    <div class="lab-sidebar">
-      <div class="lab-sidebar-inner">
-        <div class="lab-scenario-header">
-          <span class="lab-scenario-id" id="labScenId"></span>
-          <div class="lab-scenario-title" id="labScenTitle"></div>
-        </div>
-        <div class="lab-mech" id="labScenMech"></div>
-
-        <div class="lab-mapping-row" id="labMapping"></div>
-
-        <div class="lab-progress-track"><div class="lab-progress-fill" id="labProgress" style="width:0%"></div></div>
-        <div style="height:10px"></div>
-
-        <div class="lab-section-label">Test procedure</div>
-        <div class="lab-step-list" id="labStepList"></div>
-
-        <div class="lab-section-label" style="display:flex;gap:8px;align-items:center">
-          Attack payload
-          <span class="lab-inject-badge">INJECT</span>
-        </div>
-        <div class="lab-payload-box" id="labPayloadBox"></div>
-        <div class="lab-inject-note" id="labInjectNote"></div>
-        <div class="lab-btn-row">
-          <button class="lab-btn lab-btn-inject" id="labBtnInject">▶ Run Payload</button>
-          <button class="lab-btn lab-btn-copy" id="labBtnCopy">Copy</button>
-          <button class="lab-btn lab-btn-reset" id="labBtnReset">↺ Reset</button>
-        </div>
-
-        <div class="lab-notes-area" id="labNotesArea" style="display:none">
-          <div class="lab-section-label">Recorded observations</div>
-          <ol class="lab-notes-list" id="labNotesList"></ol>
-        </div>
-      </div>
-    </div>
-
-    <!-- TERMINAL PANE -->
-    <div class="lab-terminal-pane" id="labTermPane">
-      <div class="lab-term-header">
-        <div class="lab-term-dots">
-          <div class="lab-dot lab-dot-r"></div>
-          <div class="lab-dot lab-dot-y"></div>
-          <div class="lab-dot lab-dot-g"></div>
-        </div>
-        <div class="lab-term-title" id="labTermTitle"></div>
-        <div class="lab-mode-toggle">
-          <button class="lab-mode-btn lab-mode-active" id="labModeSingle" data-mode="single">Single</button>
-          <button class="lab-mode-btn" id="labModeCompare" data-mode="compare">Compare</button>
-        </div>
-      </div>
-
-      <!-- single view -->
-      <div id="labSingleView" style="display:flex;flex-direction:column;flex:1;overflow:hidden;min-height:0">
-        <div class="lab-term-body" id="labTermBody"></div>
-        <div class="lab-evidence-row">
-          <span class="lab-evidence-label">Record</span>
-          <input class="lab-evidence-input" id="labEvidenceInput"
-            placeholder="Note your observation — e.g. 'model echoed injected marker'">
-          <button class="lab-btn lab-btn-record" id="labBtnRecord">+ Note</button>
-        </div>
-        <div class="lab-input-row">
-          <span class="lab-term-prompt">you ›</span>
-          <input class="lab-term-input" id="labTermInput"
-            placeholder="Type a message to the AI, or click Run Payload →"
-            autocomplete="off" spellcheck="false">
-          <button class="lab-btn lab-btn-enter" id="labBtnEnter">↵ Send</button>
-        </div>
-      </div>
-
-      <!-- compare view -->
-      <div id="labCompareView" hidden style="display:none;flex:1;overflow:hidden;min-height:0">
-        <div class="lab-compare-wrap">
-          <div class="lab-compare-col">
-            <div class="lab-compare-head lab-compare-vuln">⚠ VULNERABLE RESPONSE</div>
-            <div class="lab-compare-body" id="labCmpVuln"></div>
-          </div>
-          <div class="lab-compare-col">
-            <div class="lab-compare-head lab-compare-safe">✓ SECURE RESPONSE</div>
-            <div class="lab-compare-body" id="labCmpSafe"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-  </div><!-- /.lab-workspace -->
-</div><!-- /.lab-wrap -->`;
-  }
-
-  /* ── bind once ── */
-  function bindEvents() {
-    document.getElementById('labBtnInject').onclick = () => runPayload();
-    document.getElementById('labBtnReset').onclick = reset;
-    document.getElementById('labBtnEnter').onclick = sendInput;
-    document.getElementById('labBtnRecord').onclick = recordNote;
-    document.getElementById('labBtnCopy').onclick = copyPayload;
-    document.getElementById('labTermInput').addEventListener('keydown', e => {
-      if (e.key === 'Enter') { e.preventDefault(); sendInput(); }
+    // Update nav
+    document.querySelectorAll('.nav-item').forEach(el => {
+      el.classList.toggle('active', el.dataset.route === 'lab');
     });
-    document.getElementById('labEvidenceInput').addEventListener('keydown', e => {
-      if (e.key === 'Enter') { e.preventDefault(); recordNote(); }
-    });
-    document.querySelectorAll('.lab-mode-btn').forEach(btn =>
-      btn.addEventListener('click', () => setMode(btn.dataset.mode)));
+    const crumbs = document.getElementById('topbar-crumbs');
+    if (crumbs) crumbs.innerHTML = '<a href="#/">Catalogue</a><span class="topbar-crumb-sep">/</span><span>Lab</span>';
+
+    const r = labRecords[currentIdx];
+    mainEl.innerHTML = '<div id="lab-full-host"></div>';
+    renderLabPage(mainEl.querySelector('#lab-full-host'));
   }
 
-  /* ── tabs ── */
-  function buildTabs() {
-    const tabs = document.getElementById('labTabs');
-    if (!tabs) return;
-    tabs.innerHTML = labRecords.map((r, i) =>
-      `<button class="lab-stab${i === currentIdx ? ' lab-stab-active' : ''}" data-lab-idx="${i}">${esc(r.id)}</button>`
-    ).join('');
-    tabs.querySelectorAll('.lab-stab').forEach(btn =>
-      btn.addEventListener('click', () => switchScenario(Number(btn.dataset.labIdx))));
-  }
-
-  function switchScenario(idx) {
+  // Inline lab: renders into a host element inside detail page tab
+  function renderInline(record, hostEl) {
+    if (!hostEl) return;
+    const idx = labRecords.findIndex(r => r.id === record.id);
+    if (idx < 0) {
+      hostEl.innerHTML = '<p class="empty-state">No lab scenario for this technique.</p>';
+      return;
+    }
     currentIdx = idx;
-    completedSteps = new Set();
-    notes = [];
-    typing = false;
-    currentMode = 'single';
-    buildTabs();
-    renderSidebar();
-    initTerminal();
-    /* reset compare */
-    const sv = document.getElementById('labSingleView');
-    const cv = document.getElementById('labCompareView');
-    if (sv) sv.style.display = 'flex';
-    if (cv) { cv.style.display = 'none'; cv.hidden = true; }
-    document.querySelectorAll('.lab-mode-btn').forEach(b => {
-      b.classList.toggle('lab-mode-active', b.dataset.mode === 'single');
-    });
+    renderWorkspace(hostEl);
   }
 
-  /* ── sidebar ── */
-  function renderSidebar() {
-    buildTabs();
+  // ── Full page ──────────────────────────────────────────────
+  function renderLabPage(host) {
+    host.innerHTML =
+      '<div class="lab-header">' +
+        '<h1>Interactive Lab</h1>' +
+        '<p>Simulated scenarios — no real model or network is contacted. Each scenario uses a canary string as objective pass/fail evidence, following Kerckhoff\'s principle.</p>' +
+      '</div>' +
+      '<div class="lab-disclaimer">' +
+        '<span>⚠</span>' +
+        '<div><strong>Simulation only.</strong> Scripted demonstrations of published techniques. Only test systems you own or have authorisation to assess. The canary string is the only objective evidence of injection.</div>' +
+      '</div>' +
+      '<div class="lab-scenario-grid">' +
+        labRecords.map((lr, i) =>
+          '<a class="lab-scenario-card' + (i === currentIdx ? ' active' : '') + '" href="#/lab/' + esc(lr.id) + '" data-idx="' + i + '">' +
+            '<div class="lsc-id">' + esc(lr.id) + '</div>' +
+            '<div class="lsc-title">' + esc(lr.title) + '</div>' +
+            '<div class="lsc-target">' + esc(lr.target) + '</div>' +
+            '<div class="lsc-pills">' +
+              (lr.atlas_id ? '<span class="pill pill-atlas" style="font-size:9px">' + esc(lr.atlas_id) + '</span>' : '') +
+              (lr.owasp_ids || []).slice(0,2).map(k => '<span class="pill pill-owasp" style="font-size:9px">' + esc(k) + '</span>').join('') +
+            '</div>' +
+          '</a>'
+        ).join('') +
+      '</div>' +
+      '<div id="lab-ws-host"></div>';
+
+    host.querySelectorAll('[data-idx]').forEach(card => {
+      card.addEventListener('click', e => {
+        e.preventDefault();
+        currentIdx = Number(card.dataset.idx);
+        location.hash = '#/lab/' + encodeURIComponent(labRecords[currentIdx].id);
+      });
+    });
+
+    renderWorkspace(host.querySelector('#lab-ws-host'));
+  }
+
+  // ── Workspace ──────────────────────────────────────────────
+  function renderWorkspace(host) {
+    if (!host) return;
+    step = 0; notes = []; running = false;
     const r = labRecords[currentIdx];
     const lab = r.lab;
 
-    document.getElementById('labScenId').textContent = r.id;
-    document.getElementById('labScenTitle').textContent = r.title;
-    document.getElementById('labScenMech').textContent = r.mechanism || '';
-    document.getElementById('labTermTitle').textContent = lab.terminal_title;
-    document.getElementById('labPayloadBox').textContent = r.payload || '';
-    document.getElementById('labInjectNote').textContent = lab.inject_note || '';
+    host.innerHTML =
+      '<div class="lab-workspace">' +
+        '<div class="lab-terminal-card">' +
+          '<div class="lab-term-chrome">' +
+            '<div class="term-dots"><div class="term-dot"></div><div class="term-dot"></div><div class="term-dot"></div></div>' +
+            '<div class="term-title-text">' + esc(lab.terminal_title || r.id + ' · simulation') + '</div>' +
+            '<div class="lab-mode-toggle">' +
+              '<button class="lab-mode-btn' + (mode === 'single' ? ' active' : '') + '" data-mode="single">Terminal</button>' +
+              '<button class="lab-mode-btn' + (mode === 'compare' ? ' active' : '') + '" data-mode="compare">Compare</button>' +
+            '</div>' +
+          '</div>' +
+          '<div id="lab-body-wrap">' +
+            (mode === 'single'
+              ? '<div class="lab-term-body" id="lab-term-body" role="log" aria-live="polite"></div>'
+              : buildCompareHTML(r, lab)
+            ) +
+          '</div>' +
+          (mode === 'single'
+            ? '<div class="lab-input-bar">' +
+                '<label for="lab-input">$</label>' +
+                '<input id="lab-input" type="text" placeholder="Type a message or click Run Injection…" autocomplete="off" spellcheck="false">' +
+                '<button class="lab-run-btn" id="lab-run-btn">Run Injection</button>' +
+              '</div>'
+            : ''
+          ) +
+        '</div>' +
+        '<div class="lab-sidebar">' + buildSidebarHTML(r, lab) + '</div>' +
+      '</div>';
 
-    /* ATLAS + OWASP pills */
-    const mapEl = document.getElementById('labMapping');
-    const pills = [];
-    if (r.atlas_id) pills.push(`<a class="pill a" href="https://atlas.mitre.org/techniques/${encodeURIComponent(r.atlas_id)}/" target="_blank" rel="noopener">${esc(r.atlas_id)} ↗</a>`);
-    (r.owasp_ids || []).forEach(id => pills.push(`<span class="pill">${esc(id)}</span>`));
-    mapEl.innerHTML = pills.join('');
+    bindEvents(r, lab, host);
+    if (mode === 'single') initTerminal(lab, host);
+  }
 
-    /* steps */
-    const steps = (r.variants?.[0]?.steps || r.test_steps || []);
-    const stepEl = document.getElementById('labStepList');
-    stepEl.innerHTML = steps.map((s, i) => {
-      const done = completedSteps.has(i);
-      const active = !done && i === nextStep();
-      return `<div class="lab-step${done ? ' lab-step-done' : active ? ' lab-step-active' : ''}" data-step="${i}">
-        <span class="lab-step-num">${String(i + 1).padStart(2, '0')}</span>
-        <div class="lab-step-check">${done ? '✓' : ''}</div>
-        <span class="lab-step-text">${esc(s)}</span>
-      </div>`;
-    }).join('');
-    stepEl.querySelectorAll('.lab-step').forEach(el =>
-      el.addEventListener('click', () => toggleStep(Number(el.dataset.step))));
-
-    /* progress */
-    const pct = steps.length ? (completedSteps.size / steps.length) * 100 : 0;
-    document.getElementById('labProgress').style.width = pct + '%';
-
-    /* notes */
-    const na = document.getElementById('labNotesArea');
-    const nl = document.getElementById('labNotesList');
-    if (notes.length) {
-      na.style.display = '';
-      nl.innerHTML = notes.map(n => `<li>${esc(n)}</li>`).join('');
-    } else {
-      na.style.display = 'none';
+  function buildCompareHTML(r, lab) {
+    const canary = extractCanary(lab);
+    function hilite(text) {
+      if (!canary) return esc(text);
+      const safe = canary.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      return esc(text).replace(new RegExp(safe, 'g'),
+        '<mark class="compare-canary">' + esc(canary) + '</mark>');
     }
+    const vulnText = (lab.vuln_responses || []).map(v => v.text).join('\n\n');
+    return '<div class="lab-compare">' +
+      '<div class="compare-pane vuln">' +
+        '<div class="compare-pane-header">⚠ Vulnerable response</div>' +
+        '<div class="compare-pane-body">' + hilite(vulnText) + '</div>' +
+      '</div>' +
+      '<div class="compare-pane safe">' +
+        '<div class="compare-pane-header">✓ Secure / patched response</div>' +
+        '<div class="compare-pane-body">' + esc(lab.safe_response || 'No safe response defined.') + '</div>' +
+      '</div>' +
+    '</div>';
   }
 
-  function nextStep() {
-    const steps = labRecords[currentIdx]?.test_steps || [];
-    for (let i = 0; i < steps.length; i++) { if (!completedSteps.has(i)) return i; }
-    return steps.length;
+  function buildSidebarHTML(r, lab) {
+    const stepLabels = [
+      'Inject payload into target',
+      'Submit clean prompt',
+      'Observe response for canary',
+      'Record findings',
+    ];
+    return (
+      '<div class="lab-card">' +
+        '<h3>Steps</h3>' +
+        '<div class="lab-steps">' +
+          stepLabels.map((s, i) =>
+            '<div class="lab-step" id="lab-step-' + i + '">' +
+              '<div class="lab-step-num">' + (i + 1) + '</div>' +
+              '<span>' + esc(s) + '</span>' +
+            '</div>'
+          ).join('') +
+        '</div>' +
+      '</div>' +
+      '<div class="lab-card">' +
+        '<h3>Payload context</h3>' +
+        '<pre class="lab-payload-pre">' + esc(lab.inject_note || 'See technique entry for details') + '</pre>' +
+      '</div>' +
+      '<div class="lab-card">' +
+        '<h3>Mappings</h3>' +
+        '<div class="lab-map-row">' +
+          (r.atlas_id ? '<a class="pill pill-atlas" href="https://atlas.mitre.org/techniques/' + encodeURIComponent(r.atlas_id) + '/" target="_blank" rel="noopener">' + esc(r.atlas_id) + ' ↗</a>' : '') +
+          (r.owasp_ids || []).map(k => '<span class="pill pill-owasp">' + esc(k) + '</span>').join('') +
+        '</div>' +
+        (r.atlas_name ? '<p style="font-size:12px;color:var(--muted);margin-top:8px">' + esc(r.atlas_name) + '</p>' : '') +
+      '</div>' +
+      '<div class="lab-card">' +
+        '<h3>Expected evidence (canary)</h3>' +
+        '<div class="lab-evidence">' + esc(lab.expected_evidence || '') + '</div>' +
+      '</div>' +
+      '<div class="lab-card">' +
+        '<h3>Your observations</h3>' +
+        '<div class="lab-notes">' +
+          '<textarea id="lab-note-input" placeholder="Record what you observed in your real test…"></textarea>' +
+          '<button class="lab-save-btn" id="lab-save-note">Save note</button>' +
+          '<ul class="lab-notes-list" id="lab-notes-list"></ul>' +
+        '</div>' +
+      '</div>'
+    );
   }
 
-  function toggleStep(i) {
-    if (completedSteps.has(i)) completedSteps.delete(i); else completedSteps.add(i);
-    renderSidebar();
-  }
+  // ── Bind events ────────────────────────────────────────────
+  function bindEvents(r, lab, host) {
+    host.querySelectorAll('[data-mode]').forEach(btn => {
+      btn.addEventListener('click', () => { mode = btn.dataset.mode; renderWorkspace(host); });
+    });
 
-  /* ── terminal ── */
-  function initTerminal() {
-    const r = labRecords[currentIdx];
-    const body = document.getElementById('labTermBody');
-    if (!body) return;
-    body.innerHTML = '';
-    addSysLine(`${r.lab.terminal_title}\nNo real model is running. Type a message or click "Run Payload".`);
-    addSysLine(`OWASP: ${(r.owasp_ids || []).join(', ')} · ATLAS: ${r.atlas_id || 'not mapped'}`);
-  }
-
-  function addSysLine(msg) {
-    const body = document.getElementById('labTermBody');
-    if (!body) return;
-    const el = document.createElement('div');
-    el.className = 'lab-tline-system';
-    el.innerHTML = `<span class="lab-tpfx">⬡</span><span class="lab-tmsg">${esc(msg)}</span>`;
-    body.appendChild(el);
-    body.scrollTop = body.scrollHeight;
-  }
-
-  function addUserLine(msg) {
-    const body = document.getElementById('labTermBody');
-    if (!body) return;
-    const el = document.createElement('div');
-    el.className = 'lab-tline lab-tline-user';
-    el.innerHTML = `<span class="lab-tpfx">you ›</span><span class="lab-tmsg">${esc(msg)}</span>`;
-    body.appendChild(el);
-    body.scrollTop = body.scrollHeight;
-  }
-
-  function addInjectLine(msg) {
-    const body = document.getElementById('labTermBody');
-    if (!body) return;
-    const el = document.createElement('div');
-    el.className = 'lab-inject-line';
-    el.textContent = msg;
-    body.appendChild(el);
-    body.scrollTop = body.scrollHeight;
-  }
-
-  async function addResponseBlock(blocks, isVuln) {
-    const body = document.getElementById('labTermBody');
-    if (!body) return;
-    const container = document.createElement('div');
-    container.className = `lab-response-block ${isVuln ? 'lab-response-vuln' : 'lab-response-safe'}`;
-    const tag = isVuln
-      ? `<div class="lab-response-tag lab-tag-vuln"><div class="lab-dot-tag"></div>VULNERABLE — INJECTION FOLLOWED</div>`
-      : `<div class="lab-response-tag lab-tag-safe"><div class="lab-dot-tag"></div>SECURE — INJECTION REJECTED</div>`;
-    container.innerHTML = tag + '<div class="lab-response-text" id="labTypeTarget"></div>';
-    body.appendChild(container);
-    body.scrollTop = body.scrollHeight;
-
-    const target = container.querySelector('#labTypeTarget');
-    let full = '';
-    for (const block of blocks) {
-      await sleep(block.delay);
-      for (let i = 0; i < block.text.length; i++) {
-        full += block.text[i];
-        target.textContent = full;
-        body.scrollTop = body.scrollHeight;
-        if (i < block.text.length - 1) await sleep(8);
+    const runBtn = host.querySelector('#lab-run-btn');
+    const inputEl = host.querySelector('#lab-input');
+    if (runBtn) runBtn.addEventListener('click', () => runInjection(r, lab, host));
+    if (inputEl) inputEl.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !running) {
+        const val = inputEl.value.trim();
+        if (val) { appendLine(host, 'tl-prompt', '> ' + val); inputEl.value = ''; }
+        if (step === 0) runInjection(r, lab, host);
       }
-    }
-  }
+    });
 
-  function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
-
-  /* ── run payload ── */
-  async function runPayload() {
-    if (typing) return;
-    typing = true;
-    const r = labRecords[currentIdx];
-    const lab = r.lab;
-    addUserLine(lab.clean_prompt);
-    await sleep(300);
-    addInjectLine('↳ ' + (lab.inject_note || 'payload injected…'));
-    completedSteps.add(0);
-    completedSteps.add(1);
-    renderSidebar();
-    await sleep(500);
-    await addResponseBlock(lab.vuln_responses, true);
-    completedSteps.add(2);
-    renderSidebar();
-    typing = false;
-  }
-
-  /* ── user typed input ── */
-  async function sendInput() {
-    const input = document.getElementById('labTermInput');
-    const val = (input?.value || '').trim();
-    if (!val || typing) return;
-    input.value = '';
-    addUserLine(val);
-    const lower = val.toLowerCase();
-    const lab = labRecords[currentIdx].lab;
-    if (lower.includes('safe') || lower.includes('secure') || lower.includes('clean')) {
-      await addResponseBlock([{ delay: 0, text: lab.safe_response }], false);
-    } else if (lower.includes('payload') || lower.includes('inject') || lower.includes('attack') || lower.includes('run')) {
-      await runPayload();
-    } else {
-      await sleep(400);
-      await addResponseBlock([{ delay: 0, text: `Ready to test "${labRecords[currentIdx].title}".\n\nType "run payload" to simulate the attack, or "safe" to see what a secure response looks like. Switch to Compare mode to see both at once.` }], false);
-    }
-  }
-
-  /* ── record note ── */
-  function recordNote() {
-    const input = document.getElementById('labEvidenceInput');
-    const val = (input?.value || '').trim();
-    if (!val) return;
-    notes.push(val);
-    input.value = '';
-    addSysLine(`Recorded [${notes.length}]: ${val}`);
-    completedSteps.add(3);
-    renderSidebar();
-  }
-
-  /* ── copy payload ── */
-  function copyPayload() {
-    const r = labRecords[currentIdx];
-    const btn = document.getElementById('labBtnCopy');
-    navigator.clipboard.writeText(r.payload || '').then(() => {
-      btn.textContent = 'Copied ✓';
-      setTimeout(() => { btn.textContent = 'Copy'; }, 1800);
-    }).catch(() => {
-      const box = document.getElementById('labPayloadBox');
-      const sel = window.getSelection();
-      const range = document.createRange();
-      range.selectNodeContents(box);
-      sel.removeAllRanges();
-      sel.addRange(range);
+    const saveBtn = host.querySelector('#lab-save-note');
+    if (saveBtn) saveBtn.addEventListener('click', () => {
+      const ta = host.querySelector('#lab-note-input');
+      const val = ta && ta.value.trim();
+      if (!val) return;
+      notes.push(val); ta.value = '';
+      const ul = host.querySelector('#lab-notes-list');
+      if (ul) ul.innerHTML = notes.map(n => '<li>' + esc(n) + '</li>').join('');
     });
   }
 
-  /* ── reset ── */
-  function reset() {
-    completedSteps = new Set();
-    notes = [];
-    initTerminal();
-    renderSidebar();
+  // ── Terminal init ──────────────────────────────────────────
+  function initTerminal(lab, host) {
+    const body = host.querySelector('#lab-term-body');
+    if (!body) return;
+    [
+      ['tl-sys', 'AIHACKBins Lab — simulation mode'],
+      ['tl-sys', 'No real model, shell or network contacted.'],
+      ['tl-sys', '────────────────────────────────────'],
+      ['tl-text', 'Scenario: ' + (lab.terminal_title || 'unnamed')],
+      ['tl-text', 'Clean prompt: "' + (lab.clean_prompt || '') + '"'],
+      ['tl-sys', '────────────────────────────────────'],
+      ['tl-sys', 'Click [Run Injection] to simulate the vulnerable response.'],
+      ['tl-sys', 'Switch to Compare mode to see both outcomes side by side.'],
+    ].forEach(([cls, text]) => {
+      const el = document.createElement('div');
+      el.className = cls; el.textContent = text;
+      body.appendChild(el);
+    });
   }
 
-  /* ── compare mode ── */
-  function setMode(mode) {
-    currentMode = mode;
-    document.querySelectorAll('.lab-mode-btn').forEach(b =>
-      b.classList.toggle('lab-mode-active', b.dataset.mode === mode));
-    const sv = document.getElementById('labSingleView');
-    const cv = document.getElementById('labCompareView');
-    if (mode === 'single') {
-      sv.style.display = 'flex'; cv.style.display = 'none'; cv.hidden = true;
-    } else {
-      sv.style.display = 'none'; cv.style.display = 'flex'; cv.hidden = false;
-      renderCompare();
+  // ── Run injection ──────────────────────────────────────────
+  async function runInjection(r, lab, host) {
+    if (running) return;
+    running = true;
+    const runBtn = host.querySelector('#lab-run-btn');
+    if (runBtn) { runBtn.disabled = true; runBtn.textContent = 'Running…'; }
+    setStep(host, 0);
+
+    appendLine(host, 'tl-sys', '');
+    appendLine(host, 'tl-sys', '> ' + (lab.clean_prompt || 'Sending prompt…'));
+    await delay(600);
+    appendLine(host, 'tl-sys', '[Injection: ' + (lab.inject_note || 'payload embedded') + ']');
+    await delay(800);
+    setStep(host, 1);
+    appendLine(host, 'tl-sys', '── Vulnerable model response ─────────────────────');
+
+    const body = host.querySelector('#lab-term-body');
+    const vulnBlock = document.createElement('div');
+    vulnBlock.className = 'tl-vuln'; body.appendChild(vulnBlock);
+
+    for (const resp of (lab.vuln_responses || [])) {
+      await delay(resp.delay || 500);
+      await typeText(vulnBlock, resp.text || '');
+      body.scrollTop = body.scrollHeight;
+    }
+
+    await delay(400);
+    setStep(host, 2);
+
+    const canary = extractCanary(lab);
+    if (canary && vulnBlock.textContent.includes(canary)) {
+      appendLine(host, 'tl-canary', '🚩 CANARY DETECTED: ' + canary);
+      appendLine(host, 'tl-warn',  '⚠ Injection followed — marker present in response');
+    }
+
+    await delay(700);
+    appendLine(host, 'tl-sys', '── Secure / patched response ──────────────────────');
+    const safeBlock = document.createElement('div');
+    safeBlock.className = 'tl-safe'; body.appendChild(safeBlock);
+    await typeText(safeBlock, lab.safe_response || '[No safe response defined]');
+    appendLine(host, 'tl-pass', '✓ No canary in safe response');
+
+    body.scrollTop = body.scrollHeight;
+    setStep(host, 3);
+
+    running = false;
+    if (runBtn) { runBtn.disabled = false; runBtn.textContent = 'Run again'; }
+  }
+
+  // ── Helpers ────────────────────────────────────────────────
+  function extractCanary(lab) {
+    const text = (lab.vuln_responses || []).map(v => v.text).join(' ');
+    const m = text.match(/([A-Z][A-Z0-9_]{4,}(?:_[A-Z0-9]+)+)/);
+    return m ? m[1] : null;
+  }
+
+  function appendLine(host, cls, text) {
+    const body = host.querySelector('#lab-term-body');
+    if (!body) return;
+    const el = document.createElement('div');
+    el.className = cls; el.textContent = text;
+    body.appendChild(el);
+    body.scrollTop = body.scrollHeight;
+  }
+
+  async function typeText(el, text, ms = 7) {
+    let out = '';
+    for (const ch of text) {
+      out += ch; el.textContent = out;
+      if (ch !== ' ' && Math.random() > 0.6) await delay(ms);
     }
   }
 
-  function renderCompare() {
-    const r = labRecords[currentIdx];
-    const lab = r.lab;
-    const vEl = document.getElementById('labCmpVuln');
-    const sEl = document.getElementById('labCmpSafe');
-    if (!vEl || !sEl) return;
+  function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
 
-    vEl.innerHTML = `
-      <div class="lab-cmp-user">User: ${esc(lab.clean_prompt)}</div>
-      <div class="lab-cmp-inject">↓ ${esc(lab.inject_note)}</div>
-      <div class="lab-cmp-block lab-cmp-block-vuln">${lab.vuln_responses.map(v => esc(v.text)).join('')}</div>
-      <div class="lab-cmp-label lab-cmp-label-vuln">▲ INJECTION FOLLOWED — POLICY VIOLATED</div>
-      <div class="lab-cmp-evidence">Expected evidence: ${esc(lab.expected_evidence)}</div>`;
-
-    sEl.innerHTML = `
-      <div class="lab-cmp-user">User: ${esc(lab.clean_prompt)}</div>
-      <div class="lab-cmp-inject" style="color:var(--accent)">↓ Injection detected and rejected</div>
-      <div class="lab-cmp-block lab-cmp-block-safe">${esc(lab.safe_response)}</div>
-      <div class="lab-cmp-label lab-cmp-label-safe">▲ INJECTION REJECTED — SECURE BEHAVIOUR</div>
-      <div class="lab-cmp-evidence">The model identified untrusted content and did not follow embedded instructions.</div>`;
+  function setStep(host, n) {
+    step = n;
+    for (let i = 0; i < 4; i++) {
+      const el = host.querySelector('#lab-step-' + i);
+      if (!el) continue;
+      el.classList.toggle('done', i < n);
+      el.classList.toggle('current', i === n);
+    }
   }
 
-  /* ── expose ── */
-  global.AIHACKBinsLab = { init, render, labRecords: () => labRecords };
+  function esc(s) {
+    return String(s ?? '').replace(/[&<>"']/g,
+      c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
 
-})(window);
+})();
