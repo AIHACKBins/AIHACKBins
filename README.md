@@ -49,3 +49,7 @@ Each of the 33 standalone labs includes a local-only editable payload terminal. 
 
 ## v8.8 interactive guided lab update
 All 33 standalone labs use four selectable stages (Inspect, Prepare, Simulate, Evidence), editable source payloads, a local scripted two-outcome transcript, Ctrl+Enter, reset/help commands, notes export and a compact searchable index. Terminal responses are authored examples and do not predict or evaluate edited inputs. No backend or model access.
+
+## v8.9 animated terminal
+
+All 33 simulated labs now type commands and stream authored responses, with a Skip animation control and reduced-motion support. This is presentation-only: the site never runs the payload against a model or predicts the result of edits.

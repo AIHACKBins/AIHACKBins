@@ -547,3 +547,12 @@ mark.cmp-canary{background:none;color:var(--cobalt);font-weight:600}
 #practical-notes{box-sizing:border-box;width:100%;padding:12px;background:var(--bg-off);color:var(--text);border:1px solid var(--border);font:12px var(--mono)}
 @media(max-width:760px){.lab-catalogue{padding:0 14px 50px}.lab-catalogue-row{grid-template-columns:64px minmax(0,1fr);gap:8px 12px;padding:14px}.lab-catalogue-tags{grid-column:2}.lab-catalogue-go{grid-column:2}.lab-progress-step{font-size:9px}.lab-step-actions button{padding:10px}}
 @media(prefers-reduced-motion:reduce){.lab-catalogue-row{transition:none}}
+
+/* v8.9 · Terminal animation controls. Purely illustrative, no network evaluation. */
+.dyn-terminal-controls{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 14px;border-top:1px solid #34414a;background:#111a20;color:#a8bdcb;font:10px var(--mono)}
+.dyn-skip{background:transparent!important;color:#b7d5ff!important;border:1px solid #4b6a80!important;padding:6px 10px!important;cursor:pointer;font:600 11px var(--mono)}
+.dyn-skip[hidden]{display:none!important}
+.dyn-command-row button:disabled{opacity:.55;cursor:wait}
+.dyn-transcript .dyn-line:last-child:not(.dyn-disclaimer):after{content:'▌';color:#8be2aa;margin-left:3px;animation:lab-caret-blink .8s steps(1) infinite}
+@keyframes lab-caret-blink{50%{opacity:0}}
+@media (prefers-reduced-motion:reduce){.dyn-transcript .dyn-line:last-child:after{animation:none}}
