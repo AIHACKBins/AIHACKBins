@@ -53,3 +53,8 @@ All 33 standalone labs use four selectable stages (Inspect, Prepare, Simulate, E
 ## v8.9 animated terminal
 
 All 33 simulated labs now type commands and stream authored responses, with a Skip animation control and reduced-motion support. This is presentation-only: the site never runs the payload against a model or predicts the result of edits.
+
+
+## v9.0 Practical inputs
+
+All 33 records now specify `input_type`, `applies_to`, and `finding_criteria`. Relevant techniques include context-specific selectable payload variants; document and image assessments provide downloadable fixtures where bundled, and generator-based techniques are explicitly labelled. The live application remains static, and simulated outcomes do not validate a payload.

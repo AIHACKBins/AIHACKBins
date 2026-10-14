@@ -556,3 +556,8 @@ mark.cmp-canary{background:none;color:var(--cobalt);font-weight:600}
 .dyn-transcript .dyn-line:last-child:not(.dyn-disclaimer):after{content:'▌';color:#8be2aa;margin-left:3px;animation:lab-caret-blink .8s steps(1) infinite}
 @keyframes lab-caret-blink{50%{opacity:0}}
 @media (prefers-reduced-motion:reduce){.dyn-transcript .dyn-line:last-child:after{animation:none}}
+
+/* Practical input format and context variants */
+.practical-applicability{border-left:3px solid var(--cobalt);padding-left:16px}
+#detail-variant{display:block;width:100%;margin:8px 0 10px;padding:11px;background:var(--bg-off);color:var(--text);border:1px solid var(--border);border-radius:5px}
+.practical-applicability h2:not(:first-child){margin-top:16px}

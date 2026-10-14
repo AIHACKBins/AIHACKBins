@@ -271,6 +271,10 @@
     const hasDef  = r.defences  && r.defences.length;
     const hasRef  = r.references && r.references.length;
     const hasLab  = !!r.lab;
+    const inputKind = r.input_type || 'text';
+    const usableVariants = [{name:'Main input',payload:r.payload,placement:r.placement,expected:r.expected_test},...(r.variants||[]).filter(v => v.payload && v.payload !== r.payload)];
+    const artifact = r.artifact_path && /^fixtures\/[a-zA-Z0-9._/-]+$/.test(r.artifact_path) ? r.artifact_path : '';
+
 
     main.innerHTML =
       '<div class="detail-wrap">' +
@@ -314,6 +318,13 @@
                     (r.placement ? '<p class="payload-placement">' + esc(r.placement) + '</p>' : '') +
                   '</div>'
                 : '') +
+              '<div class="d-section practical-applicability"><h2>Applies to</h2><p>' + esc(r.applies_to||r.target||'') + '</p>' +
+              '<h2>What constitutes a finding?</h2><p>' + esc(r.finding_criteria||r.expected_test||'') + '</p>' +
+              '<p class="practical-small">A changed answer is evidence of instruction influence, not automatically data theft or a privileged action. Verify the actual security boundary.</p></div>' +
+              (usableVariants.length>1 ? '<div class="d-section"><h2>Payload contexts</h2><label for="detail-variant">Select a supported input variant</label><select id="detail-variant">' + usableVariants.map((v,i)=>'<option value="'+i+'">'+esc(v.name||'Variant '+(i+1))+'</option>').join('') + '</select><p class="practical-small">Selecting a variant updates the payload, placement and evidence notes above.</p></div>' : '') +
+              ((artifact || inputKind==='generator') ? '<div class="d-section"><h2>Input format: '+esc(inputKind==='file'?'Downloadable file':'Local generator')+'</h2>' +
+                  (artifact ? '<a class="btn-ghost" download href="'+esc(artifact)+'">Download test file ↘</a>' : '') +
+                  (inputKind==='generator' ? '<p>Run the provided command on your own authorised workstation. The website does not execute shell commands.</p>' : '<p>Upload the downloaded file to a compatible authorised application. Copying its filename is not the assessment input.</p>') + '</div>' : '') +
               (r.summary ? '<div class="d-section"><h2>Summary</h2><p>' + esc(r.summary) + '</p></div>' : '') +
               (r.description ? '<div class="d-section"><h2>Description</h2><p>' + esc(r.description) + '</p></div>' : '') +
               (r.observed ? '<div class="d-section"><h2>Observed behaviour</h2><p>' + esc(r.observed) + '</p></div>' : '') +
@@ -364,6 +375,19 @@
         '</div>' +
       '</div>';
 
+    // Context-specific payload switching stays client-side; no payload is executed.
+    const variantSelect = main.querySelector('#detail-variant');
+    if (variantSelect) variantSelect.addEventListener('change', () => {
+      const v=usableVariants[Number(variantSelect.value)];
+      const code=main.querySelector('.payload-hero-pre code');
+      const copyButton=main.querySelector('.payload-copy-btn');
+      const placement=main.querySelector('.payload-placement');
+      if(code) code.textContent=v.payload||'';
+      if(copyButton) copyButton.dataset.payload=v.payload||'';
+      if(placement) placement.textContent=v.placement||'';
+      const pass=main.querySelector('.dpanel[data-panel="overview"] .practical-applicability');
+      if(pass) {let p=pass.querySelectorAll('p');if(p.length>1)p[1].textContent=v.expected_test||v.expected||r.finding_criteria||r.expected_test||'';}
+    });
     // Payload copy button
     main.querySelectorAll('.payload-copy-btn').forEach(btn => {
       btn.addEventListener('click', () => {
