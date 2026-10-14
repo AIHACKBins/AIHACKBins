@@ -46,7 +46,8 @@
         a.dataset.route === 'lab'    ? view === 'lab'    :
         a.dataset.route === 'chains' ? view === 'chains' :
         a.dataset.route === 'api'    ? view === 'api'    :
-        a.dataset.route === 'submit' ? view === 'submit' : false
+        a.dataset.route === 'submit' ? view === 'submit' :
+        a.dataset.route === 'about'  ? view === 'about'  : false
       );
     });
 
@@ -56,6 +57,7 @@
     else if (view === 'chains')        renderChains();
     else if (view === 'api')           renderApi();
     else if (view === 'submit')        renderSubmit();
+    else if (view === 'about')         renderAbout();
     else document.getElementById('main').innerHTML = '<p style="padding:40px 28px">Not found.</p>';
   }
 
@@ -145,15 +147,23 @@
           '</select>' +
         '</div>' +
         '<div id="table-host"></div>' +
-      '</section>' +
+      '</section>';
 
-      // About section
+    bindFilters();
+    renderTable();
+  }
+
+
+  // ── Dedicated About page ──────────────────────────────────────────
+  function renderAbout() {
+    document.getElementById('main').innerHTML =
+      '<div class="inner-head"><a class="about-back" href="#/">← Technique catalogue</a><h1>About AIHACKBins</h1><p>An open, practical AI security reference for authorised assessment and red teaming.</p></div>' +
       '<section class="about-section">' +
         '<div class="about-inner">' +
-          '<h2 class="about-title">About AIHACKBins</h2>' +
+          '<h2 class="about-title">Purpose and principles</h2>' +
           '<p class="about-body">AIHACKBins is an open reference of AI and LLM attack techniques — the thing GTFOBins is for Unix binaries, but for the AI attack surface. Each entry documents a testable security hypothesis, a copyable assessment input, and applicable MITRE ATLAS and OWASP LLM Top 10 2025 mappings. Scripts demonstrate the workflow but do not prove a vulnerability.</p>' +
           '<p class="about-body">The project collects legitimate inputs and prompt patterns that can be used to test boundary enforcement in AI systems — probing context isolation, tool authorisation, output filtering, and model behaviour under adversarial conditions.</p>' +
-          '<p class="about-body about-principle"><strong>Kerckhoff\'s principle applied to AI:</strong> techniques work even when the target knows about them. Publishing attack techniques doesn\'t arm attackers — it raises the floor for everyone building defences. Security through obscurity has never worked. Open publication is how AI gets safer.</p>' +
+          '<p class="about-body about-principle"><strong>Kerckhoffs’s principle applied to AI:</strong> robust defences should remain effective even when their design and potential attack techniques are known. Publishing reproducible security research helps defenders assess real risks, improve controls and verify mitigations. Such information may also be misused, which is why AIHACKBins emphasises authorised testing and responsible disclosure.</p>' +
           '<p class="about-body">AIHACKBins is not a list of vulnerabilities. The models and systems listed are not vulnerable per se — this is a field reference for authorised testing and red-teaming, with the same spirit as <a class="about-link" href="https://gtfobins.github.io/" target="_blank" rel="noopener">GTFOBins</a> and <a class="about-link" href="https://lolbas-project.github.io/" target="_blank" rel="noopener">LOLBAS</a>.</p>' +
           '<div class="about-links">' +
             '<a class="about-pill" href="https://github.com/AIHACKBins/AIHACKBins" target="_blank" rel="noopener">GitHub ↗</a>' +
@@ -163,9 +173,6 @@
           '</div>' +
         '</div>' +
       '</section>';
-
-    bindFilters();
-    renderTable();
   }
 
   function atlasOptions() {

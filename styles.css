@@ -426,3 +426,23 @@ mark.cmp-canary{background:none;color:var(--cobalt);font-weight:600}
 .dtab-link{display:inline-flex;align-items:center;text-decoration:none;color:var(--text)}
 .dtab-link:hover,.lab-page-nav a:hover{color:var(--cobalt)}
 @media(max-width:640px){.lab-page-nav,.lab-page-heading,.lab-index-heading{padding-left:16px;padding-right:16px}}
+
+/* v8.1: focused lab pages and a dedicated About route */
+#lab-full-host { width: min(100% - 48px, 1280px); margin: 0 auto 64px; }
+#lab-full-host .lab-workspace { grid-template-columns: minmax(0, 1fr) 320px; gap: 24px; align-items: start; }
+#lab-full-host .lab-term, #lab-full-host .lab-side { min-width: 0; }
+#lab-full-host .lab-body { min-height: 380px; height: min(48vh, 500px); }
+#lab-full-host .lab-side-body { padding: 12px 14px; }
+.lab-page-nav, .lab-page-heading { max-width: 1280px; }
+.about-section { max-width: 1000px; margin: 0 auto; border-top: none; padding: 34px 28px 72px; }
+.about-section .about-inner { max-width: 720px; }
+.about-back { display: inline-block; margin-bottom: 18px; color: var(--cobalt); font: 600 11px var(--mono); }
+@media (max-width: 900px) {
+  #lab-full-host .lab-workspace { grid-template-columns: 1fr; gap: 20px; }
+  #lab-full-host .lab-body { height: 340px; min-height: 280px; }
+}
+@media (max-width: 680px) {
+  #lab-full-host { width: calc(100% - 32px); }
+  #lab-full-host .lab-body { height: 300px; min-height: 260px; }
+  .about-section { padding: 24px 16px 52px; }
+}
