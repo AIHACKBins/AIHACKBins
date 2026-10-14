@@ -1,5 +1,31 @@
 [
-  {"id":"chain-001","title":"Retrieved content to tool misuse","steps":["RC-103","RC-106","RC-008"],"description":"A conceptual progression from poisoned retrieval data to tool instruction attempts. Steps represent assessment techniques, not a verified end to end compromise."},
-  {"id":"chain-002","title":"Encoded content to unsafe rendering","steps":["RC-114","RC-009"],"description":"Explore how encoded instructions and downstream HTML handling have distinct trust boundaries. Not a claimed exploit chain."},
-  {"id":"chain-003","title":"Model artifact inspection and training integrity","steps":["RC-007","RC-109","RC-013"],"description":"Compare model artifact inspection with a training backdoor evaluation and historical poisoning research."}
+  {
+    "id": "chain-001",
+    "title": "Structured data to agent decisions",
+    "steps": [
+      "RC-207",
+      "RC-214",
+      "RC-215"
+    ],
+    "description": "Conceptual assessment progression across tool and notification boundaries. No verified end to end compromise."
+  },
+  {
+    "id": "chain-002",
+    "title": "External content injection paths",
+    "steps": [
+      "RC-219",
+      "RC-218",
+      "RC-208"
+    ],
+    "description": "Compare different attacker controlled sources consumed by assistants. These are alternative surfaces, not a claimed sequential exploit."
+  },
+  {
+    "id": "chain-003",
+    "title": "Multimodal and model metadata inputs",
+    "steps": [
+      "RC-213",
+      "RC-216"
+    ],
+    "description": "Explore OCR and model card trust boundaries in separate controlled assessments."
+  }
 ]

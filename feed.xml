@@ -3,40 +3,40 @@
   <id>https://aihackbins.org/feed.xml</id>
   <title>AIHACKBins updates</title>
   <link href="https://aihackbins.org/feed.xml" />
-  <updated>2026-10-12T00:00:00Z</updated>
+  <updated>2026-10-14T00:00:00Z</updated>
   <entry>
-    <title>Multimodal image instruction testing</title>
-    <id>https://aihackbins.org/#/technique/RC-101?date=2026-10-12</id>
-    <link href="https://aihackbins.org/#/technique/RC-101" />
-    <updated>2026-10-12T00:00:00Z</updated>
-    <summary>Added a documented assessment pattern for instruction bearing images. No product verification claimed.</summary>
+    <title>Many-shot jailbreak</title>
+    <id>https://aihackbins.org/#/technique/RC-201?date=2026-10-14</id>
+    <link href="https://aihackbins.org/#/technique/RC-201" />
+    <updated>2026-10-14T00:00:00Z</updated>
+    <summary>Retained in focused twenty technique catalogue; verification status and ATLAS/OWASP mappings reviewed.</summary>
   </entry>
   <entry>
-    <title>RAG retrieved document poisoning</title>
-    <id>https://aihackbins.org/#/technique/RC-103?date=2026-10-12</id>
-    <link href="https://aihackbins.org/#/technique/RC-103" />
-    <updated>2026-10-12T00:00:00Z</updated>
-    <summary>Added a controlled retrieval poisoning assessment with clean control guidance.</summary>
+    <title>Base64 encoding bypass</title>
+    <id>https://aihackbins.org/#/technique/RC-202?date=2026-10-14</id>
+    <link href="https://aihackbins.org/#/technique/RC-202" />
+    <updated>2026-10-14T00:00:00Z</updated>
+    <summary>Retained in focused twenty technique catalogue; verification status and ATLAS/OWASP mappings reviewed.</summary>
   </entry>
   <entry>
-    <title>Agent tool result injection</title>
-    <id>https://aihackbins.org/#/technique/RC-106?date=2026-10-12</id>
-    <link href="https://aihackbins.org/#/technique/RC-106" />
-    <updated>2026-10-12T00:00:00Z</updated>
-    <summary>Added JSON tool result manipulation probe and expected observable evidence.</summary>
+    <title>Legacy instruction override (ignore all previous instructions)</title>
+    <id>https://aihackbins.org/#/technique/RC-203?date=2026-10-14</id>
+    <link href="https://aihackbins.org/#/technique/RC-203" />
+    <updated>2026-10-14T00:00:00Z</updated>
+    <summary>Retained in focused twenty technique catalogue; verification status and ATLAS/OWASP mappings reviewed.</summary>
   </entry>
   <entry>
-    <title>Many shot format manipulation</title>
-    <id>https://aihackbins.org/#/technique/RC-111?date=2026-10-12</id>
-    <link href="https://aihackbins.org/#/technique/RC-111" />
-    <updated>2026-10-12T00:00:00Z</updated>
-    <summary>Added a benign boundary test for long context instruction saturation.</summary>
+    <title>Hypothetical / fictional framing jailbreak</title>
+    <id>https://aihackbins.org/#/technique/RC-204?date=2026-10-14</id>
+    <link href="https://aihackbins.org/#/technique/RC-204" />
+    <updated>2026-10-14T00:00:00Z</updated>
+    <summary>Retained in focused twenty technique catalogue; verification status and ATLAS/OWASP mappings reviewed.</summary>
   </entry>
   <entry>
-    <title>Unicode severity triage testing</title>
-    <id>https://aihackbins.org/#/technique/RC-010?date=2026-10-12</id>
-    <link href="https://aihackbins.org/#/technique/RC-010" />
-    <updated>2026-10-12T00:00:00Z</updated>
-    <summary>Retained encoded payload and fictional researcher while preserving research attribution.</summary>
+    <title>Output formatting obfuscation bypass</title>
+    <id>https://aihackbins.org/#/technique/RC-205?date=2026-10-14</id>
+    <link href="https://aihackbins.org/#/technique/RC-205" />
+    <updated>2026-10-14T00:00:00Z</updated>
+    <summary>Retained in focused twenty technique catalogue; verification status and ATLAS/OWASP mappings reviewed.</summary>
   </entry>
 </feed>

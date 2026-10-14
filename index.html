@@ -1,1 +1,50 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0a1215"><meta name="description" content="AIHACKBins. Practical AI security payloads, original disclosures, OWASP 2025 and MITRE ATLAS mapping."><title>AIHACKBins | AI security field reference</title><link rel="icon" href="assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="styles.css"><link rel="alternate" type="application/atom+xml" title="AIHACKBins updates" href="feed.xml"></head><body><a class="skip" href="#main">Skip to content</a><header><div class="wrap top"><a href="#/" class="brand"><img src="assets/logo.svg" alt="" width="40" height="40"><span>AIHACK<em>Bins</em><small>OPEN AI SECURITY REFERENCE</small></span></a><div class="actions"><a class="navlink" href="#/chains">Attack chains</a><a class="navlink" href="#/api">API</a><a class="navlink" href="https://github.com/AIHACKBins/AIHACKBins" target="_blank" rel="noopener noreferrer">GitHub ↗</a><a class="navlink" href="https://github.com/AIHACKBins/.github/discussions" target="_blank" rel="noopener noreferrer">Community ↗</a><button id="theme" class="iconbtn theme-last" aria-label="Toggle dark or light mode">☀ Light</button></div></div></header><main id="main" class="wrap"><div class="loading">Loading techniques…</div></main><footer class="wrap"><strong>AIHACKBins</strong><p>Practical techniques. Transparent evidence. Original researchers credited.</p><a href="https://atlas.mitre.org/" target="_blank" rel="noopener noreferrer">MITRE ATLAS ↗</a> <a href="https://github.com/AIHACKBins/AIHACKBins" target="_blank" rel="noopener noreferrer">Source ↗</a></footer><nav class="page-scroll" aria-label="Page navigation"><button id="go-up" class="scroll-arrow" aria-label="Scroll to top" title="Scroll to top">↑</button><button id="go-down" class="scroll-arrow" aria-label="Scroll to bottom" title="Scroll to bottom">↓</button></nav><script src="app.js" defer></script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="AIHACKBins — Open AI security reference. Practical LLM attack techniques mapped to MITRE ATLAS and OWASP LLM Top 10 2025. Find a technique. Copy the payload. Test the boundary.">
+<title>AIHACKBins</title>
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="styles.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Serif:ital,wght@0,400;0,600;1,400&display=swap">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="topbar" id="topbar">
+  <div class="topbar-inner">
+    <a href="#/" class="wordmark">AIHACK<span>Bins</span></a>
+    <nav class="topnav" id="topnav" aria-label="Main navigation">
+      <a class="tnav-link" href="#/lab" data-route="lab">Lab</a>
+      <a class="tnav-link" href="#/chains" data-route="chains">Attack chains</a>
+      <a class="tnav-link" href="#/api" data-route="api">API</a>
+      <a class="tnav-link" href="#/submit" data-route="submit">Submit</a>
+      <a class="tnav-link" href="https://github.com/AIHACKBins/AIHACKBins" target="_blank" rel="noopener">GitHub ↗</a>
+    </nav>
+    <div class="topbar-actions">
+      <button id="theme-btn" class="theme-btn" aria-label="Toggle theme">dark</button>
+      <button class="hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false">☰</button>
+    </div>
+  </div>
+</header>
+
+<div class="mobile-menu" id="mobile-menu" hidden>
+  <a class="mm-link" href="#/" data-route="home">Catalogue</a>
+  <a class="mm-link" href="#/lab" data-route="lab">Lab</a>
+  <a class="mm-link" href="#/chains" data-route="chains">Attack chains</a>
+  <a class="mm-link" href="#/api" data-route="api">API / data</a>
+  <a class="mm-link" href="#/submit" data-route="submit">Submit an entry</a>
+  <a class="mm-link" href="https://github.com/AIHACKBins/AIHACKBins" target="_blank" rel="noopener">GitHub ↗</a>
+</div>
+<div class="overlay" id="overlay"></div>
+
+<main id="main">
+  <p class="loading-line">loading catalogue<span class="blink">_</span></p>
+</main>
+
+<script src="lab.js" defer></script>
+<script src="app.js" defer></script>
+</body>
+</html>

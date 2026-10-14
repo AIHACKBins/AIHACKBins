@@ -1,3 +1,3 @@
-# Research intake
+# Catalogue scope
 
-Use original research from PortSwigger, Huntr, Mozilla 0DIN, Embrace The Red, OWASP and maintainers of affected projects as leads. Their findings require independent source and reproduction review before inclusion in the main catalogue. Preserve publication attribution and explain product versions and conditions.
+This edition contains RC-201 through RC-220 only. The 20 selected mechanisms cover direct jailbreak attempts and indirect prompt injection from structured data, messages, OCR and model cards. Mappings in `data/cases.json` describe the attempted security mechanism, not a proven model vulnerability.

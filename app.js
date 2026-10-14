@@ -1,47 +1,592 @@
-const $=s=>document.querySelector(s);const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));const link=(url,label)=>`<a class="external" target="_blank" rel="noopener noreferrer" href="${esc(url)}">${esc(label)} ↗</a>`;const atlasUrl=id=>`https://atlas.mitre.org/techniques/${encodeURIComponent(id)}/`;const OWASP=
-{"LLM01":{"name":"Prompt Injection","url":"https://genai.owasp.org/llmrisk/llm01-prompt-injection/","image":"https://genai.owasp.org/wp-content/uploads/2024/04/LLM01.25-300x154.png"},"LLM02":{"name":"Sensitive Information Disclosure","url":"https://genai.owasp.org/llmrisk/llm022025-sensitive-information-disclosure/","image":"https://genai.owasp.org/wp-content/uploads/2024/04/Slide02-300x154.png"},"LLM03":{"name":"Supply Chain","url":"https://genai.owasp.org/llmrisk/llm032025-supply-chain/","image":"https://genai.owasp.org/wp-content/uploads/2024/04/Slide03-300x154.png"},"LLM04":{"name":"Data and Model Poisoning","url":"https://genai.owasp.org/llmrisk/llm042025-data-and-model-poisoning/","image":"https://genai.owasp.org/wp-content/uploads/2024/04/Slide04-300x154.png"},"LLM05":{"name":"Improper Output Handling","url":"https://genai.owasp.org/llmrisk/llm052025-improper-output-handling/","image":"https://genai.owasp.org/wp-content/uploads/2024/04/Slide05-300x154.png"},"LLM06":{"name":"Excessive Agency","url":"https://genai.owasp.org/llmrisk/llm062025-excessive-agency/","image":"https://genai.owasp.org/wp-content/uploads/2024/04/Slide06-300x154.png"},"LLM07":{"name":"System Prompt Leakage","url":"https://genai.owasp.org/llmrisk/llm072025-system-prompt-leakage/","image":"https://genai.owasp.org/wp-content/uploads/2024/04/Slide07-300x154.png"},"LLM08":{"name":"Vector and Embedding Weaknesses","url":"https://genai.owasp.org/llmrisk/llm082025-vector-and-embedding-weaknesses/","image":"https://genai.owasp.org/wp-content/uploads/2024/04/Slide08-300x154.png"},"LLM09":{"name":"Misinformation","url":"https://genai.owasp.org/llmrisk/llm092025-misinformation/","image":"https://genai.owasp.org/wp-content/uploads/2024/04/Slide09-300x154.png"},"LLM10":{"name":"Unbounded Consumption","url":"https://genai.owasp.org/llmrisk/llm102025-unbounded-consumption/","image":"https://genai.owasp.org/wp-content/uploads/2024/04/Slide10-300x154.png"}};let records=[];let changes=[];let chains=[];let filter={q:'',atlas:'All',type:'All',owasp:'All',technique:'All',severity:'All',status:'All'};let saved='';try{saved=localStorage.getItem('aihackbins-theme')||''}catch{}const preferred=window.matchMedia?.('(prefers-color-scheme: light)').matches?'light':'dark';function setTheme(v){document.documentElement.dataset.theme=v;$('#theme').textContent=v==='dark'?'☀ Light':'☾ Dark';try{localStorage.setItem('aihackbins-theme',v)}catch{}}setTheme(saved||preferred);$('#theme').onclick=()=>setTheme(document.documentElement.dataset.theme==='dark'?'light':'dark');function pill(s,a=false){return `<span class="pill ${a?'a':''}">${esc(s)}</span>`}function renderHome(){const atlasIds=[...new Set(records.map(r=>r.atlas_id).filter(Boolean))];$('#main').innerHTML=`<section class="hero"><div><div class="eyebrow">OPEN AI SECURITY FIELD REFERENCE</div><h1>Find a technique.<br><span>Copy the payload.</span><br>Test the boundary.</h1><p class="lead">Reusable attack technique references informed by published research, with source links and MITRE ATLAS mappings. No installation or lab runner needed to browse or copy.</p><div class="stats"><span class="stat"><b>${records.length}</b> curated techniques</span><span class="stat"><b>${atlasIds.length}</b> mapped ATLAS techniques</span><span class="stat"><b>${records.reduce((n,r)=>n+(r.model_tested||[]).length,0)}</b> model specific verifications</span></div></div><div class="terminal"><strong>AIHACKBINS / FIELD MODE</strong><div class="line">01 SELECT TECHNIQUE<br>02 COPY INPUT<br>03 APPLY WITH AUTHORISATION<br>04 CAPTURE OBSERVED RESULT</div><div class="line"><strong>Evidence over claims.</strong><br>History is not current vulnerability status.</div></div></section><section id="catalogue"><div class="sectionhead"><div><div class="eyebrow">TECHNIQUE INDEX</div><h2>Explore the techniques</h2><p>Generic test inputs, real prerequisites, and original research links. No lab specific solutions or toy runner.</p></div></div><div class="finder"><input type="search" id="search" placeholder="Search product, technique, CVE, researcher…" aria-label="Search techniques"><select id="atlas" aria-label="Filter by MITRE ATLAS"><option value="All">All ATLAS mappings</option><option value="None">Not mapped</option>${atlasIds.map(x=>`<option>${esc(x)}</option>`).join('')}</select><select id="owasp" aria-label="Filter by OWASP 2025 risk"><option value="All">All OWASP risks</option>${Object.entries(OWASP).map(([k,v])=>`<option value="${k}">${k}: ${esc(v.name)}</option>`).join('')}</select><select id="type" aria-label="Filter by evidence type"><option value="All">All evidence types</option><option value="Published exploit procedure">Published exploit procedures</option><option value="Published initial probe">Published initial probes</option><option value="Practical assessment probe">Assessment probes</option><option value="Research or inspection reference">Research and inspection</option><option value="Research repository demonstration">Research demonstrations</option></select><select id="severity" aria-label="Filter severity"><option value="All">All severities</option>${["Critical","High","Medium","Low","Not assessed"].map(x=>`<option value="${x}">${x}</option>`).join("")}</select><select id="status" aria-label="Filter verification status"><option value="All">All statuses</option>${["Active","Partially-patched","Model-dependent","Historic","Unverified"].map(x=>`<option value="${x}">${x}</option>`).join("")}</select><select id="technique" aria-label="All techniques. Choose an individual entry"><option value="All">All techniques</option>${[...new Set(records.map(r=>r.category))].sort().map(cat=>`<optgroup label="${esc(cat)}">${records.filter(r=>r.category===cat).map(r=>`<option value="${esc(r.id)}">${esc(r.id)} · ${esc(r.title)}</option>`).join('')}</optgroup>`).join('')}</select></div><p class="searchhint">Press <kbd>/</kbd> to focus search</p><div class="badgeinfo" id="found"></div><div class="list" id="list"></div></section><section class="updates"><div class="sectionhead"><div><div class="eyebrow">PROJECT UPDATES</div><h2>Recently added / updated</h2></div><a href="feed.xml" class="external">Atom feed ↗</a></div><div id="recent-updates">${changes.slice(0,5).map(c=>`<a class="update-row" href="#/technique/${esc(c.id)}"><span class="mono">${esc(c.date)}</span><b>${esc(c.title)}</b><span>${esc(c.summary)}</span></a>`).join("")||"<p>No recent updates.</p>"}</div></section><section class="taxonomy"><div class="sectionhead"><div><div class="eyebrow">FIND TESTS BY OWASP CATEGORY</div><h2>Classifications, not extra content</h2><p>Choose a risk in the filter above to see matching practical entries. Each result also links its MITRE ATLAS mapping when applicable.</p></div></div><div class="risklinks">${Object.entries(OWASP).map(([id,v])=>`<button class="risklink" data-risk="${id}" aria-label="Filter ${id} ${esc(v.name)}">${id} · ${esc(v.name)}</button>`).join('')}</div></section><p class="disclosure">The catalogue clearly separates published laboratory exploitation procedures, published initial probes, independently authored assessments, and research references. They are not necessarily the original exploit payloads and are not independently verified against the named current products. Consult the primary disclosure for historical exploit prerequisites and versions.</p>`;$('#search').oninput=e=>{filter.q=e.target.value;renderList()};$('#atlas').onchange=e=>{filter.atlas=e.target.value;renderList()};$('#type').onchange=e=>{filter.type=e.target.value;renderList()};$('#severity').onchange=e=>{filter.severity=e.target.value;renderList()};$('#status').onchange=e=>{filter.status=e.target.value;renderList()};$('#technique').onchange=e=>{filter.technique=e.target.value;renderList()};$('#owasp').onchange=e=>{filter.owasp=e.target.value;renderList()};renderList();document.querySelectorAll('[data-risk]').forEach(btn=>btn.onclick=()=>{filter.owasp=btn.dataset.risk;$('#owasp').value=btn.dataset.risk;renderList();document.querySelector('#catalogue').scrollIntoView({behavior:'smooth'});});};function renderList(){let list=records.filter(r=>(filter.atlas==='All'||(filter.atlas==='None'?!r.atlas_id:r.atlas_id===filter.atlas))&&(filter.owasp==='All'||r.owasp_ids.includes(filter.owasp))&&(filter.type==='All'||r.entry_kind===filter.type)&&(filter.technique==='All'||r.id===filter.technique)&&(filter.severity==='All'||(filter.severity==='Not assessed'?!r.severity:r.severity===filter.severity))&&(filter.status==='All'||r.status===filter.status)&&[r.title,r.target,r.researcher,r.cve,r.category,r.atlas_id,r.mechanism].join(' ').toLowerCase().includes(filter.q.toLowerCase()));$('#found').textContent=`${list.length} matching techniques`;$('#list').innerHTML=list.length?list.map(r=>`<a class="tile" href="#/technique/${esc(r.id)}"><div class="pillrow">${pill(r.target)}${pill(r.entry_kind)}<span class="statusbadge status-${esc((r.status||'Unverified').toLowerCase().replace(/[^a-z]/g,''))}">${esc(r.status||'Unverified')}</span>${r.severity?pill(r.severity):pill('Severity not assessed')}${r.cve?pill(r.cve):''}${r.atlas_id?pill(r.atlas_id,true):pill('ATLAS not mapped')}${r.owasp_ids.map(k=>pill(k)).join('')}</div><h3>${esc(r.title)}</h3><p>${esc(r.mechanism)}</p><div class="bottom"><span>${esc(r.researcher)} <small class="mono">· verified ${esc(r.last_verified||"Not yet")}</small></span><span class="mono">VIEW CONTEXTS →</span></div></a>`).join(''):'<p class="empty">No matching cases.</p>'};function code(s,id,label){return `<div class="codehead"><span>${esc(label)}</span><button class="copy" data-copy="${esc(id)}">Copy</button></div><pre><code id="${esc(id)}">${esc(s)}</code></pre>`};function mountPracticeTerminal(r,index,host){
- const v=r.variants?.[index]||r;
- const steps=v.steps||r.test_steps;
- const observed=[];
- const menu=['help','context','payload','steps','evidence','mappings','source','status','clear'];
- host.innerHTML=`<section class="panel practice-panel" aria-label="Guided practice terminal"><div class="practice-top"><div><strong>AIHACKBins / Guided terminal</strong><p>Offline reference console. Reads this entry only. No AI model, shell, API or target is contacted.</p></div><span class="pill">NOT A LIVE EXPLOIT</span></div><div class="practice-quick">${menu.map(s=>`<button type="button" class="practice-chip" data-practice-cmd="${s}">${s}</button>`).join('')}</div><div id="practice-log" class="practice-log" role="log" aria-live="polite" aria-relevant="additions"></div><form id="practice-form" class="practice-form"><label for="practice-command" class="mono">aihackbins $</label><input id="practice-command" autocomplete="off" spellcheck="false" aria-label="Guided terminal command" placeholder="help, payload, steps, evidence, record your observation" maxlength="2000"><button class="primary" type="submit">Enter</button></form><p class="practice-disclaimer">To test a real application, copy the reference payload above into your authorised environment. The terminal cannot prove that exploitation succeeded.</p></section>`;
- const log=host.querySelector('#practice-log');const entry=host.querySelector('#practice-command');
- function add(role,message){const node=document.createElement('div');node.className='practice-line '+role;node.textContent=message;log.appendChild(node);log.scrollTop=log.scrollHeight}
- const responses={
-  help:'Commands: '+menu.join(', ')+'\nrecord <observation> stores a note in this browser session only. No execution or simulated successes.',
-  context:`TECHNIQUE: ${r.title}\nCONTEXT: ${v.name||r.attack_surface}\nPLACEMENT: ${v.placement||r.placement}\nPREREQUISITES: ${r.test_scope}`,
-  payload:`Copyable input below is exactly the reference payload for the selected context:\n\n${v.payload||r.payload}\n\nNote: submitting it here does NOT execute it. Use the Copy button in the reference.`,
-  steps:steps.map((s,i)=>`${i+1}. ${s}`).join('\n'),
-  evidence:`EXPECTED: ${v.expected||r.expected_test}\n\nObserve and record the actual result in the authorised target. Compare it with a clean control.`,
-  mappings:`MITRE ATLAS: ${r.atlas_id||'Not assigned'} ${r.atlas_name||''}\nOWASP: ${r.owasp_ids.join(', ')}\nThe classification is not proof of exploitation.`,
-  source:`Original research: ${v.source_url||r.source_url}\nProvenance: ${v.provenance||r.payload_origin}`,
-  status:`TYPE: ${r.guide_type}\nREVIEW: ${r.review_note}\nVALIDATION: ${r.reproduction_status}\nThis terminal makes no live verification claims.`
- };
- function execute(input){const trimmed=input.trim();if(!trimmed)return;add('command','$ '+trimmed);const cmd=trimmed.toLowerCase();if(cmd==='clear'){log.replaceChildren();add('system','Terminal cleared. No evidence or experiment was submitted.');return}if(cmd.startsWith('record ')){const note=trimmed.slice(7).trim();if(note){observed.push(note);add('output',`Recorded locally (${observed.length}): ${note}\nThis is your unverified observation, not an AIHACKBins result.`)}else add('output','Provide an observation after record.');return}if(cmd==='observations'){add('output',observed.length?observed.map((o,i)=>`${i+1}. ${o}`).join('\n'):'No observations recorded.');return}if(Object.hasOwn(responses,cmd)){add('output',responses[cmd]);return}add('error','Unknown guided command. Type help. Arbitrary system commands are intentionally disabled.')}
- host.querySelector('#practice-form').onsubmit=e=>{e.preventDefault();const value=entry.value;entry.value='';execute(value);entry.focus()};host.querySelectorAll('[data-practice-cmd]').forEach(b=>b.onclick=()=>execute(b.dataset.practiceCmd));add('system',`Ready: ${r.id} · ${r.title}\nSelected context: ${v.name||'Default'}\nType help. No model or shell is running.`);entry.focus();
-}
-function detail(id,variantIndex=0){const r=records.find(x=>x.id===id);if(!r){location.hash='#/';return}$('#main').innerHTML=`<a class="crumb" href="#/">← All techniques</a><div class="detailhead"><div class="eyebrow">${esc(r.id)} / ${esc(r.target)}</div><h1>${esc(r.title)}</h1><div class="detail-actions"><span class="statusbadge status-${esc((r.status||"Unverified").toLowerCase().replace(/[^a-z]/g,""))}">${esc(r.status||"Unverified")}</span>${r.severity?pill(r.severity):pill("Severity not assessed")}<button type="button" class="copy" id="copy-link">Copy link</button></div><p class="lead">${esc(r.mechanism)}</p><div class="pillrow">${pill(r.entry_kind)}${pill(r.evidence_level)}${r.cve?pill(r.cve):''}${r.owasp_ids.map(k=>pill(k)).join('')}</div></div><div class="columns"><article><div class="practice-entry"><div><strong>Guided practice</strong><p>Explore this entry in a local browser terminal. No commands are executed and no success is simulated.</p></div><button type="button" class="primary" id="toggle-practice" aria-expanded="false" aria-controls="practice-host">Try in terminal ↗</button></div><div id="practice-host" hidden></div><div class="panel"><h2>1. Choose context and copy input</h2><p>${esc(r.placement)}</p>${r.variants?.length>1?`<div class="variant-tabs" role="group" aria-label="Test contexts">${r.variants.map((v,i)=>`<button type="button" class="variant-tab ${i===variantIndex?'active':''}" data-variant="${i}">${esc(v.name)}</button>`).join('')}</div>`:''}${code((r.variants?.[variantIndex]||r).payload,'payload','Copyable test input or command')}${r.variants?.length>1?`<div class="note"><strong>Placement:</strong> ${esc(r.variants[variantIndex].placement)}<p><strong>Expected result:</strong> ${esc(r.variants[variantIndex].expected)}</p><p><strong>Source:</strong> ${link(r.variants[variantIndex].source_url,'Supporting research')}</p><p><strong>Origin:</strong> ${esc(r.variants[variantIndex].provenance)}</p></div>`:''}<div class="note">${esc(r.payload_note)}</div><div class="note origin"><strong>Payload provenance:</strong> ${esc(r.payload_origin)}</div><div class="note"><strong>Scope:</strong> ${esc(r.test_scope)}<br><strong>Verification:</strong> ${esc(r.reproduction_status)}</div>${r.original_visible_prompt?`<section class="original-excerpt"><h3>Original disclosed instruction, visible excerpt</h3><p>The following is the historical text supplied from the linked report. The original encoded Unicode bytes were not retrieved. Names and reputation claims belong to that original report, not AIHACKBins.</p>${code(r.original_visible_prompt,'historical-prompt','Historical visible instruction')}<h3>Unicode reconstruction of that excerpt</h3><p>Real Unicode tag code points generated from the visible text above. This is a reconstruction, not a verified byte identical original artifact.</p>${code(r.original_encoded_prompt,'historical-encoded','Copy reconstructed encoded instruction')}<h3>Adapted fictional researcher version</h3>${code(r.adapted_visible_prompt,'adapted-visible','Copy readable adapted instruction')}${code(r.adapted_encoded_prompt,'adapted-encoded','Copy adapted Unicode instruction')}</section>`:''}${[...r.payload].some(c=>c.codePointAt(0)>=0xE0000&&c.codePointAt(0)<=0xE007F)?`<details class="unicode-details"><summary>Show hidden Unicode code points</summary><p>Unicode tag characters can look invisible in a normal editor. The preview below shows the encoded instruction as readable ASCII and its code point count.</p><div class="note">${esc([...r.payload].filter(c=>c.codePointAt(0)>=0xE0020&&c.codePointAt(0)<=0xE007E).map(c=>String.fromCodePoint(c.codePointAt(0)-0xE0000)).join(''))}</div><p class="mono">${[...r.payload].filter(c=>c.codePointAt(0)>=0xE0000&&c.codePointAt(0)<=0xE007F).length} Unicode tag code points</p></details>`:''}${['RC-004','RC-010','RC-011'].includes(r.id)?`<h3>Unicode tag generator</h3><p>Enter a harmless marker instruction to encode with Unicode tag characters. Copy the encoded result into the test content and inspect it with a Unicode viewer.</p><div class="generator"><input id="unicode-input" value="Output AIHACKBINS_CANARY_71" aria-label="Instruction to encode"><button id="generate" class="primary">Generate</button></div><div id="unicode-output"></div>`:''}</div><div class="panel"><h2>2. Apply the test</h2><ol class="checklist">${(r.variants?.[variantIndex]?.steps||r.test_steps).map(s=>`<li>${esc(s)}</li>`).join('')}</ol></div><div class="panel"><h2>3. Expected evidence</h2><p>${esc(r.variants?.[variantIndex]?.expected||r.expected_test)}</p><div class="note">Capture original request, submitted content, assistant response, model and product versions, and timestamps. Compare with a clean control sample.</div></div><div class="panel"><h2>4. Original research and disclosures</h2><p><strong>Original researcher:</strong> ${esc(r.researcher)}</p><p><strong>Documented product or lab:</strong> ${esc(r.research_context)}</p><p>${esc(r.observed)}</p><p>${link(r.source_url,'Read original disclosure')}</p>${(r.related_research||[]).map(x=>`<p>${link(x.url,x.label)}</p>`).join('')}</div><div class="panel"><h2>5. Mitigation</h2><p>${esc(r.defense)}</p></div><div class="panel defender-panel"><h2>6. Defender notes</h2><p>${esc(r.blue_team||"No specific detection guidance supplied.")}</p></div><div class="panel"><h2>7. Model compatibility</h2>${r.model_tested?.length?`<div class="responsive-table"><table><thead><tr><th>Model</th><th>Version</th><th>Result</th></tr></thead><tbody>${r.model_tested.map(t=>`<tr><td>${esc(t.model)}</td><td>${esc(t.version)}</td><td>${esc(t.result)}</td></tr>`).join("")}</tbody></table></div>`:"<p>Not independently verified against a specific model.</p>"}<p class="mono">Last verified: ${esc(r.last_verified||"Not verified")}</p></div><div class="panel"><h2>8. Related techniques</h2><div class="pillrow">${(r.related_ids||[]).map(id=>{const t=records.find(q=>q.id===id);return t?`<a class="related-pill" href="#/technique/${esc(id)}">${esc(id)} · ${esc(t.title)}</a>`:""}).join("")||"No linked techniques yet."}</div></div><div class="panel"><h2>9. Constraints</h2><p>Inputs are generic unless explicitly labelled otherwise. They may require changing a field name, delimiter, model configuration, or tool name. Research and inspection entries do not by themselves establish exploitation. Record actual outcomes rather than assuming an exploit succeeds.</p></div></article><aside class="aside"><h3>MITRE ATLAS</h3>${r.atlas_id?`<p><strong>${esc(r.atlas_id)}</strong></p><p>${esc(r.atlas_name)}</p><p>${link(atlasUrl(r.atlas_id),'Open in MITRE ATLAS')}</p>`:`<p>No justified ATLAS technique assigned for this case.</p>`}<p>${esc(r.atlas_reason)}</p><h3>OWASP LLM Top 10, 2025</h3>${r.owasp_ids.map(id=>`<p>${link(OWASP[id].url,id+': '+OWASP[id].name)}</p>`).join('')}<h3>Validation</h3><p>${esc(r.evidence_level)}</p><p><strong>Independent product reproduction:</strong> Not performed</p><h3>Test surface</h3><p>${esc(r.attack_surface)}</p><h3>Original reference</h3><p>${link(r.source_url,'View publication')}</p><h3>Contribute</h3><p>${link('https://github.com/AIHACKBins/AIHACKBins/issues/new','Suggest a correction')}</p></aside></div><p class="disclosure">Only test systems you own or have permission to assess. The original disclosure is the authority for its historical results, affected versions and prerequisites.</p>`;document.querySelectorAll('[data-variant]').forEach(btn=>btn.onclick=()=>detail(id,Number(btn.dataset.variant)));const copyLink=$('#copy-link');if(copyLink)copyLink.onclick=async()=>{const url=location.href.split('#')[0]+'#/technique/'+encodeURIComponent(id);try{await navigator.clipboard.writeText(url);copyLink.textContent='Copied'}catch{copyLink.textContent='Copy unavailable'}};const practiceToggle=$('#toggle-practice');const practiceHost=$('#practice-host');if(practiceToggle&&practiceHost){practiceToggle.onclick=()=>{const showing=!practiceHost.hidden;practiceHost.hidden=showing;practiceToggle.setAttribute('aria-expanded',String(!showing));practiceToggle.textContent=showing?'Try in terminal ↗':'Close terminal ↑';if(!showing)mountPracticeTerminal(r,variantIndex,practiceHost)}}document.querySelectorAll('[data-copy]').forEach(btn=>btn.onclick=async()=>{const t=document.getElementById(btn.dataset.copy).textContent;try{await navigator.clipboard.writeText(t);btn.textContent='Copied'}catch{const sel=window.getSelection();const range=document.createRange();range.selectNodeContents(document.getElementById(btn.dataset.copy));sel.removeAllRanges();sel.addRange(range);btn.textContent='Select and copy'}});const gen=$('#generate');if(gen)gen.onclick=()=>{const s=$('#unicode-input').value;const payload=[...s].map(c=>{let code=c.codePointAt(0);return code>=32&&code<=126?String.fromCodePoint(code+0xE0000):c}).join('');$('#unicode-output').innerHTML=code(payload,'generated','Unicode tag encoded text');$('#unicode-output [data-copy]').onclick=async e=>{try{await navigator.clipboard.writeText(payload);e.currentTarget.textContent='Copied'}catch{e.currentTarget.textContent='Select to copy'}}}};function renderChains(){
- $('#main').innerHTML=`<a href="#/" class="crumb">← Catalogue</a><section class="detailhead"><div class="eyebrow">ATTACK PATHS</div><h1>Technique chains</h1><p class="lead">Curated educational sequences. Each step links to a technique. These are not verified end to end exploits.</p></section>${chains.map(ch=>`<section class="panel"><h2>${esc(ch.title)}</h2><p>${esc(ch.description)}</p><div class="chain-steps">${ch.steps.map((id,i)=>{const r=records.find(x=>x.id===id);return `<div class="chain-node">${i?'<span aria-hidden="true" class="chain-arrow">→</span>':''}<a href="#/technique/${esc(id)}"><small>${esc(id)}</small><strong>${esc(r?.title||'Unknown technique')}</strong></a></div>`}).join('')}</div></section>`).join('')}`;
-}
-function renderApi(){
- $('#main').innerHTML=`<a href="#/" class="crumb">← Catalogue</a><section class="detailhead"><div class="eyebrow">OPEN DATA</div><h1>Static JSON API</h1><p class="lead">No authentication and no backend. Data updates with every deployment.</p></section><section class="panel"><h2>Endpoints</h2><p><a href="data/cases.json">data/cases.json</a> — technique records</p><p><a href="data/changelog.json">data/changelog.json</a> — recent updates</p><p><a href="data/chains.json">data/chains.json</a> — curated technique paths</p><p><a href="feed.xml">feed.xml</a> — Atom updates</p><h2>Command line examples</h2>${code('curl -fsSL https://aihackbins.org/data/cases.json | jq ".[] | {id,title,owasp_ids,atlas_id}"','api-code-1','All technique identifiers')}${code('curl -fsSL https://aihackbins.org/data/cases.json | jq -r ".[] | select(.atlas_id == \\"AML.T0051.001\\") | .title"','api-code-2','Filter by ATLAS technique')}${code('curl -fsSL https://aihackbins.org/data/chains.json | jq ".[].steps"','api-code-3','Chain step IDs')}<p>Cite individual IDs and original research URLs. The AIHACKBins authored catalogue data is intended to be MIT licensed; third party source material retains its own licence and attribution. Consult the repository LICENSE for authoritative terms.</p></section>`;
- document.querySelectorAll('[data-copy]').forEach(btn=>btn.onclick=async()=>{await navigator.clipboard.writeText(document.getElementById(btn.dataset.copy).textContent);btn.textContent='Copied'});
-}
-function route(){const path=decodeURIComponent(location.hash.replace(/^#\/?/,''));if(path.startsWith('technique/'))detail(path.slice(10));else if(path==='chains')renderChains();else if(path==='api')renderApi();else renderHome();window.scrollTo(0,0)}addEventListener('hashchange',route);document.addEventListener('keydown',e=>{if(e.key==='/'&&!['INPUT','TEXTAREA'].includes(document.activeElement.tagName)&&$('#search')){e.preventDefault();$('#search').focus()}});Promise.all(['data/cases.json','data/changelog.json','data/chains.json'].map(url=>fetch(url,{cache:'no-cache'}).then(r=>{if(!r.ok)throw Error('HTTP '+r.status);return r.json()}))).then(([data,log,paths])=>{if(!Array.isArray(data)||data.length<1)throw Error('Catalogue invalid');records=data;changes=log.sort((a,b)=>b.date.localeCompare(a.date));chains=paths;route()}).catch(e=>{$('#main').innerHTML=`<section class="panel"><h1>Unable to load research cases</h1><p>Check that data/cases.json is deployed correctly.</p></section>`;console.error(e)});
+/* AIHACKBins app.js — horizontal-topbar layout, Option B "Concrete"
+ * Static SPA. No build step. Hash router. data/cases.json drives everything.
+ */
+(function () {
+  'use strict';
 
-// Navigation appears only when scrolling is useful and respects reduced motion.
-function updateScrollControls(){
- const max=Math.max(0,document.documentElement.scrollHeight-innerHeight);
- const up=document.getElementById('go-up'),down=document.getElementById('go-down');
- if(!up||!down)return;
- up.hidden=max<180||scrollY<140;
- down.hidden=max<180||scrollY>max-140;
-}
-function jumpPage(to){const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;window.scrollTo({top:to==='top'?0:document.documentElement.scrollHeight,behavior:reduced?'instant':'smooth'});}
-document.getElementById('go-up').addEventListener('click',()=>jumpPage('top'));
-document.getElementById('go-down').addEventListener('click',()=>jumpPage('bottom'));
-addEventListener('scroll',updateScrollControls,{passive:true});
-addEventListener('resize',updateScrollControls);
-new MutationObserver(updateScrollControls).observe(document.getElementById('main'),{childList:true,subtree:true});
-addEventListener('load',updateScrollControls);
-updateScrollControls();
+  let allRecords = [];
+  let labCount = 0;
+
+  // Filter state
+  let fSearch = '';
+  let fAtlas  = '';
+  let fOwasp  = '';
+  let fEvid   = '';
+  let fSev    = '';
+
+  // ── Boot ─────────────────────────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', () => {
+    initTheme();
+    initMobileMenu();
+    fetch('data/cases.json')
+      .then(r => r.json())
+      .then(data => {
+        allRecords = data;
+        labCount   = data.filter(r => r.lab).length;
+        if (window.AIHACKBinsLab) window.AIHACKBinsLab.init(data);
+        route();
+      })
+      .catch(err => {
+        document.getElementById('main').innerHTML =
+          '<p style="padding:40px 28px;color:var(--cobalt)">Failed to load cases.json: ' + esc(String(err)) + '</p>';
+      });
+    window.addEventListener('hashchange', route);
+  });
+
+  // ── Router ───────────────────────────────────────────────────────────
+  function route() {
+    window.scrollTo(0, 0);
+    const raw   = location.hash.replace(/^#\/?/, '');
+    const parts = raw.split('/');
+    const view  = parts[0] || '';
+    const sub   = parts[1] ? decodeURIComponent(parts[1]) : null;
+
+    document.querySelectorAll('.tnav-link[data-route]').forEach(a => {
+      a.classList.toggle('active',
+        a.dataset.route === 'lab'    ? view === 'lab'    :
+        a.dataset.route === 'chains' ? view === 'chains' :
+        a.dataset.route === 'api'    ? view === 'api'    :
+        a.dataset.route === 'submit' ? view === 'submit' : false
+      );
+    });
+
+    if      (view === '')              renderHome();
+    else if (view === 'technique' && sub) renderDetail(sub);
+    else if (view === 'lab')           { if (window.AIHACKBinsLab) window.AIHACKBinsLab.render(sub); }
+    else if (view === 'chains')        renderChains();
+    else if (view === 'api')           renderApi();
+    else if (view === 'submit')        renderSubmit();
+    else document.getElementById('main').innerHTML = '<p style="padding:40px 28px">Not found.</p>';
+  }
+
+  // ── Theme ────────────────────────────────────────────────────────────
+  function initTheme() {
+    const stored = localStorage.getItem('aihb-theme');
+    const sys    = window.matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light';
+    const saved  = stored || sys;
+    document.documentElement.dataset.theme = saved;
+    updateThemeBtn(saved);
+    document.getElementById('theme-btn').addEventListener('click', () => {
+      const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+      document.documentElement.dataset.theme = next;
+      localStorage.setItem('aihb-theme', next);
+      updateThemeBtn(next);
+    });
+  }
+  function updateThemeBtn(t) {
+    const btn = document.getElementById('theme-btn');
+    if (btn) btn.textContent = t === 'dark' ? '☀ light' : '☾ dark';
+  }
+
+  // ── Mobile menu ──────────────────────────────────────────────────────
+  function initMobileMenu() {
+    const ham     = document.getElementById('hamburger');
+    const menu    = document.getElementById('mobile-menu');
+    const overlay = document.getElementById('overlay');
+    function open()  { menu.hidden = false; overlay.classList.add('open'); ham.setAttribute('aria-expanded','true'); }
+    function close() { menu.hidden = true;  overlay.classList.remove('open'); ham.setAttribute('aria-expanded','false'); }
+    if (ham)     ham.addEventListener('click', open);
+    if (overlay) overlay.addEventListener('click', close);
+    if (menu)    menu.querySelectorAll('.mm-link').forEach(l => l.addEventListener('click', close));
+  }
+
+  // ── Home ─────────────────────────────────────────────────────────────
+  function renderHome() {
+    const active = allRecords.filter(r => r.status === 'Active').length;
+    const atlasN = allRecords.filter(r => r.atlas_id).length;
+
+    document.getElementById('main').innerHTML =
+      // Hero
+      '<section class="hero">' +
+        '<div class="hero-left">' +
+          '<p class="hero-eyebrow">AI &amp; LLM Attack Technique Reference</p>' +
+          '<h1 class="hero-title">' +
+            'Find a technique.<br>' +
+            '<span class="accent">Copy the payload.</span><br>' +
+            'Test the boundary.' +
+          '</h1>' +
+          '<p class="hero-sub">Reusable attack technique references informed by published research, mapped to MITRE ATLAS and OWASP LLM Top 10 2025. Security through obscurity is not security — open publication is how AI gets safer.</p>' +
+          '<div class="hero-stats">' +
+            '<div class="stat-chip"><span class="stat-chip-n">' + allRecords.length + '</span> techniques</div>' +
+            '<div class="stat-chip"><span class="stat-chip-n">' + atlasN + '</span> ATLAS-mapped</div>' +
+            '<div class="stat-chip"><span class="stat-chip-n">' + labCount + '</span> lab scenarios</div>' +
+            '<div class="stat-chip"><span class="stat-chip-n">' + active + '</span> active findings</div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="hero-right">' +
+          '<div class="field-card">' +
+            '<div class="field-card-head">AIHACKBins / Field mode</div>' +
+            '<div class="field-card-body">' +
+              '<div class="field-steps">' +
+                '<div class="field-step"><span class="field-step-n">01</span> Select technique</div>' +
+                '<div class="field-step"><span class="field-step-n">02</span> Copy input</div>' +
+                '<div class="field-step"><span class="field-step-n">03</span> Apply with authorisation</div>' +
+                '<div class="field-step"><span class="field-step-n">04</span> Capture observed result</div>' +
+              '</div>' +
+              '<p class="field-card-note"><strong>Evidence over claims.</strong>History is not current vulnerability status. Verify on your own system.</p>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+      '</section>' +
+
+      // Technique index
+      '<section class="index-section">' +
+        '<p class="section-eyebrow">Technique index</p>' +
+        '<h2 class="section-title">Explore the techniques</h2>' +
+        '<p class="section-sub">Generic test inputs, real prerequisites, and original research links. Techniques mapped to applicable MITRE ATLAS and OWASP LLM 2025 categories.</p>' +
+        '<div class="filter-row">' +
+          '<input type="search" id="search-input" placeholder="Search technique, target, CVE, keyword…" autocomplete="off">' +
+          '<select class="filter-select" id="f-atlas"><option value="">All ATLAS mappings</option>' + atlasOptions() + '</select>' +
+          '<select class="filter-select" id="f-owasp"><option value="">All OWASP risks</option>' + owaspOptions() + '</select>' +
+          '<select class="filter-select" id="f-evid"><option value="">All evidence types</option>' + evidOptions() + '</select>' +
+          '<select class="filter-select" id="f-sev"><option value="">All severities</option>' +
+            '<option value="Critical">Critical</option><option value="High">High</option>' +
+            '<option value="Medium">Medium</option><option value="Low">Low</option>' +
+          '</select>' +
+        '</div>' +
+        '<div id="table-host"></div>' +
+      '</section>' +
+
+      // About section
+      '<section class="about-section">' +
+        '<div class="about-inner">' +
+          '<h2 class="about-title">About AIHACKBins</h2>' +
+          '<p class="about-body">AIHACKBins is an open reference of AI and LLM attack techniques — the thing GTFOBins is for Unix binaries, but for the AI attack surface. Each entry documents a testable security hypothesis, a copyable assessment input, and applicable MITRE ATLAS and OWASP LLM Top 10 2025 mappings. Scripts demonstrate the workflow but do not prove a vulnerability.</p>' +
+          '<p class="about-body">The project collects legitimate inputs and prompt patterns that can be used to test boundary enforcement in AI systems — probing context isolation, tool authorisation, output filtering, and model behaviour under adversarial conditions.</p>' +
+          '<p class="about-body about-principle"><strong>Kerckhoff\'s principle applied to AI:</strong> techniques work even when the target knows about them. Publishing attack techniques doesn\'t arm attackers — it raises the floor for everyone building defences. Security through obscurity has never worked. Open publication is how AI gets safer.</p>' +
+          '<p class="about-body">AIHACKBins is not a list of vulnerabilities. The models and systems listed are not vulnerable per se — this is a field reference for authorised testing and red-teaming, with the same spirit as <a class="about-link" href="https://gtfobins.github.io/" target="_blank" rel="noopener">GTFOBins</a> and <a class="about-link" href="https://lolbas-project.github.io/" target="_blank" rel="noopener">LOLBAS</a>.</p>' +
+          '<div class="about-links">' +
+            '<a class="about-pill" href="https://github.com/AIHACKBins/AIHACKBins" target="_blank" rel="noopener">GitHub ↗</a>' +
+            '<a class="about-pill" href="#/api">JSON API</a>' +
+            '<a class="about-pill" href="#/lab">Interactive Lab</a>' +
+            '<a class="about-pill" href="#/chains">Attack Chains</a>' +
+          '</div>' +
+        '</div>' +
+      '</section>';
+
+    bindFilters();
+    renderTable();
+  }
+
+  function atlasOptions() {
+    const ids = [...new Set(allRecords.map(r => r.atlas_id).filter(Boolean))].sort();
+    return ids.map(id => '<option value="' + esc(id) + '">' + esc(id) + '</option>').join('');
+  }
+  function owaspOptions() {
+    const ids = [...new Set(allRecords.flatMap(r => r.owasp_ids || []))].sort();
+    return ids.map(id => '<option value="' + esc(id) + '">' + esc(id) + '</option>').join('');
+  }
+  function evidOptions() {
+    const vals = [...new Set(allRecords.map(r => r.status).filter(Boolean))].sort();
+    return vals.map(v => '<option value="' + esc(v) + '">' + esc(v) + '</option>').join('');
+  }
+
+  function bindFilters() {
+    const si = document.getElementById('search-input');
+    const fa = document.getElementById('f-atlas');
+    const fo = document.getElementById('f-owasp');
+    const fe = document.getElementById('f-evid');
+    const fs = document.getElementById('f-sev');
+    if (si) { si.value = fSearch; si.addEventListener('input', () => { fSearch = si.value.trim().toLowerCase(); renderTable(); }); }
+    if (fa) { fa.value = fAtlas;  fa.addEventListener('change', () => { fAtlas = fa.value; renderTable(); }); }
+    if (fo) { fo.value = fOwasp;  fo.addEventListener('change', () => { fOwasp = fo.value; renderTable(); }); }
+    if (fe) { fe.value = fEvid;   fe.addEventListener('change', () => { fEvid = fe.value; renderTable(); }); }
+    if (fs) { fs.value = fSev;    fs.addEventListener('change', () => { fSev = fs.value; renderTable(); }); }
+  }
+
+  function filtered() {
+    return allRecords.filter(r => {
+      if (fSearch && !(
+        r.id.toLowerCase().includes(fSearch) ||
+        (r.title||'').toLowerCase().includes(fSearch) ||
+        (r.target||'').toLowerCase().includes(fSearch) ||
+        (r.tags||[]).some(t => t.toLowerCase().includes(fSearch)) ||
+        (r.atlas_id||'').toLowerCase().includes(fSearch) ||
+        (r.owasp_ids||[]).some(o => o.toLowerCase().includes(fSearch))
+      )) return false;
+      if (fAtlas && r.atlas_id !== fAtlas) return false;
+      if (fOwasp && !(r.owasp_ids||[]).includes(fOwasp)) return false;
+      if (fEvid  && r.status !== fEvid) return false;
+      if (fSev   && r.severity !== fSev) return false;
+      return true;
+    });
+  }
+
+  function renderTable() {
+    const host = document.getElementById('table-host');
+    if (!host) return;
+    const rows = filtered();
+    if (!rows.length) { host.innerHTML = '<p class="empty-state">No techniques match the current filters.</p>'; return; }
+
+    host.innerHTML =
+      '<table class="tech-table">' +
+        '<thead><tr>' +
+          '<th class="th-id">ID</th>' +
+          '<th class="th-title">Technique</th>' +
+          '<th class="th-target">Target</th>' +
+          '<th class="th-atlas">ATLAS</th>' +
+          '<th class="th-owasp">OWASP</th>' +
+          '<th class="th-status">Status</th>' +
+          '<th class="th-lab">Lab</th>' +
+        '</tr></thead>' +
+        '<tbody>' + rows.map(techRow).join('') + '</tbody>' +
+      '</table>';
+
+    host.querySelectorAll('.tech-row').forEach(row => {
+      row.addEventListener('click', () => { location.hash = '#/technique/' + encodeURIComponent(row.dataset.id); });
+      row.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); location.hash = '#/technique/' + encodeURIComponent(row.dataset.id); } });
+    });
+  }
+
+  function techRow(r) {
+    const sc = {'Active':'s-active','Partial':'s-partial','Historic':'s-historic','Model-dependent':'s-modeldep','Unverified':'s-unverif'}[r.status]||'s-unverif';
+    return '<tr class="tech-row" data-id="' + esc(r.id) + '" tabindex="0">' +
+      '<td class="td-id">'     + esc(r.id) + '</td>' +
+      '<td class="td-title">'  + esc(r.title||'') + '</td>' +
+      '<td class="td-target">' + esc(r.target||'') + '</td>' +
+      '<td class="td-atlas">'  + esc(r.atlas_id||'') + '</td>' +
+      '<td class="td-owasp">'  + (r.owasp_ids||[]).slice(0,2).map(o => '<span class="pill pill-owasp">' + esc(o) + '</span>').join(' ') + '</td>' +
+      '<td class="td-status ' + sc + '">' + esc(r.status||'') + '</td>' +
+      '<td class="td-lab">' + (r.lab ? '<span class="lab-dot" title="Lab available">●</span>' : '') + '</td>' +
+    '</tr>';
+  }
+
+  // ── Detail ───────────────────────────────────────────────────────────
+  function renderDetail(id) {
+    const r = allRecords.find(x => x.id === id);
+    const main = document.getElementById('main');
+    if (!r) { main.innerHTML = '<p style="padding:40px 28px">Technique not found: ' + esc(id) + '</p>'; return; }
+
+    const sc = {'Active':'s-active','Partial':'s-partial','Historic':'s-historic','Model-dependent':'s-modeldep','Unverified':'s-unverif'}[r.status]||'s-unverif';
+    const hasPoc  = r.poc_steps && r.poc_steps.length;
+    const hasDef  = r.defences  && r.defences.length;
+    const hasRef  = r.references && r.references.length;
+    const hasLab  = !!r.lab;
+
+    main.innerHTML =
+      '<div class="detail-wrap">' +
+        '<div class="detail-head">' +
+          '<div class="detail-head-top">' +
+            '<span class="d-id">' + esc(r.id) + '</span>' +
+            (r.status ? '<span class="d-status ' + sc + '">' + esc(r.status) + '</span>' : '') +
+          '</div>' +
+          '<h1 class="d-title">' + esc(r.title||'') + '</h1>' +
+          '<div class="d-meta">' +
+            (r.target ? '<span>' + esc(r.target) + '</span>' : '') +
+            (r.category ? '<span>' + esc(r.category) + '</span>' : '') +
+            (r.severity ? '<span class="sev-' + esc((r.severity||'').toLowerCase()) + '">' + esc(r.severity) + '</span>' : '') +
+          '</div>' +
+          '<div class="d-pills">' +
+            (r.atlas_id ? '<a class="pill pill-atlas" href="https://atlas.mitre.org/techniques/' + encodeURIComponent(r.atlas_id) + '/" target="_blank" rel="noopener">' + esc(r.atlas_id) + (r.atlas_name ? ' — ' + esc(r.atlas_name) : '') + ' ↗</a>' : '') +
+            (r.owasp_ids||[]).map(o => '<span class="pill pill-owasp">' + esc(o) + '</span>').join('') +
+            (r.tags||[]).map(t => '<span class="pill pill-tag">' + esc(t) + '</span>').join('') +
+          '</div>' +
+        '</div>' +
+
+        '<div class="dtab-bar" role="tablist">' +
+          '<button class="dtab active" data-tab="overview" role="tab" aria-selected="true">Overview</button>' +
+          (hasPoc ? '<button class="dtab" data-tab="poc" role="tab">Proof of Concept</button>' : '') +
+          (hasDef ? '<button class="dtab" data-tab="defence" role="tab">Defence</button>' : '') +
+          (hasRef ? '<button class="dtab" data-tab="references" role="tab">References</button>' : '') +
+          (hasLab ? '<a class="dtab dtab-link" href="#/lab/' + encodeURIComponent(r.id) + '">Open lab ↗</a>' : '') +
+        '</div>' +
+
+        '<div class="d-cols">' +
+          '<div class="d-main">' +
+
+            '<div class="dpanel active" data-panel="overview">' +
+              (r.payload
+                ? '<div class="d-section payload-hero">' +
+                    '<div class="payload-hero-head">' +
+                      '<span class="payload-hero-lbl">Payload</span>' +
+                      '<button class="payload-copy-btn" data-payload="' + esc(r.payload) + '">Copy</button>' +
+                    '</div>' +
+                    '<pre class="payload-hero-pre"><code>' + esc(r.payload) + '</code></pre>' +
+                    (r.placement ? '<p class="payload-placement">' + esc(r.placement) + '</p>' : '') +
+                  '</div>'
+                : '') +
+              (r.summary ? '<div class="d-section"><h2>Summary</h2><p>' + esc(r.summary) + '</p></div>' : '') +
+              (r.description ? '<div class="d-section"><h2>Description</h2><p>' + esc(r.description) + '</p></div>' : '') +
+              (r.observed ? '<div class="d-section"><h2>Observed behaviour</h2><p>' + esc(r.observed) + '</p></div>' : '') +
+              (r.expected_test ? '<div class="d-section"><h2>Pass / fail criterion</h2><p>' + esc(r.expected_test) + '</p></div>' : '') +
+              (r.real_world_cases && r.real_world_cases.length
+                ? '<div class="d-section"><h2>Real-world cases</h2><ul class="d-list">' + r.real_world_cases.map(c => '<li>' + esc(c) + '</li>').join('') + '</ul></div>'
+                : '') +
+            '</div>' +
+
+            (hasPoc ? '<div class="dpanel" data-panel="poc">' +
+              '<div class="d-section"><h2>Steps</h2><ol class="d-list">' + r.poc_steps.map(s => '<li>' + esc(s) + '</li>').join('') + '</ol></div>' +
+              (r.payload_example ? '<div class="d-section"><h2>Payload example</h2><pre><code>' + esc(r.payload_example) + '</code></pre></div>' : '') +
+            '</div>' : '') +
+
+            (hasDef ? '<div class="dpanel" data-panel="defence">' +
+              '<div class="d-section"><h2>Mitigations</h2><ul class="d-list">' + r.defences.map(d => '<li>' + esc(d) + '</li>').join('') + '</ul></div>' +
+            '</div>' : '') +
+
+            (hasRef ? '<div class="dpanel" data-panel="references">' +
+              '<div class="d-section"><h2>References</h2><ul class="d-list">' +
+                r.references.map(ref =>
+                  '<li>' + (ref.url
+                    ? '<a href="' + esc(ref.url) + '" target="_blank" rel="noopener">' + esc(ref.title||ref.url) + ' ↗</a>'
+                    : esc(ref.title||ref)) + '</li>'
+                ).join('') +
+              '</ul></div>' +
+            '</div>' : '') +
+
+            
+
+          '</div>' +
+          '<aside class="d-aside">' +
+            '<div class="d-aside-section"><h3>Mappings</h3>' +
+              (r.atlas_id ? '<div class="d-aside-row"><span class="d-aside-lbl">ATLAS</span><a href="https://atlas.mitre.org/techniques/' + encodeURIComponent(r.atlas_id) + '/" target="_blank" rel="noopener" class="d-aside-val">' + esc(r.atlas_id) + ' ↗</a></div>' : '') +
+              (r.owasp_ids && r.owasp_ids.length ? '<div class="d-aside-row"><span class="d-aside-lbl">OWASP</span><span class="d-aside-val">' + r.owasp_ids.map(esc).join(', ') + '</span></div>' : '') +
+            '</div>' +
+            '<div class="d-aside-section"><h3>Details</h3>' +
+              (r.severity ? '<div class="d-aside-row"><span class="d-aside-lbl">Severity</span><span class="d-aside-val sev-' + esc((r.severity||'').toLowerCase()) + '">' + esc(r.severity) + '</span></div>' : '') +
+              (r.target ? '<div class="d-aside-row"><span class="d-aside-lbl">Target</span><span class="d-aside-val">' + esc(r.target) + '</span></div>' : '') +
+              (r.status ? '<div class="d-aside-row"><span class="d-aside-lbl">Status</span><span class="d-aside-val ' + sc + '">' + esc(r.status) + '</span></div>' : '') +
+              (r.affected_models && r.affected_models.length ? '<div class="d-aside-row"><span class="d-aside-lbl">Models</span><span class="d-aside-val">' + r.affected_models.map(esc).join(', ') + '</span></div>' : '') +
+            '</div>' +
+            '<div class="d-aside-section">' +
+              '<a class="btn-ghost" href="#/">← Back to catalogue</a>' +
+              (hasLab ? '<a class="btn-ghost" href="#/lab/' + encodeURIComponent(r.id) + '">Open in Lab →</a>' : '') +
+            '</div>' +
+          '</aside>' +
+        '</div>' +
+      '</div>';
+
+    // Payload copy button
+    main.querySelectorAll('.payload-copy-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        navigator.clipboard.writeText(btn.dataset.payload || '').then(() => {
+          const orig = btn.textContent; btn.textContent = 'Copied!';
+          setTimeout(() => { btn.textContent = orig; }, 1500);
+        }).catch(() => {});
+      });
+    });
+
+    // Tab switching
+    const tabs   = main.querySelectorAll('.dtab');
+    const panels = main.querySelectorAll('.dpanel');
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => { t.classList.remove('active'); t.setAttribute('aria-selected','false'); });
+        panels.forEach(p => p.classList.remove('active'));
+        tab.classList.add('active'); tab.setAttribute('aria-selected','true');
+        const target = main.querySelector('[data-panel="' + tab.dataset.tab + '"]');
+        if (target) {
+          target.classList.add('active');
+        }
+      });
+    });
+  }
+
+  // ── Chains ───────────────────────────────────────────────────────────
+  function renderChains() {
+    const chains = [
+      {id:'chain-001',title:'Structured data to agent decisions',severity:'',desc:'Illustrative contexts, not a demonstrated end-to-end exploit.',steps:['RC-207','RC-214','RC-215']},
+      {id:'chain-002',title:'External content injection paths',severity:'',desc:'Independent alternative attacker-controlled sources.',steps:['RC-219','RC-218','RC-208']},
+      {id:'chain-003',title:'Multimodal and model metadata inputs',severity:'',desc:'Separate input boundary tests.',steps:['RC-213','RC-216']}
+    ];
+    document.getElementById('main').innerHTML =
+      '<div class="inner-head"><h1>Attack chains</h1><p>Illustrative assessment relationships, not verified exploit chains. Each step links to a technique.</p></div>' +
+      '<div class="chains-wrap">' +
+        chains.map(c => {
+          const steps = c.steps.map(sid => allRecords.find(r => r.id === sid)).filter(Boolean);
+          return '<div class="chain-card">' +
+            '<div class="chain-card-head"><span class="chain-id">' + esc(c.id) + '</span><span class="chain-sev sev-' + c.severity.toLowerCase() + '">' + esc(c.severity) + '</span></div>' +
+            '<h2 class="chain-title">' + esc(c.title) + '</h2>' +
+            '<p class="chain-desc">' + esc(c.desc) + '</p>' +
+            '<div class="chain-steps">' +
+              steps.map((s,i) =>
+                '<a class="chain-lnk" href="#/technique/' + encodeURIComponent(s.id) + '">' +
+                  '<span class="chain-lnk-n">' + (i+1) + '</span>' +
+                  '<span class="chain-lnk-id">' + esc(s.id) + '</span>' +
+                  '<span class="chain-lnk-title">' + esc(s.title||'') + '</span>' +
+                '</a>' + (i < steps.length-1 ? '<span class="chain-arrow">→</span>' : '')
+              ).join('') +
+            '</div></div>';
+        }).join('') +
+      '</div>';
+  }
+
+  // ── API ──────────────────────────────────────────────────────────────
+  function renderApi() {
+    const base = location.origin + location.pathname.replace(/[^/]*$/,'');
+    document.getElementById('main').innerHTML =
+      '<div class="inner-head"><h1>API / data</h1><p>Public static JSON datasets. No authentication is needed. Access may still be subject to Cloudflare rate limits.</p></div>' +
+      '<div class="api-wrap">' +
+        '<div class="d-section"><h2>Endpoint</h2><pre><code>GET ' + esc(base) + 'data/cases.json</code></pre></div>' +
+        '<div class="d-section"><h2>Schema</h2><pre><code>' + esc(`[
+  {
+    "id":              "RC-201",
+    "title":           "string",
+    "category":        "string",
+    "target":          "string",
+    "status":          "Unverified | Active | Partially-patched | Model-dependent | Historic",
+    "severity":        "Critical | High | Medium | Low",
+    "summary":         "string",
+    "description":     "string",
+    "atlas_id":        "AML.TXXXX.XXX",   // MITRE ATLAS (optional)
+    "atlas_name":      "string",
+    "owasp_ids":       ["LLM01", ...],    // OWASP LLM Top 10 2025
+    "tags":            ["string"],
+    "affected_models": ["string"],
+    "poc_steps":       ["string"],
+    "payload_example": "string",
+    "defences":        ["string"],
+    "references":      [{"title":"string","url":"string"}],
+    "real_world_cases":["string"],
+    "lab": {
+      "terminal_title":    "string",
+      "clean_prompt":      "string",
+      "inject_note":       "string",
+      "vuln_responses":    [{"delay":500,"text":"string"}],
+      "safe_response":     "string",
+      "expected_evidence": "string"
+    }
+  }
+]`) + '</code></pre></div>' +
+        '<div class="d-section"><h2>Examples</h2><pre><code>' + esc(
+`// Independently verified techniques (currently none)
+data.filter(r => r.model_tested && r.model_tested.length)
+
+// By OWASP category
+data.filter(r => (r.owasp_ids||[]).includes('LLM01'))
+
+// By ATLAS technique
+data.filter(r => r.atlas_id === 'AML.T0051.001')
+
+// Lab scenarios only
+data.filter(r => r.lab)`) + '</code></pre></div>' +
+      '</div>';
+  }
+
+  // ── Submit ───────────────────────────────────────────────────────────
+  function renderSubmit() {
+    const schema = `{
+  "id":              "RC-XXX",            // required — next available ID
+  "title":           "Short technique name",
+  "category":        "Prompt Injection | Jailbreak | Extraction | ...",
+  "target":          "System prompt | Tool calls | Training data | ...",
+  "status":          "Unverified | Active | Partially-patched | Model-dependent | Historic",
+  "severity":        "Critical | High | Medium | Low",
+  "atlas_id":        "AML.T0051.001",     // MITRE ATLAS ID — omit if none
+  "atlas_name":      "Indirect Prompt Injection",
+  "owasp_ids":       ["LLM01"],           // OWASP LLM Top 10 2025
+  "tags":            ["keyword"],
+  "summary":         "One-sentence description of what the technique does.",
+  "payload":         "The literal string to submit to the model.",
+  "placement":       "Where to place the payload — e.g. user turn, system context, RAG doc.",
+  "expected_test":   "PASS if response includes X. FAIL if model refuses or outputs Y.",
+  "observed":        "What a vulnerable model does when the payload is submitted.",
+  "defense":         "Primary mitigation.",
+  "blue_team":       "Detection / monitoring note.",
+  "poc_steps":       ["Step 1", "Step 2", "Step 3"],
+  "defences":        ["Mitigation A", "Mitigation B"],
+  "references":      [{"title": "Paper title", "url": "https://..."}],
+  "affected_models": ["GPT-4o", "Claude 3", "..."],
+  "real_world_cases":["CVE or incident reference"],
+
+  // Optional — include if you have a reproducible lab scenario
+  "lab": {
+    "terminal_title":    "Short label for the terminal header",
+    "clean_prompt":      "The benign prompt the model would see without injection.",
+    "inject_note":       "One-line description of how the payload is embedded.",
+    "vuln_responses": [
+      {"delay": 700, "text": "Vulnerable model output — must include a CANARY_STRING_HERE."}
+    ],
+    "safe_response":     "What a patched or well-configured model should say instead.",
+    "expected_evidence": "The canary string that proves injection succeeded."
+  }
+}`;
+
+    const checklist = [
+      'Payload is a literal string — copy-pasteable, not pseudocode',
+      'expected_test has a clear PASS / FAIL criterion with observable evidence',
+      'A canary string (SCREAMING_SNAKE_CASE) is present in vuln_responses if a lab block is included',
+      'ATLAS and OWASP mappings are filled where applicable',
+      'You have tested the payload against at least one real model on a system you own or are authorised to assess',
+      'References point to published research, CVEs, or public incident reports — not anonymous claims',
+    ];
+
+    document.getElementById('main').innerHTML =
+      '<div class="inner-head">' +
+        '<h1>Submit a technique</h1>' +
+        '<p>AIHACKBins grows through community contributions. Every entry must meet the GTFOBins quality bar: real payload, real target, observable pass/fail evidence, and published research or a reproducible test to back it up.</p>' +
+      '</div>' +
+      '<div class="api-wrap">' +
+
+        '<div class="d-section">' +
+          '<h2>How to contribute</h2>' +
+          '<ol class="submit-steps">' +
+            '<li><strong>Fork</strong> the repository on GitHub: <a class="about-link" href="https://github.com/AIHACKBins/AIHACKBins" target="_blank" rel="noopener">github.com/AIHACKBins/AIHACKBins ↗</a></li>' +
+            '<li><strong>Add your entry</strong> to <code>data/cases.json</code> — one object appended to the array, following the schema below.</li>' +
+            '<li><strong>Check the quality bar</strong> using the checklist below.</li>' +
+            '<li><strong>Open a pull request</strong> with the title: <code>[New technique] RC-XXX — Your technique title</code></li>' +
+          '</ol>' +
+        '</div>' +
+
+        '<div class="d-section">' +
+          '<h2>Quality checklist</h2>' +
+          '<ul class="submit-checklist">' +
+            checklist.map(item => '<li>' + esc(item) + '</li>').join('') +
+          '</ul>' +
+        '</div>' +
+
+        '<div class="d-section">' +
+          '<h2>Entry schema</h2>' +
+          '<p class="submit-note">Copy this template, fill in every required field, and delete comments before adding to cases.json. The <code>lab</code> block is optional but strongly encouraged — it is what makes an entry interactive.</p>' +
+          '<div class="submit-schema-wrap">' +
+            '<button class="payload-copy-btn" id="schema-copy-btn">Copy schema</button>' +
+            '<pre class="submit-schema-pre"><code id="schema-code">' + esc(schema) + '</code></pre>' +
+          '</div>' +
+        '</div>' +
+
+        '<div class="d-section">' +
+          '<h2>Naming conventions</h2>' +
+          '<table class="submit-table">' +
+            '<thead><tr><th>Prefix</th><th>Category</th></tr></thead>' +
+            '<tbody>' +
+              '<tr><td>RC-</td><td>Runtime / inference-time techniques (prompt injection, jailbreak, extraction)</td></tr>' +
+              '<tr><td>SC-</td><td>Supply chain and training-time attacks (data poisoning, model theft)</td></tr>' +
+              '<tr><td>INF-</td><td>Infrastructure-level attacks (model serving, API abuse)</td></tr>' +
+            '</tbody>' +
+          '</table>' +
+          '<p class="submit-note">Use the next available number in the sequence. Check the current highest ID in <code>cases.json</code> before opening your PR.</p>' +
+        '</div>' +
+
+        '<div class="d-section">' +
+          '<h2>What we do not accept</h2>' +
+          '<ul class="submit-checklist submit-reject">' +
+            '<li>Techniques without a concrete, literal payload — "ask the model to ignore its instructions" is not an entry</li>' +
+            '<li>Entries with no PASS / FAIL criterion — the expected output must be observable and specific</li>' +
+            '<li>Claims without a reference — at minimum, cite a public paper, CVE, or published incident</li>' +
+            '<li>Techniques that require the reviewer to break any law or access systems they do not own</li>' +
+          '</ul>' +
+        '</div>' +
+
+        '<div class="d-section">' +
+          '<a class="submit-cta" href="https://github.com/AIHACKBins/AIHACKBins/issues/new?title=%5BNew+technique%5D+RC-XXX+%E2%80%94+&labels=new-technique&template=technique_submission.md" target="_blank" rel="noopener">Open a GitHub issue to discuss first ↗</a>' +
+          '<a class="submit-cta submit-cta-ghost" href="https://github.com/AIHACKBins/AIHACKBins/fork" target="_blank" rel="noopener">Fork the repo and start a PR ↗</a>' +
+        '</div>' +
+
+      '</div>';
+
+    const copyBtn = document.getElementById('schema-copy-btn');
+    if (copyBtn) {
+      copyBtn.addEventListener('click', () => {
+        navigator.clipboard.writeText(schema).then(() => {
+          const orig = copyBtn.textContent; copyBtn.textContent = 'Copied!';
+          setTimeout(() => { copyBtn.textContent = orig; }, 1500);
+        }).catch(() => {});
+      });
+    }
+  }
+
+  // ── Helpers ──────────────────────────────────────────────────────────
+  function esc(s) {
+    return String(s??'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+})();

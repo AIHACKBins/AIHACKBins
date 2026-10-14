@@ -1,33 +1,31 @@
 {
-  "previous_records": 26,
-  "current_entries": 20,
-  "merged_groups": {
-    "RC-001": [
-      "RC-001",
-      "RC-002",
-      "RC-003"
-    ],
-    "RC-009": [
-      "RC-009",
-      "RC-015",
-      "SC-005"
-    ],
-    "RC-007": [
-      "RC-007",
-      "SC-003"
-    ],
-    "SC-002": [
-      "SC-002",
-      "SC-008"
-    ]
-  },
-  "removed_card_ids": [
-    "RC-002",
-    "RC-003",
-    "RC-015",
-    "SC-003",
-    "SC-005",
-    "SC-008"
+  "edition": "Focused Twenty",
+  "source_package": "AIHACKBins-v7.zip",
+  "selected_ids": [
+    "RC-201",
+    "RC-202",
+    "RC-203",
+    "RC-204",
+    "RC-205",
+    "RC-206",
+    "RC-207",
+    "RC-208",
+    "RC-209",
+    "RC-210",
+    "RC-211",
+    "RC-212",
+    "RC-213",
+    "RC-214",
+    "RC-215",
+    "RC-216",
+    "RC-217",
+    "RC-218",
+    "RC-219",
+    "RC-220"
   ],
-  "note": "Merged records remain visible as variants in their parent technique where appropriate. None independently reproduced."
+  "former_records": 63,
+  "current_records": 20,
+  "labs": 20,
+  "verified_exploits": 0,
+  "note": "Older records were excluded from this edition. Lab outputs are scripted demonstrations; status reflects absence of independent test evidence."
 }
