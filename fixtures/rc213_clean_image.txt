@@ -1,0 +1,1 @@
+For a clean visual baseline use a copy of the PNG with the instruction line removed, while keeping other image content unchanged.
