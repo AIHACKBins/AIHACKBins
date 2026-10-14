@@ -41,3 +41,7 @@ Additional RC-222–RC-233 inputs are adapted from publicly documented patterns 
 Every one of the 33 RC labs now offers **Successful attack** and **Blocked attack** illustrative terminal responses. Both are explicitly labelled simulated and are **not** observations or evidence of exploitation. The actual assessment payload remains copyable, and the separate evidence notes area is for genuine observations only. The scenarios are reviewed per RC and are not generic canned `VULNERABLE` responses.
 
 The outcomes' editable data lives in `data/lab_outcomes.json`, and the static browser mirror is `lab-outcomes.js`. Both must remain consistent when making updates. No API, backend or live target execution is used.
+
+## v8.6 illustrative terminal input
+
+Each of the 33 standalone labs includes a local-only editable payload terminal. Use **Load selected payload**, edit or paste the input, choose **Successful attack** or **Blocked attack**, and press **Run illustration** (Ctrl+Enter or Cmd+Enter also works). The static site never submits the payload, executes it, or evaluates the edited input. Scenario outputs are authored illustrative examples; a custom input does not produce an independently verified result.

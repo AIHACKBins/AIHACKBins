@@ -495,3 +495,12 @@ mark.cmp-canary{background:none;color:var(--cobalt);font-weight:600}
 .outcome-disclaimer{margin:20px 0 0;padding-top:10px;border-top:1px solid #34414a;color:#a8bdcb;font:10px/1.6 var(--mono)}
 #outcome-copy{margin-top:10px;padding:10px 14px;background:transparent;color:var(--text);border:1px solid var(--border);font:600 12px var(--mono);cursor:pointer}
 @media(max-width:680px){.outcome-console{padding:12px}.outcome-switch button{flex:1}.outcome-header{align-items:flex-start}}
+/* Interactive, local-only payload entry for the illustrative terminal. */
+.terminal-input-label{display:block;margin:18px 0 8px;font:700 11px var(--mono);letter-spacing:.02em;color:var(--text)}
+.outcome-input{display:block;box-sizing:border-box;width:100%;min-height:168px;resize:vertical;padding:14px;background:#0e1419;color:#e1eaf1;border:1px solid #4d6170;border-radius:2px;font:12px/1.6 var(--mono);overflow-wrap:anywhere;tab-size:2}
+.outcome-input:focus-visible{outline:3px solid var(--cobalt);outline-offset:2px}
+.terminal-input-actions{display:flex;gap:9px;flex-wrap:wrap;margin:10px 0}
+.terminal-input-actions button{padding:10px 14px;border:1px solid var(--border);background:var(--cobalt);color:var(--cobalt-txt);font:700 11px var(--mono);cursor:pointer}
+.terminal-input-actions button.practical-outline{background:var(--bg-off);color:var(--text)}
+.terminal-input-actions button:focus-visible{outline:3px solid var(--cobalt);outline-offset:2px}
+@media(max-width:680px){.terminal-input-actions button{flex:1 1 auto}}
