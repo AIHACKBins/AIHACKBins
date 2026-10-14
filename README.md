@@ -1,38 +1,37 @@
-# AIHACKBins — Focused 20 Technique Edition
+# AIHACKBins — Practical Assessment Catalogue
 
-Static vanilla JS reference for 20 selected AI and LLM assessment mechanisms (RC-201 to RC-220). Each entry has OWASP LLM Top 10 (2025) and, where applicable, MITRE ATLAS metadata. The techniques are not claimed to work against every model.
+Open-source, static, vanilla JavaScript reference to **33 techniques (RC-201 through RC-233)**. The main catalogue and every standalone lab use the same evidence-first structure: copyable actual payload, placement, clean baseline, reproducible steps, expected evidence, OWASP LLM Top 10 2025 mapping, applicable MITRE ATLAS mapping, research source, defence and an area to record real observations.
+
+No external LLM is called by the static site. No successful exploit or verified model result is invented. **All entries remain unverified by AIHACKBins** until actual, documented tests are performed. These are practical *assessment inputs*; efficacy depends on application architecture, model and privileges.
 
 ## Routes
 
-- `#/` — twenty technique catalogue
-- `#/technique/RC-216` — independent technique detail view
-- `#/lab` — lab index
-- `#/lab/RC-216` — **standalone lab scenario**; no expanded exercise below the lab index
-- `#/chains` — illustrative assessment paths
-- `#/api` — JSON endpoints
+- `#/` — technique catalogue
+- `#/technique/RC-221` — detailed proof of concept
+- `#/lab` — all practical lab exercises
+- `#/lab/RC-221` — standalone exercise with genuine Unicode Tag payload
+- `#/glossary` — security terminology
+- `#/chains` — conceptual technique chains
+- `#/api` — public static JSON files
+- `#/about` — mission and project principles
 
-The lab responses are **scripted simulations**, not evidence of vulnerabilities. All techniques are labelled `Unverified` until supported by actual independent model observations.
-
-## Contributing
-
-Edit one `techniques/RC-###.md` file, then regenerate:
+## Rebuild and validate
 
 ```sh
 python -m pip install -r scripts/requirements.txt
-python scripts/import_md.py
+python scripts/import_md.py --check
 python scripts/gen_feed.py
 python scripts/validate.py
+node --check app.js
+node --check lab.js
 ```
 
-The Markdown importer produces `data/cases.json`. No JavaScript framework or build step is required. Run locally using `python -m http.server 8000`.
+Each technique's canonical source is `techniques/RC-###.md`. Run `python scripts/import_md.py` to regenerate `data/cases.json` after editing. Deploy static files as-is, without a JS build step.
 
-## RC-221 Unicode Tags report lab
+## Unicode Tag payload (RC-221)
 
-Run `python scripts/unicode_tag_lab.py --write` to create an unmodified report and an injected report with genuine invisible Unicode Tags. Use `--inspect unicode-injected.txt` to decode the hidden text. The browser lab is a scripted illustration, not a live model test. Original report: https://hackerone.com/reports/2372363.
+`python scripts/unicode_tag_lab.py --write` generates `unicode-clean.txt` and `unicode-injected.txt` with real invisible Unicode Tag characters repeated three times. `python scripts/unicode_tag_lab.py --inspect unicode-injected.txt` decodes them. The full injected report is also embedded in the RC-221 catalogue payload and lab. This is an adaptation of HackerOne report https://hackerone.com/reports/2372363; the fictional reporter is Taylor Example. The test XSS in the report is not a verified finding.
 
-## New in v8.3
+## Sources and scope
 
-- `#/glossary`: searchable 45+ term reference for RC identifiers, OWASP, ATLAS, Unicode Tags, evidence and testing concepts.
-- RC-221: adapted report structure closely follows disclosed 2024 workflow: a fake XSS report, blank severity, three copies of an invisible Unicode Tag instruction, and baseline comparison. Fictional reporter and example.com are used.
-- `scripts/unicode_tag_lab.py --write` creates clean and injected reports; `--inspect` decodes the hidden instructions.
-- Interactive labs remain scripted; no current model vulnerability is claimed.
+Additional RC-222–RC-233 inputs are adapted from publicly documented patterns in PayloadsAllTheThings and the explain-openclaw prompt injection guide. Source links are maintained per record. They are not claimed verbatim published exploits or tested model vulnerabilities. Use only on owned or authorised environments.

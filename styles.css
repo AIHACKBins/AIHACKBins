@@ -460,3 +460,20 @@ mark.cmp-canary{background:none;color:var(--cobalt);font-weight:600}
 .glossary-entry p {font:14px/1.65 var(--serif);color:var(--muted);max-width:75ch;margin:9px 0;}
 .glossary-related {display:inline-block;margin-top:4px;font-size:12px;color:var(--cobalt);text-decoration:underline;}
 @media(max-width:700px){.glossary-wrap{padding:24px 16px 52px;}}
+/* Shared practical assessment workspace — applies to every RC lab. */
+#lab-full-host{width:100%;max-width:1280px;margin-inline:auto}
+.practical-workspace{display:grid;grid-template-columns:minmax(0,1fr) 320px;align-items:start;gap:24px}
+.practical-main,.practical-side{min-width:0;border:1px solid var(--border);background:var(--bg)}
+.practical-bar{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:14px 18px;background:var(--bg-off);border-bottom:1px solid var(--border);font:600 11px var(--mono);color:var(--dim)}
+.practical-inner{padding:22px}.practical-inner h2{margin:24px 0 8px;font-size:15px}
+.practical-inner select{display:block;width:100%;padding:11px;background:var(--bg);color:var(--text);border:1px solid var(--border);margin-top:8px}
+.practical-small{font-size:12px;color:var(--dim);line-height:1.6}
+.practical-code{background:var(--bg-off);border:1px solid var(--border);white-space:pre-wrap;overflow-wrap:anywhere;max-height:500px;overflow:auto;padding:16px;font:12px/1.65 var(--mono);color:var(--text)}
+.practical-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.practical-actions button,.practical-side button{padding:10px 14px;background:var(--cobalt);color:var(--cobalt-txt);border:0;cursor:pointer;font:600 12px var(--mono)}
+.practical-actions .practical-outline{background:transparent;color:var(--text);border:1px solid var(--border)}
+.practical-side section{padding:18px;border-bottom:1px solid var(--border)}
+.practical-side section:last-child{border-bottom:0}.practical-side h2{font-size:13px;margin:0 0 12px}
+.practical-side ol{padding-left:19px;font-size:12px;line-height:1.8;color:var(--text)}
+.practical-side li{margin-bottom:9px;overflow-wrap:anywhere}.practical-side textarea{display:block;resize:vertical;width:100%;box-sizing:border-box;background:var(--bg-off);color:var(--text);padding:10px;border:1px solid var(--border);margin:10px 0;font:12px var(--mono)}
+@media(max-width:850px){.practical-workspace{grid-template-columns:1fr}.practical-inner{padding:15px}}

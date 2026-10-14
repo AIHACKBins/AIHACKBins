@@ -1,25 +1,24 @@
 #!/usr/bin/env python3
-import json,re,pathlib
-from datetime import date
-root=pathlib.Path(__file__).resolve().parents[1]
-read=lambda name:json.loads((root/'data'/name).read_text(encoding='utf-8'))
-rows=read('cases.json'); ids={r['id'] for r in rows}
-expected={f'RC-{i}' for i in range(201,222)}
-assert len(rows)==21 and ids==expected, 'Exactly RC-201 through RC-220 are required'
-assert len({r['id'] for r in rows})==21
-assert all(r['owasp_ids'] and set(r['owasp_ids'])<= {f'LLM{i:02d}' for i in range(1,11)} for r in rows)
-assert all(not r['atlas_id'] or re.fullmatch(r'AML\.T\d{4}(?:\.\d{3})?',r['atlas_id']) for r in rows)
-assert all(r['status']=='Unverified' and not r['model_tested'] and not r['last_verified'] for r in rows)
-assert all(r.get('lab') for r in rows)
-assert all(set(r.get('related_ids',[]))<=ids for r in rows)
-assert all(r.get('payload') and r.get('placement') and r.get('expected_test') for r in rows)
-for ch in read('chains.json'):assert set(ch['steps'])<=ids and ch['steps']
-for entry in read('changelog.json'):
- assert entry['id'] in ids
- date.fromisoformat(entry['date'])
-s=(root/'lab.js').read_text()
-assert 'renderWorkspace(mainEl.querySelector' in s and "if (targetId)" in s
-app=(root/'app.js').read_text()
-assert 'renderDetail(sub)' in app and "encodeURIComponent(r.id)" in app
-assert 'lab-inline-host' not in app
-print('PASS: 21 selected records, 21 standalone labs, mapped classifications, chain references and UI links')
+"""Content and reference validation for the practical RC-201..RC-233 release."""
+from pathlib import Path
+import json,re,datetime
+root=Path(__file__).resolve().parents[1]
+load=lambda name:json.loads((root/'data'/name).read_text(encoding='utf-8'))
+rows=load('cases.json');ids={r['id'] for r in rows};expected={f'RC-{i}' for i in range(201,234)}
+assert len(rows)==33 and ids==expected, 'Expected 33 unique RC-201 through RC-233 entries'
+for r in rows:
+ assert r['owasp_ids'] and all(x in {f'LLM{i:02d}' for i in range(1,11)} for x in r['owasp_ids']),r['id']
+ assert not r['atlas_id'] or re.fullmatch(r'AML\.T\d{4}(?:\.\d{3})?',r['atlas_id']),r['id']
+ assert r['status']=='Unverified' and r['model_tested']==[] and not r['last_verified'],r['id']
+ assert r['payload'].strip() and r['placement'].strip() and r['expected_test'].strip(),r['id']
+ assert r.get('test_steps') and r.get('source_url') and r.get('defense') and r.get('lab'),r['id']
+ assert set(r.get('related_ids',[]))<=ids,r['id']
+ assert 'vuln_responses' not in r['lab'] and 'safe_response' not in r['lab'],r['id']
+for c in load('chains.json'):assert set(c['steps'])<=ids
+for c in load('changelog.json'):assert c['id'] in ids;datetime.date.fromisoformat(c['date'])
+rc221=next(r for r in rows if r['id']=='RC-221')
+assert sum(0xe0000<=ord(c)<=0xe007f for c in rc221['payload'])>=800
+js=(root/'lab.js').read_text(encoding='utf8')
+assert 'vuln_responses' not in js and 'Copy payload' in js and 'Record actual observations' in js
+assert 'renderWorkspace' not in js and 'workspace(r,' in js
+print('PASS: 33 practical entries; source URLs; real RC-221 encoded input; unified standalone labs; no fake outcomes')

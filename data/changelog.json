@@ -1,6 +1,97 @@
 [
   {
     "date": "2026-10-14",
+    "type": "new",
+    "id": "RC-222",
+    "title": "Hidden Instructions in HTML Comments",
+    "summary": "Added practical assessment instructions, source references and a consistent evidence-first lab."
+  },
+  {
+    "date": "2026-10-14",
+    "type": "new",
+    "id": "RC-223",
+    "title": "Open Graph Link Preview Injection",
+    "summary": "Added practical assessment instructions, source references and a consistent evidence-first lab."
+  },
+  {
+    "date": "2026-10-14",
+    "type": "new",
+    "id": "RC-224",
+    "title": "Injected Instructions in Agent Skill Files",
+    "summary": "Added practical assessment instructions, source references and a consistent evidence-first lab."
+  },
+  {
+    "date": "2026-10-14",
+    "type": "new",
+    "id": "RC-225",
+    "title": "Persistent Agent Memory Instruction Poisoning",
+    "summary": "Added practical assessment instructions, source references and a consistent evidence-first lab."
+  },
+  {
+    "date": "2026-10-14",
+    "type": "new",
+    "id": "RC-226",
+    "title": "Tool Output Attempts Agent Configuration Change",
+    "summary": "Added practical assessment instructions, source references and a consistent evidence-first lab."
+  },
+  {
+    "date": "2026-10-14",
+    "type": "new",
+    "id": "RC-227",
+    "title": "Configuration Template Autocompletion Leakage",
+    "summary": "Added practical assessment instructions, source references and a consistent evidence-first lab."
+  },
+  {
+    "date": "2026-10-14",
+    "type": "new",
+    "id": "RC-228",
+    "title": "Split Instruction Across Conversation Turns",
+    "summary": "Added practical assessment instructions, source references and a consistent evidence-first lab."
+  },
+  {
+    "date": "2026-10-14",
+    "type": "new",
+    "id": "RC-229",
+    "title": "Prompt Injection in Image EXIF Metadata",
+    "summary": "Added practical assessment instructions, source references and a consistent evidence-first lab."
+  },
+  {
+    "date": "2026-10-14",
+    "type": "new",
+    "id": "RC-230",
+    "title": "Untrusted API JSON Result Injection",
+    "summary": "Added practical assessment instructions, source references and a consistent evidence-first lab."
+  },
+  {
+    "date": "2026-10-14",
+    "type": "new",
+    "id": "RC-231",
+    "title": "Gradual Agent Policy Drift Through Tool Responses",
+    "summary": "Added practical assessment instructions, source references and a consistent evidence-first lab."
+  },
+  {
+    "date": "2026-10-14",
+    "type": "new",
+    "id": "RC-232",
+    "title": "System Instruction Disclosure via Translation",
+    "summary": "Added practical assessment instructions, source references and a consistent evidence-first lab."
+  },
+  {
+    "date": "2026-10-14",
+    "type": "new",
+    "id": "RC-233",
+    "title": "Prompt Injection in Chat Link Embed",
+    "summary": "Added practical assessment instructions, source references and a consistent evidence-first lab."
+  },
+  {
+    "date": "2026-10-14",
+    "type": "update",
+    "id": "RC-221",
+    "title": "Unify practical assessment labs",
+    "summary": "All labs now expose real payloads and evidence capture, not simulated success messages."
+  },
+  {
+    "date": "2026-10-14",
     "type": "update",
     "id": "RC-221",
     "title": "Invisible Prompt Injection: accurate report-based reproduction",

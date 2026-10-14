@@ -5,6 +5,97 @@
   <link href="https://aihackbins.org/feed.xml" />
   <updated>2026-10-14T00:00:00Z</updated>
   <entry>
+    <title>Hidden Instructions in HTML Comments</title>
+    <id>https://aihackbins.org/#/technique/RC-222?date=2026-10-14</id>
+    <link href="https://aihackbins.org/#/technique/RC-222" />
+    <updated>2026-10-14T00:00:00Z</updated>
+    <summary>Added practical assessment instructions, source references and a consistent evidence-first lab.</summary>
+  </entry>
+  <entry>
+    <title>Open Graph Link Preview Injection</title>
+    <id>https://aihackbins.org/#/technique/RC-223?date=2026-10-14</id>
+    <link href="https://aihackbins.org/#/technique/RC-223" />
+    <updated>2026-10-14T00:00:00Z</updated>
+    <summary>Added practical assessment instructions, source references and a consistent evidence-first lab.</summary>
+  </entry>
+  <entry>
+    <title>Injected Instructions in Agent Skill Files</title>
+    <id>https://aihackbins.org/#/technique/RC-224?date=2026-10-14</id>
+    <link href="https://aihackbins.org/#/technique/RC-224" />
+    <updated>2026-10-14T00:00:00Z</updated>
+    <summary>Added practical assessment instructions, source references and a consistent evidence-first lab.</summary>
+  </entry>
+  <entry>
+    <title>Persistent Agent Memory Instruction Poisoning</title>
+    <id>https://aihackbins.org/#/technique/RC-225?date=2026-10-14</id>
+    <link href="https://aihackbins.org/#/technique/RC-225" />
+    <updated>2026-10-14T00:00:00Z</updated>
+    <summary>Added practical assessment instructions, source references and a consistent evidence-first lab.</summary>
+  </entry>
+  <entry>
+    <title>Tool Output Attempts Agent Configuration Change</title>
+    <id>https://aihackbins.org/#/technique/RC-226?date=2026-10-14</id>
+    <link href="https://aihackbins.org/#/technique/RC-226" />
+    <updated>2026-10-14T00:00:00Z</updated>
+    <summary>Added practical assessment instructions, source references and a consistent evidence-first lab.</summary>
+  </entry>
+  <entry>
+    <title>Configuration Template Autocompletion Leakage</title>
+    <id>https://aihackbins.org/#/technique/RC-227?date=2026-10-14</id>
+    <link href="https://aihackbins.org/#/technique/RC-227" />
+    <updated>2026-10-14T00:00:00Z</updated>
+    <summary>Added practical assessment instructions, source references and a consistent evidence-first lab.</summary>
+  </entry>
+  <entry>
+    <title>Split Instruction Across Conversation Turns</title>
+    <id>https://aihackbins.org/#/technique/RC-228?date=2026-10-14</id>
+    <link href="https://aihackbins.org/#/technique/RC-228" />
+    <updated>2026-10-14T00:00:00Z</updated>
+    <summary>Added practical assessment instructions, source references and a consistent evidence-first lab.</summary>
+  </entry>
+  <entry>
+    <title>Prompt Injection in Image EXIF Metadata</title>
+    <id>https://aihackbins.org/#/technique/RC-229?date=2026-10-14</id>
+    <link href="https://aihackbins.org/#/technique/RC-229" />
+    <updated>2026-10-14T00:00:00Z</updated>
+    <summary>Added practical assessment instructions, source references and a consistent evidence-first lab.</summary>
+  </entry>
+  <entry>
+    <title>Untrusted API JSON Result Injection</title>
+    <id>https://aihackbins.org/#/technique/RC-230?date=2026-10-14</id>
+    <link href="https://aihackbins.org/#/technique/RC-230" />
+    <updated>2026-10-14T00:00:00Z</updated>
+    <summary>Added practical assessment instructions, source references and a consistent evidence-first lab.</summary>
+  </entry>
+  <entry>
+    <title>Gradual Agent Policy Drift Through Tool Responses</title>
+    <id>https://aihackbins.org/#/technique/RC-231?date=2026-10-14</id>
+    <link href="https://aihackbins.org/#/technique/RC-231" />
+    <updated>2026-10-14T00:00:00Z</updated>
+    <summary>Added practical assessment instructions, source references and a consistent evidence-first lab.</summary>
+  </entry>
+  <entry>
+    <title>System Instruction Disclosure via Translation</title>
+    <id>https://aihackbins.org/#/technique/RC-232?date=2026-10-14</id>
+    <link href="https://aihackbins.org/#/technique/RC-232" />
+    <updated>2026-10-14T00:00:00Z</updated>
+    <summary>Added practical assessment instructions, source references and a consistent evidence-first lab.</summary>
+  </entry>
+  <entry>
+    <title>Prompt Injection in Chat Link Embed</title>
+    <id>https://aihackbins.org/#/technique/RC-233?date=2026-10-14</id>
+    <link href="https://aihackbins.org/#/technique/RC-233" />
+    <updated>2026-10-14T00:00:00Z</updated>
+    <summary>Added practical assessment instructions, source references and a consistent evidence-first lab.</summary>
+  </entry>
+  <entry>
+    <title>Unify practical assessment labs</title>
+    <id>https://aihackbins.org/#/technique/RC-221?date=2026-10-14</id>
+    <link href="https://aihackbins.org/#/technique/RC-221" />
+    <updated>2026-10-14T00:00:00Z</updated>
+    <summary>All labs now expose real payloads and evidence capture, not simulated success messages.</summary>
+  </entry>
+  <entry>
     <title>Invisible Prompt Injection: accurate report-based reproduction</title>
     <id>https://aihackbins.org/#/technique/RC-221?date=2026-10-14</id>
     <link href="https://aihackbins.org/#/technique/RC-221" />
