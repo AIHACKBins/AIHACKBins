@@ -58,3 +58,7 @@ All 33 simulated labs now type commands and stream authored responses, with a Sk
 ## v9.0 Practical inputs
 
 All 33 records now specify `input_type`, `applies_to`, and `finding_criteria`. Relevant techniques include context-specific selectable payload variants; document and image assessments provide downloadable fixtures where bundled, and generator-based techniques are explicitly labelled. The live application remains static, and simulated outcomes do not validate a payload.
+
+## v9.1 technical quality pass
+
+Includes controlled mailbox test, genuine RSS fixture, local assistant-prefill API comparison script, improved many-shot/obfuscation controls and variant-aware authored simulations. All entries remain unverified.
