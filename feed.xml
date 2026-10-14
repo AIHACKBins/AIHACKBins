@@ -5,6 +5,20 @@
   <link href="https://aihackbins.org/feed.xml" />
   <updated>2026-10-14T00:00:00Z</updated>
   <entry>
+    <title>Invisible Prompt Injection: accurate report-based reproduction</title>
+    <id>https://aihackbins.org/#/technique/RC-221?date=2026-10-14</id>
+    <link href="https://aihackbins.org/#/technique/RC-221" />
+    <updated>2026-10-14T00:00:00Z</updated>
+    <summary>Updated RC-221 with a fictional XSS report, blank severity, three real encoded Unicode Tag repetitions, clean baseline, decoder and scripted versus actual evidence distinctions. Added searchable Glossary page.</summary>
+  </entry>
+  <entry>
+    <title>Invisible Unicode Tag prompt injection in report triage</title>
+    <id>https://aihackbins.org/#/technique/RC-221?date=2026-10-14</id>
+    <link href="https://aihackbins.org/#/technique/RC-221" />
+    <updated>2026-10-14T00:00:00Z</updated>
+    <summary>Added a fictional report-triage lab demonstrating invisible Unicode Tag instructions, a clean baseline, decoder, and scripted defensive comparison.</summary>
+  </entry>
+  <entry>
     <title>Many-shot jailbreak</title>
     <id>https://aihackbins.org/#/technique/RC-201?date=2026-10-14</id>
     <link href="https://aihackbins.org/#/technique/RC-201" />

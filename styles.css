@@ -446,3 +446,17 @@ mark.cmp-canary{background:none;color:var(--cobalt);font-weight:600}
   #lab-full-host .lab-body { height: 300px; min-height: 260px; }
   .about-section { padding: 24px 16px 52px; }
 }
+
+/* Glossary: consistent with Concrete light and dark theme variables. */
+.glossary-wrap {max-width:980px;margin:0 auto;padding:36px 28px 76px;}
+.glossary-label {display:block;color:var(--text);font-weight:600;font-size:12px;margin-bottom:10px;}
+.glossary-search {box-sizing:border-box;display:block;width:100%;max-width:600px;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:14px 16px;font:inherit;}
+.glossary-search:focus-visible {outline:2px solid var(--cobalt);outline-offset:2px;}
+.glossary-count {font-size:12px;color:var(--muted);margin:16px 0;}
+.glossary-entry {padding:22px 0;border-bottom:1px solid var(--border);}
+.glossary-term-row {display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+.glossary-entry h2 {font-size:16px;font-weight:600;color:var(--text);margin:0;}
+.glossary-category {font-size:11px;color:var(--muted);}
+.glossary-entry p {font:14px/1.65 var(--serif);color:var(--muted);max-width:75ch;margin:9px 0;}
+.glossary-related {display:inline-block;margin-top:4px;font-size:12px;color:var(--cobalt);text-decoration:underline;}
+@media(max-width:700px){.glossary-wrap{padding:24px 16px 52px;}}

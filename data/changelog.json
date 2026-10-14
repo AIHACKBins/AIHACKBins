@@ -2,6 +2,20 @@
   {
     "date": "2026-10-14",
     "type": "update",
+    "id": "RC-221",
+    "title": "Invisible Prompt Injection: accurate report-based reproduction",
+    "summary": "Updated RC-221 with a fictional XSS report, blank severity, three real encoded Unicode Tag repetitions, clean baseline, decoder and scripted versus actual evidence distinctions. Added searchable Glossary page."
+  },
+  {
+    "date": "2026-10-14",
+    "type": "new",
+    "id": "RC-221",
+    "title": "Invisible Unicode Tag prompt injection in report triage",
+    "summary": "Added a fictional report-triage lab demonstrating invisible Unicode Tag instructions, a clean baseline, decoder, and scripted defensive comparison."
+  },
+  {
+    "date": "2026-10-14",
+    "type": "update",
     "id": "RC-201",
     "title": "Many-shot jailbreak",
     "summary": "Retained in focused twenty technique catalogue; verification status and ATLAS/OWASP mappings reviewed."

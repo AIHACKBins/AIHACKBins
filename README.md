@@ -25,3 +25,14 @@ python scripts/validate.py
 ```
 
 The Markdown importer produces `data/cases.json`. No JavaScript framework or build step is required. Run locally using `python -m http.server 8000`.
+
+## RC-221 Unicode Tags report lab
+
+Run `python scripts/unicode_tag_lab.py --write` to create an unmodified report and an injected report with genuine invisible Unicode Tags. Use `--inspect unicode-injected.txt` to decode the hidden text. The browser lab is a scripted illustration, not a live model test. Original report: https://hackerone.com/reports/2372363.
+
+## New in v8.3
+
+- `#/glossary`: searchable 45+ term reference for RC identifiers, OWASP, ATLAS, Unicode Tags, evidence and testing concepts.
+- RC-221: adapted report structure closely follows disclosed 2024 workflow: a fake XSS report, blank severity, three copies of an invisible Unicode Tag instruction, and baseline comparison. Fictional reporter and example.com are used.
+- `scripts/unicode_tag_lab.py --write` creates clean and injected reports; `--inspect` decodes the hidden instructions.
+- Interactive labs remain scripted; no current model vulnerability is claimed.
