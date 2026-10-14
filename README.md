@@ -35,3 +35,9 @@ Each technique's canonical source is `techniques/RC-###.md`. Run `python scripts
 ## Sources and scope
 
 Additional RC-222–RC-233 inputs are adapted from publicly documented patterns in PayloadsAllTheThings and the explain-openclaw prompt injection guide. Source links are maintained per record. They are not claimed verbatim published exploits or tested model vulnerabilities. Use only on owned or authorised environments.
+
+## v8.5: technique-specific simulated terminal outcomes
+
+Every one of the 33 RC labs now offers **Successful attack** and **Blocked attack** illustrative terminal responses. Both are explicitly labelled simulated and are **not** observations or evidence of exploitation. The actual assessment payload remains copyable, and the separate evidence notes area is for genuine observations only. The scenarios are reviewed per RC and are not generic canned `VULNERABLE` responses.
+
+The outcomes' editable data lives in `data/lab_outcomes.json`, and the static browser mirror is `lab-outcomes.js`. Both must remain consistent when making updates. No API, backend or live target execution is used.

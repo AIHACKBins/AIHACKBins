@@ -21,4 +21,10 @@ assert sum(0xe0000<=ord(c)<=0xe007f for c in rc221['payload'])>=800
 js=(root/'lab.js').read_text(encoding='utf8')
 assert 'vuln_responses' not in js and 'Copy payload' in js and 'Record actual observations' in js
 assert 'renderWorkspace' not in js and 'workspace(r,' in js
-print('PASS: 33 practical entries; source URLs; real RC-221 encoded input; unified standalone labs; no fake outcomes')
+illustrations=load('lab_outcomes.json')
+assert len(illustrations)==33 and {x['id'] for x in illustrations}==ids, 'Every RC needs its own illustrations'
+assert all(x['success'].strip() and x['blocked'].strip() for x in illustrations)
+assert 'ILLUSTRATIVE SUCCESS' in js and 'ILLUSTRATIVE BLOCKED' in js
+assert 'lab-outcomes.js' in (root/'index.html').read_text(encoding='utf8')
+assert 'window.AIHACKBinsIllustrations' in (root/'lab-outcomes.js').read_text(encoding='utf8')
+print('PASS: 33 RCs, real copyable payloads, 33 technique-specific outcome pairs, illustrative labels, standalone labs')

@@ -477,3 +477,21 @@ mark.cmp-canary{background:none;color:var(--cobalt);font-weight:600}
 .practical-side ol{padding-left:19px;font-size:12px;line-height:1.8;color:var(--text)}
 .practical-side li{margin-bottom:9px;overflow-wrap:anywhere}.practical-side textarea{display:block;resize:vertical;width:100%;box-sizing:border-box;background:var(--bg-off);color:var(--text);padding:10px;border:1px solid var(--border);margin:10px 0;font:12px var(--mono)}
 @media(max-width:850px){.practical-workspace{grid-template-columns:1fr}.practical-inner{padding:15px}}
+
+/* v8.5: simulated terminal outcomes, retaining the existing Concrete design. */
+.outcome-module{margin-top:26px;border-top:1px solid var(--border);padding-top:18px}
+.outcome-header{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}
+.outcome-header h2{margin:0;font-size:15px}
+.outcome-sim{font:700 10px var(--mono);letter-spacing:.06em;color:var(--dim)}
+.outcome-switch{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+.outcome-switch button{border:1px solid var(--border);background:var(--bg-off);color:var(--text);padding:10px 14px;font:600 12px var(--mono);cursor:pointer}
+.outcome-switch button.selected{border-color:var(--cobalt);background:var(--cobalt);color:var(--cobalt-txt)}
+.outcome-switch button:focus-visible,#outcome-copy:focus-visible{outline:3px solid var(--cobalt);outline-offset:3px}
+.outcome-console{background:#0e1419;color:#dce7ec;border:1px solid #34414a;padding:18px;min-height:200px;font:12px/1.75 var(--mono)}
+.outcome-command{color:#8be2aa;overflow-wrap:anywhere}
+.outcome-label{margin:15px 0 7px;color:#f5c379;font:700 11px var(--mono)}
+.outcome-label[data-mode="blocked"]{color:#8be2aa}
+.outcome-text{white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.8 var(--mono);margin:0;color:#e1eaf1}
+.outcome-disclaimer{margin:20px 0 0;padding-top:10px;border-top:1px solid #34414a;color:#a8bdcb;font:10px/1.6 var(--mono)}
+#outcome-copy{margin-top:10px;padding:10px 14px;background:transparent;color:var(--text);border:1px solid var(--border);font:600 12px var(--mono);cursor:pointer}
+@media(max-width:680px){.outcome-console{padding:12px}.outcome-switch button{flex:1}.outcome-header{align-items:flex-start}}
