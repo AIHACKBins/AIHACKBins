@@ -45,3 +45,7 @@ The outcomes' editable data lives in `data/lab_outcomes.json`, and the static br
 ## v8.6 illustrative terminal input
 
 Each of the 33 standalone labs includes a local-only editable payload terminal. Use **Load selected payload**, edit or paste the input, choose **Successful attack** or **Blocked attack**, and press **Run illustration** (Ctrl+Enter or Cmd+Enter also works). The static site never submits the payload, executes it, or evaluates the edited input. Scenario outputs are authored illustrative examples; a custom input does not produce an independently verified result.
+
+
+## v8.8 interactive guided lab update
+All 33 standalone labs use four selectable stages (Inspect, Prepare, Simulate, Evidence), editable source payloads, a local scripted two-outcome transcript, Ctrl+Enter, reset/help commands, notes export and a compact searchable index. Terminal responses are authored examples and do not predict or evaluate edited inputs. No backend or model access.

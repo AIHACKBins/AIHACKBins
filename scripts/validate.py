@@ -19,7 +19,7 @@ for c in load('changelog.json'):assert c['id'] in ids;datetime.date.fromisoforma
 rc221=next(r for r in rows if r['id']=='RC-221')
 assert sum(0xe0000<=ord(c)<=0xe007f for c in rc221['payload'])>=800
 js=(root/'lab.js').read_text(encoding='utf8')
-assert 'vuln_responses' not in js and 'Copy payload' in js and 'Record actual observations' in js
+assert 'vuln_responses' not in js and all(t in js for t in ['Editable payload','Actual observations','lab-progress-step','dyn-transcript','ILLUSTRATIVE ONLY','Export notes'])
 assert 'renderWorkspace' not in js and 'workspace(r,' in js
 illustrations=load('lab_outcomes.json')
 assert len(illustrations)==33 and {x['id'] for x in illustrations}==ids, 'Every RC needs its own illustrations'
