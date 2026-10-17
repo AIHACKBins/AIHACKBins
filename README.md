@@ -1,71 +1,143 @@
-# AIHACKBins — Practical Assessment Catalogue
+# AIHACKBins
 
-Open-source, static, vanilla JavaScript reference to **33 techniques (RC-201 through RC-233)**. The main catalogue and every standalone lab use the same evidence-first structure: copyable actual payload, placement, clean baseline, reproducible steps, expected evidence, OWASP LLM Top 10 2025 mapping, applicable MITRE ATLAS mapping, research source, defence and an area to record real observations.
+**Open knowledge. Practical techniques. Verifiable evidence.**
 
-No external LLM is called by the static site. No successful exploit or verified model result is invented. **All entries remain unverified by AIHACKBins** until actual, documented tests are performed. These are practical *assessment inputs*; efficacy depends on application architecture, model and privileges.
+[Website](https://aihackbins.org/) | [Browse Payloads](https://aihackbins.org/#/payloads) | [MITRE ATLAS Explorer](https://aihackbins.org/#/atlas) | [Contribute](https://github.com/AIHACKBins/AIHACKBins)
 
-## Routes
+AIHACKBins is an open-source, community-driven knowledge base of practical techniques for attacking AI systems and using AI in authorised security testing.
 
-- `#/` — technique catalogue
-- `#/technique/RC-221` — detailed proof of concept
-- `#/lab` — all practical lab exercises
-- `#/lab/RC-221` — standalone exercise with genuine Unicode Tag payload
-- `#/glossary` — security terminology
-- `#/chains` — conceptual technique chains
-- `#/api` — public static JSON files
-- `#/about` — mission and project principles
+Inspired by [GTFOBins](https://gtfobins.org/) and **Kerckhoffs's principle**, the project promotes openly documented security techniques to help researchers, penetration testers and defenders understand how AI systems can be attacked and how their security boundaries can be evaluated.
 
-## Rebuild and validate
+## What AIHACKBins covers
 
-```sh
-python -m pip install -r scripts/requirements.txt
-python scripts/import_md.py --check
-python scripts/gen_feed.py
+AIHACKBins focuses on two complementary areas.
+
+### Hacking AI systems
+
+Security assessment techniques targeting:
+
+- Large language models and prompt injection
+- Autonomous AI agents and MCP integrations
+- Retrieval-augmented generation (RAG) and vector databases
+- Model extraction, privacy and adversarial machine learning
+- AI supply chains, datasets and infrastructure
+- Sensitive information disclosure and unauthorised tool execution
+
+### Hacking with AI
+
+Practical applications of AI in authorised security assessments, including:
+
+- Source-code and vulnerability analysis
+- JavaScript endpoint discovery
+- AI-assisted reconnaissance
+- Security testing workflows and analysis
+
+## Find a technique. Copy the payload. Test the boundary.
+
+AIHACKBins follows a straightforward workflow:
+
+1. **Search** the technique catalogue or Payloads page.
+2. **Select** a technique relevant to the target environment.
+3. **Copy or download** the provided assessment input.
+4. **Test** it within an authorised environment.
+5. **Evaluate** the observed result against the documented success criteria.
+
+Technique entries may include prerequisites, payload variants, testing instructions, downloadable fixtures, research references and applicable defensive considerations.
+
+The website also offers optional interactive labs with animated terminals. Their successful and blocked outcomes are **illustrative simulations**, not real model executions.
+
+## Framework mappings
+
+AIHACKBins links techniques to relevant security frameworks and testing methodologies:
+
+| Framework | Purpose |
+|---|---|
+| [MITRE ATLAS](https://atlas.mitre.org/) | Adversarial tactics and techniques targeting AI systems |
+| [OWASP Top 10 for LLM Applications (2025)](https://genai.owasp.org/) | Security risks affecting LLM applications |
+| [OWASP AI Testing Guide](https://github.com/OWASP/www-project-ai-testing-guide) | Structured AI security testing objectives |
+
+Mappings are included only where applicable. They do not imply endorsement by MITRE or OWASP.
+
+## Project features
+
+- 65 technique entries
+- Searchable, GTFOBins-inspired payload browser
+- Copyable payloads and downloadable assessment files
+- Context-specific payload variants
+- 65 optional illustrated lab scenarios
+- MITRE ATLAS Explorer
+- OWASP AI Testing Guide-based assessment baseline
+- Research provenance and verification classifications
+- Public static JSON catalogue
+- Light and dark themes
+- Community contribution support
+
+## Evidence and verification
+
+AIHACKBins distinguishes between published research, assessment candidates, reusable testing procedures and independently reproduced results.
+
+**A technique appearing in the catalogue does not establish that a particular system is vulnerable.**
+
+The effectiveness of an assessment input depends on the model, application architecture, available tools, permissions and security controls.
+
+Published research is attributed to its original authors. Adapted payloads are not presented as independently verified unless supporting testing evidence is available.
+
+The site's interactive terminals do not execute payloads against live AI systems.
+
+## Open-source philosophy
+
+AIHACKBins follows the spirit of **Kerckhoffs's principle**: security should remain effective even when the system's design and known attack techniques are public.
+
+AIHACKBins encourages transparent security research, reproducible assessment techniques, responsible disclosure and community collaboration.
+
+The goal is not security through obscurity, but improving defensive understanding through open knowledge.
+
+## Contributing
+
+Contributions are welcome from security professionals, researchers, developers and the wider open-source community.
+
+Useful contributions include:
+
+- New techniques supported by documented research or clear testing procedures
+- Reproducible payloads and controlled assessment scenarios
+- Improvements to existing techniques and their prerequisites
+- Corrected MITRE ATLAS or OWASP mappings
+- Verified evidence from authorised testing
+- Documentation, accessibility and usability improvements
+
+Visit the [GitHub repository](https://github.com/AIHACKBins/AIHACKBins) to contribute.
+
+## Development
+
+AIHACKBins is a static website built with HTML, CSS and vanilla JavaScript.
+
+It requires no application backend or external LLM API to browse techniques and use the educational lab simulations.
+
+```bash
 python scripts/validate.py
 node --check app.js
 node --check lab.js
+node --check lab-outcomes.js
 ```
 
-Each technique's canonical source is `techniques/RC-###.md`. Run `python scripts/import_md.py` to regenerate `data/cases.json` after editing. Deploy static files as-is, without a JS build step.
+The current JSON catalogue is the authoritative dataset. The legacy Markdown importer does not cover every current technique and should not be used to overwrite the catalogue without reconciling its records.
 
-## Unicode Tag payload (RC-221)
+The static site can be deployed through Cloudflare Pages or another compatible hosting service.
 
-`python scripts/unicode_tag_lab.py --write` generates `unicode-clean.txt` and `unicode-injected.txt` with real invisible Unicode Tag characters repeated three times. `python scripts/unicode_tag_lab.py --inspect unicode-injected.txt` decodes them. The full injected report is also embedded in the RC-221 catalogue payload and lab. This is an adaptation of HackerOne report https://hackerone.com/reports/2372363; the fictional reporter is Taylor Example. The test XSS in the report is not a verified finding.
+## Responsible use
 
-## Sources and scope
+AIHACKBins is intended for education, security research and authorised assessments.
 
-Additional RC-222–RC-233 inputs are adapted from publicly documented patterns in PayloadsAllTheThings and the explain-openclaw prompt injection guide. Source links are maintained per record. They are not claimed verbatim published exploits or tested model vulnerabilities. Use only on owned or authorised environments.
+The project is **not a collection of guaranteed exploits**. Techniques may require specific models, configurations or security weaknesses, and some entries describe assessment workflows rather than standalone exploits.
 
-## v8.5: technique-specific simulated terminal outcomes
+Only perform testing against systems you own or have explicit permission to assess.
 
-Every one of the 33 RC labs now offers **Successful attack** and **Blocked attack** illustrative terminal responses. Both are explicitly labelled simulated and are **not** observations or evidence of exploitation. The actual assessment payload remains copyable, and the separate evidence notes area is for genuine observations only. The scenarios are reviewed per RC and are not generic canned `VULNERABLE` responses.
+## Creator
 
-The outcomes' editable data lives in `data/lab_outcomes.json`, and the static browser mirror is `lab-outcomes.js`. Both must remain consistent when making updates. No API, backend or live target execution is used.
+**[Asif Nawaz Minhas](https://www.linkedin.com/in/asifminhasnl/)**
 
-## v8.6 illustrative terminal input
+AIHACKBins is an open-source, community-driven project. Contributions from the wider security community are encouraged.
 
-Each of the 33 standalone labs includes a local-only editable payload terminal. Use **Load selected payload**, edit or paste the input, choose **Successful attack** or **Blocked attack**, and press **Run illustration** (Ctrl+Enter or Cmd+Enter also works). The static site never submits the payload, executes it, or evaluates the edited input. Scenario outputs are authored illustrative examples; a custom input does not produce an independently verified result.
+## License
 
-
-## v8.8 interactive guided lab update
-All 33 standalone labs use four selectable stages (Inspect, Prepare, Simulate, Evidence), editable source payloads, a local scripted two-outcome transcript, Ctrl+Enter, reset/help commands, notes export and a compact searchable index. Terminal responses are authored examples and do not predict or evaluate edited inputs. No backend or model access.
-
-## v8.9 animated terminal
-
-All 33 simulated labs now type commands and stream authored responses, with a Skip animation control and reduced-motion support. This is presentation-only: the site never runs the payload against a model or predicts the result of edits.
-
-
-## v9.0 Practical inputs
-
-All 33 records now specify `input_type`, `applies_to`, and `finding_criteria`. Relevant techniques include context-specific selectable payload variants; document and image assessments provide downloadable fixtures where bundled, and generator-based techniques are explicitly labelled. The live application remains static, and simulated outcomes do not validate a payload.
-
-## v9.1 technical quality pass
-
-Includes controlled mailbox test, genuine RSS fixture, local assistant-prefill API comparison script, improved many-shot/obfuscation controls and variant-aware authored simulations. All entries remain unverified.
-
-
-## v10.0 coverage and accuracy
-
-65 technique records, 65 independent *authored illustration pairs* (no live model contacted), and 32 OWASP AI Testing Guide objective references. `data/cases.json` is canonical. The legacy Markdown importer supports an older subset and must not overwrite v10 JSON. Validate with `python scripts/validate.py` and `node --check app.js`, `node --check lab.js`, `node --check lab-outcomes.js`.
-
-The four new RC-260..265 entries are assessment candidates, not published vulnerability disclosures. Existing payloads remain unverified by this release. AITG mappings are editorial objective crosswalks, not OWASP endorsements. Kerckhoffs's principle of open system design informs the About page.
+Refer to the [LICENSE](https://github.com/AIHACKBins/AIHACKBins/blob/main/LICENSE) file for the repository's licensing terms.
