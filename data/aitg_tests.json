@@ -1,0 +1,326 @@
+[
+  {
+    "id": "AITG-APP-01",
+    "name": "Prompt Injection",
+    "area": "Application",
+    "url": "https://github.com/OWASP/www-project-ai-testing-guide/blob/main/Document/content/tests/AITG-APP-01_Testing_for_Prompt_Injection.md",
+    "related_rcs": [
+      "RC-201",
+      "RC-202",
+      "RC-203",
+      "RC-204",
+      "RC-211",
+      "RC-212",
+      "RC-217",
+      "RC-228",
+      "RC-244",
+      "RC-248",
+      "RC-249",
+      "RC-250"
+    ]
+  },
+  {
+    "id": "AITG-APP-02",
+    "name": "Indirect Prompt Injection",
+    "area": "Application",
+    "url": "https://github.com/OWASP/www-project-ai-testing-guide/blob/main/Document/content/tests/AITG-APP-02_Testing_for_Indirect_Prompt_Injection.md",
+    "related_rcs": [
+      "RC-206",
+      "RC-207",
+      "RC-208",
+      "RC-213",
+      "RC-215",
+      "RC-218",
+      "RC-219",
+      "RC-221",
+      "RC-222",
+      "RC-223",
+      "RC-224",
+      "RC-229",
+      "RC-230",
+      "RC-233",
+      "RC-234",
+      "RC-235",
+      "RC-236",
+      "RC-239",
+      "RC-240",
+      "RC-243"
+    ]
+  },
+  {
+    "id": "AITG-APP-03",
+    "name": "Sensitive Data Leak",
+    "area": "Application",
+    "url": "https://github.com/OWASP/www-project-ai-testing-guide/blob/main/Document/content/tests/AITG-APP-03_Testing_for_Sensitive_Data_Leak.md",
+    "related_rcs": [
+      "RC-210"
+    ]
+  },
+  {
+    "id": "AITG-APP-04",
+    "name": "Input Leakage",
+    "area": "Application",
+    "url": "https://github.com/OWASP/www-project-ai-testing-guide/blob/main/Document/content/tests/AITG-APP-04_Testing_for_Input_Leakage.md",
+    "related_rcs": [
+      "RC-227"
+    ]
+  },
+  {
+    "id": "AITG-APP-05",
+    "name": "Unsafe Outputs",
+    "area": "Application",
+    "url": "https://github.com/OWASP/www-project-ai-testing-guide/blob/main/Document/content/tests/AITG-APP-05_Testing_for_Unsafe_Outputs.md",
+    "related_rcs": [
+      "RC-205",
+      "RC-238",
+      "RC-246"
+    ]
+  },
+  {
+    "id": "AITG-APP-06",
+    "name": "Agentic Behavior Limits",
+    "area": "Application",
+    "url": "https://github.com/OWASP/www-project-ai-testing-guide/blob/main/Document/content/tests/AITG-APP-06_Testing_for_Agentic_Behavior_Limits.md",
+    "related_rcs": [
+      "RC-214",
+      "RC-215",
+      "RC-226",
+      "RC-231",
+      "RC-236",
+      "RC-242",
+      "RC-246",
+      "RC-247",
+      "RC-257"
+    ]
+  },
+  {
+    "id": "AITG-APP-07",
+    "name": "Prompt Disclosure",
+    "area": "Application",
+    "url": "https://github.com/OWASP/www-project-ai-testing-guide/blob/main/Document/content/tests/AITG-APP-07_Testing_for_Prompt_Disclosure.md",
+    "related_rcs": [
+      "RC-232",
+      "RC-241"
+    ]
+  },
+  {
+    "id": "AITG-APP-08",
+    "name": "Embedding Manipulation",
+    "area": "Application",
+    "url": "https://github.com/OWASP/www-project-ai-testing-guide/blob/main/Document/content/tests/AITG-APP-08_Testing_for_Embedding_Manipulation.md",
+    "related_rcs": [
+      "RC-252"
+    ]
+  },
+  {
+    "id": "AITG-APP-09",
+    "name": "Model Extraction",
+    "area": "Application",
+    "url": "https://github.com/OWASP/www-project-ai-testing-guide/blob/main/Document/content/tests/AITG-APP-09_Testing_for_Model_Extraction.md",
+    "related_rcs": [
+      "RC-260"
+    ]
+  },
+  {
+    "id": "AITG-APP-10",
+    "name": "Content Bias",
+    "area": "Application",
+    "url": "https://github.com/OWASP/www-project-ai-testing-guide/blob/main/Document/content/tests/AITG-APP-10_Testing_for_Content_Bias.md",
+    "related_rcs": [
+      "RC-254"
+    ]
+  },
+  {
+    "id": "AITG-APP-11",
+    "name": "Hallucinations",
+    "area": "Application",
+    "url": "https://github.com/OWASP/www-project-ai-testing-guide/blob/main/Document/content/tests/AITG-APP-11_Testing_for_Hallucinations.md",
+    "related_rcs": [
+      "RC-255"
+    ]
+  },
+  {
+    "id": "AITG-APP-12",
+    "name": "Toxic Output",
+    "area": "Application",
+    "url": "https://github.com/OWASP/www-project-ai-testing-guide/blob/main/Document/content/tests/AITG-APP-12_Testing_for_Toxic_Output.md",
+    "related_rcs": []
+  },
+  {
+    "id": "AITG-APP-13",
+    "name": "Over-Reliance on AI",
+    "area": "Application",
+    "url": "https://github.com/OWASP/www-project-ai-testing-guide/blob/main/Document/content/tests/AITG-APP-13_Testing_for_Over-Reliance_on_AI.md",
+    "related_rcs": []
+  },
+  {
+    "id": "AITG-APP-14",
+    "name": "Explainability and Interpretability",
+    "area": "Application",
+    "url": "https://github.com/OWASP/www-project-ai-testing-guide/blob/main/Document/content/tests/AITG-APP-14_Testing_for_Explainability_and_Interpretability.md",
+    "related_rcs": []
+  },
+  {
+    "id": "AITG-DAT-01",
+    "name": "Training Data Exposure",
+    "area": "Data",
+    "url": "https://github.com/OWASP/www-project-ai-testing-guide/blob/main/Document/content/tests/AITG-DAT-01_Testing_for_Training_Data_Exposure.md",
+    "related_rcs": []
+  },
+  {
+    "id": "AITG-DAT-02",
+    "name": "Runtime Exfiltration",
+    "area": "Data",
+    "url": "https://github.com/OWASP/www-project-ai-testing-guide/blob/main/Document/content/tests/AITG-DAT-02_Testing_for_Runtime_Exfiltration.md",
+    "related_rcs": [
+      "RC-210",
+      "RC-238",
+      "RC-262"
+    ]
+  },
+  {
+    "id": "AITG-DAT-03",
+    "name": "Dataset Diversity and Coverage",
+    "area": "Data",
+    "url": "https://github.com/OWASP/www-project-ai-testing-guide/blob/main/Document/content/tests/AITG-DAT-03_Testing_for_Dataset_Diversity_and_Coverage.md",
+    "related_rcs": []
+  },
+  {
+    "id": "AITG-DAT-04",
+    "name": "Harmful Content in Data",
+    "area": "Data",
+    "url": "https://github.com/OWASP/www-project-ai-testing-guide/blob/main/Document/content/tests/AITG-DAT-04_Testing_for_Harmful_Content_in_Data.md",
+    "related_rcs": []
+  },
+  {
+    "id": "AITG-DAT-05",
+    "name": "Data Minimization and Consent",
+    "area": "Data",
+    "url": "https://github.com/OWASP/www-project-ai-testing-guide/blob/main/Document/content/tests/AITG-DAT-05_Testing_for_Data_Minimization_and_Consent.md",
+    "related_rcs": []
+  },
+  {
+    "id": "AITG-INF-01",
+    "name": "Supply Chain Tampering",
+    "area": "Infrastructure",
+    "url": "https://github.com/OWASP/www-project-ai-testing-guide/blob/main/Document/content/tests/AITG-INF-01_Testing_for_Supply_Chain_Tampering.md",
+    "related_rcs": [
+      "RC-216",
+      "RC-224",
+      "RC-259"
+    ]
+  },
+  {
+    "id": "AITG-INF-02",
+    "name": "Resource Exhaustion",
+    "area": "Infrastructure",
+    "url": "https://github.com/OWASP/www-project-ai-testing-guide/blob/main/Document/content/tests/AITG-INF-02_Testing_for_Resource_Exhaustion.md",
+    "related_rcs": [
+      "RC-209",
+      "RC-256",
+      "RC-257"
+    ]
+  },
+  {
+    "id": "AITG-INF-03",
+    "name": "Plugin Boundary Violations",
+    "area": "Infrastructure",
+    "url": "https://github.com/OWASP/www-project-ai-testing-guide/blob/main/Document/content/tests/AITG-INF-03_Testing_for_Plugin_Boundary_Violations.md",
+    "related_rcs": [
+      "RC-214",
+      "RC-230",
+      "RC-237",
+      "RC-258",
+      "RC-259"
+    ]
+  },
+  {
+    "id": "AITG-INF-04",
+    "name": "Capability Misuse",
+    "area": "Infrastructure",
+    "url": "https://github.com/OWASP/www-project-ai-testing-guide/blob/main/Document/content/tests/AITG-INF-04_Testing_for_Capability_Misuse.md",
+    "related_rcs": [
+      "RC-226"
+    ]
+  },
+  {
+    "id": "AITG-INF-05",
+    "name": "Fine-tuning Poisoning",
+    "area": "Infrastructure",
+    "url": "https://github.com/OWASP/www-project-ai-testing-guide/blob/main/Document/content/tests/AITG-INF-05_Testing_for_Fine-tuning_Poisoning.md",
+    "related_rcs": [
+      "RC-245",
+      "RC-251"
+    ]
+  },
+  {
+    "id": "AITG-INF-06",
+    "name": "Dev-Time Model Theft",
+    "area": "Infrastructure",
+    "url": "https://github.com/OWASP/www-project-ai-testing-guide/blob/main/Document/content/tests/AITG-INF-06_Testing_for_Dev-Time_Model_Theft.md",
+    "related_rcs": [
+      "RC-263"
+    ]
+  },
+  {
+    "id": "AITG-MOD-01",
+    "name": "Evasion Attacks",
+    "area": "Model",
+    "url": "https://github.com/OWASP/www-project-ai-testing-guide/blob/main/Document/content/tests/AITG-MOD-01_Testing_for_Evasion_Attacks.md",
+    "related_rcs": [
+      "RC-220"
+    ]
+  },
+  {
+    "id": "AITG-MOD-02",
+    "name": "Runtime Model Poisoning",
+    "area": "Model",
+    "url": "https://github.com/OWASP/www-project-ai-testing-guide/blob/main/Document/content/tests/AITG-MOD-02_Testing_for_Runtime_Model_Poisoning.md",
+    "related_rcs": [
+      "RC-225",
+      "RC-253"
+    ]
+  },
+  {
+    "id": "AITG-MOD-03",
+    "name": "Poisoned Training Sets",
+    "area": "Model",
+    "url": "https://github.com/OWASP/www-project-ai-testing-guide/blob/main/Document/content/tests/AITG-MOD-03_Testing_for_Poisoned_Training_Sets.md",
+    "related_rcs": [
+      "RC-245",
+      "RC-251"
+    ]
+  },
+  {
+    "id": "AITG-MOD-04",
+    "name": "Membership Inference",
+    "area": "Model",
+    "url": "https://github.com/OWASP/www-project-ai-testing-guide/blob/main/Document/content/tests/AITG-MOD-04_Testing_for_Membership_Inference.md",
+    "related_rcs": [
+      "RC-261"
+    ]
+  },
+  {
+    "id": "AITG-MOD-05",
+    "name": "Inversion Attacks",
+    "area": "Model",
+    "url": "https://github.com/OWASP/www-project-ai-testing-guide/blob/main/Document/content/tests/AITG-MOD-05_Testing_for_Inversion_Attacks.md",
+    "related_rcs": []
+  },
+  {
+    "id": "AITG-MOD-06",
+    "name": "Robustness to New Data",
+    "area": "Model",
+    "url": "https://github.com/OWASP/www-project-ai-testing-guide/blob/main/Document/content/tests/AITG-MOD-06_Testing_for_Robustness_to_New_Data.md",
+    "related_rcs": []
+  },
+  {
+    "id": "AITG-MOD-07",
+    "name": "Goal Alignment",
+    "area": "Model",
+    "url": "https://github.com/OWASP/www-project-ai-testing-guide/blob/main/Document/content/tests/AITG-MOD-07_Testing_for_Goal_Alignment.md",
+    "related_rcs": [
+      "RC-201"
+    ]
+  }
+]

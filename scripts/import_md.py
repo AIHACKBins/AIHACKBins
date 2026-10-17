@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build data/cases.json from individually reviewed Markdown records.
+"""LEGACY ONLY: Build older 33 Markdown records; DO NOT RUN for v10.0 canonical JSON.
 Usage: python scripts/import_md.py [--check]
 Requires: PyYAML (pip install -r scripts/requirements.txt)
 """

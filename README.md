@@ -62,3 +62,10 @@ All 33 records now specify `input_type`, `applies_to`, and `finding_criteria`. R
 ## v9.1 technical quality pass
 
 Includes controlled mailbox test, genuine RSS fixture, local assistant-prefill API comparison script, improved many-shot/obfuscation controls and variant-aware authored simulations. All entries remain unverified.
+
+
+## v10.0 coverage and accuracy
+
+65 technique records, 65 independent *authored illustration pairs* (no live model contacted), and 32 OWASP AI Testing Guide objective references. `data/cases.json` is canonical. The legacy Markdown importer supports an older subset and must not overwrite v10 JSON. Validate with `python scripts/validate.py` and `node --check app.js`, `node --check lab.js`, `node --check lab-outcomes.js`.
+
+The four new RC-260..265 entries are assessment candidates, not published vulnerability disclosures. Existing payloads remain unverified by this release. AITG mappings are editorial objective crosswalks, not OWASP endorsements. Kerckhoffs's principle of open system design informs the About page.

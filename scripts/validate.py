@@ -1,30 +1,27 @@
 #!/usr/bin/env python3
-"""Content and reference validation for the practical RC-201..RC-233 release."""
+"""AIHACKBins current static catalog and simulation structural validation."""
+import json,re
 from pathlib import Path
-import json,re,datetime
 root=Path(__file__).resolve().parents[1]
-load=lambda name:json.loads((root/'data'/name).read_text(encoding='utf-8'))
-rows=load('cases.json');ids={r['id'] for r in rows};expected={f'RC-{i}' for i in range(201,234)}
-assert len(rows)==33 and ids==expected, 'Expected 33 unique RC-201 through RC-233 entries'
-for r in rows:
- assert r['owasp_ids'] and all(x in {f'LLM{i:02d}' for i in range(1,11)} for x in r['owasp_ids']),r['id']
- assert not r['atlas_id'] or re.fullmatch(r'AML\.T\d{4}(?:\.\d{3})?',r['atlas_id']),r['id']
- assert r['status']=='Unverified' and r['model_tested']==[] and not r['last_verified'],r['id']
- assert r['payload'].strip() and r['placement'].strip() and r['expected_test'].strip(),r['id']
- assert r.get('test_steps') and r.get('source_url') and r.get('defense') and r.get('lab'),r['id']
- assert set(r.get('related_ids',[]))<=ids,r['id']
- assert 'vuln_responses' not in r['lab'] and 'safe_response' not in r['lab'],r['id']
-for c in load('chains.json'):assert set(c['steps'])<=ids
-for c in load('changelog.json'):assert c['id'] in ids;datetime.date.fromisoformat(c['date'])
-rc221=next(r for r in rows if r['id']=='RC-221')
-assert sum(0xe0000<=ord(c)<=0xe007f for c in rc221['payload'])>=800
-js=(root/'lab.js').read_text(encoding='utf8')
-assert 'vuln_responses' not in js and all(t in js for t in ['Editable payload','Actual observations','lab-progress-step','dyn-transcript','ILLUSTRATIVE ONLY','Export notes'])
-assert 'renderWorkspace' not in js and 'workspace(r,' in js
-illustrations=load('lab_outcomes.json')
-assert len(illustrations)==33 and {x['id'] for x in illustrations}==ids, 'Every RC needs its own illustrations'
-assert all(x['success'].strip() and x['blocked'].strip() for x in illustrations)
-assert 'ILLUSTRATIVE SUCCESS' in js and 'ILLUSTRATIVE BLOCKED' in js
-assert 'lab-outcomes.js' in (root/'index.html').read_text(encoding='utf8')
-assert 'window.AIHACKBinsIllustrations' in (root/'lab-outcomes.js').read_text(encoding='utf8')
-print('PASS: 33 RCs, real copyable payloads, 33 technique-specific outcome pairs, illustrative labels, standalone labs')
+read=lambda s:json.loads((root/s).read_text(encoding='utf-8'))
+rows=read('data/cases.json');guide=read('data/aitg_tests.json');out=read('data/lab_outcomes.json');audit=read('data/audit.json')
+ids={x['id'] for x in rows};tests={x['id'] for x in guide}
+assert len(rows)==len(ids)==65,'Expected 65 unique RC entries'
+assert len(guide)==len(tests)==32,'Expected 32 OWASP AITG testing objectives'
+assert len(out)==len({x['id'] for x in out})==len(rows),'One authored outcome pair per entry'
+assert {x['id'] for x in out}==ids
+for item in rows:
+ assert item['id'].startswith('RC-') and item.get('payload','').strip() and item.get('lab'),item['id']
+ assert item.get('status')=='Unverified',item['id']
+ assert set(item.get('aitg_ids',[]))<=tests,item['id']
+ assert item.get('finding_criteria') and item.get('applies_to'),item['id']
+ assert all(re.fullmatch(r'LLM(?:0[1-9]|10)',s) for s in item.get('owasp_ids',[])),item['id']
+for x in out:assert x.get('success') and x.get('blocked'),x['id']
+for x in guide:assert set(x['related_rcs'])<=ids,x['id']
+for c in read('data/chains.json'):assert set(c.get('steps',[]))<=ids
+for c in read('data/changelog.json'):assert c['id'] in ids
+assert audit['current_records']==len(rows) and audit['labs']==len(out)
+assert 'window.AIHACKBinsIllustrations' in (root/'lab-outcomes.js').read_text()
+assert 'Kerckhoffs' in (root/'app.js').read_text()
+assert 'data/cases.json' in (root/'README.md').read_text()
+print(f'PASS: {len(rows)} unique RC entries, {len(out)} authored illustration pairs, {len(guide)} AITG objectives, consistent audit and mappings')
