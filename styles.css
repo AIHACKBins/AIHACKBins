@@ -56,21 +56,21 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{ou
   border-bottom:1px solid var(--border);
 }
 .topbar-inner{
-  max-width:1200px;margin:0 auto;
+  max-width:1380px;margin:0 auto;
   display:flex;align-items:center;gap:0;
-  padding:0 28px;height:52px;
+  padding:0 24px;height:52px;
 }
 .wordmark{font:600 16px/1 var(--mono);letter-spacing:-.01em;color:var(--text);flex-shrink:0}
 .wordmark span{color:var(--cobalt)}
 
-.topnav{display:flex;align-items:center;gap:0;margin-left:auto}
+.topnav{display:flex;align-items:center;gap:0;margin-left:auto;min-width:0;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin;overscroll-behavior-x:contain;flex:0 1 auto}
 .tnav-link{
-  font:400 12px var(--mono);color:var(--muted);
-  padding:0 16px;height:52px;display:flex;align-items:center;
+  font:400 11px var(--mono);color:var(--muted);white-space:nowrap;
+  padding:0 10px;height:52px;display:flex;align-items:center;
   border-left:1px solid var(--border);
   transition:color .1s,background .1s;
 }
-.tnav-link:first-child{margin-left:24px}
+.tnav-link:first-child{margin-left:12px}
 .tnav-link:hover{color:var(--text);background:var(--cobalt-dim)}
 .tnav-link.active{color:var(--cobalt);font-weight:600}
 
@@ -82,7 +82,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{ou
 /* ── Mobile menu ────────────────────────────────────────────────────── */
 .mobile-menu{
   position:fixed;inset:52px 0 0 0;background:var(--bg-off);
-  z-index:49;display:flex;flex-direction:column;border-top:1px solid var(--border);
+  z-index:49;display:flex;flex-direction:column;border-top:1px solid var(--border);overflow-y:auto;
 }
 .mobile-menu[hidden]{display:none}
 .mm-link{display:block;padding:16px 24px;font:400 14px var(--mono);color:var(--muted);border-bottom:1px solid var(--border)}
@@ -410,10 +410,18 @@ mark.cmp-canary{background:none;color:var(--cobalt);font-weight:600}
   .cmp-wrap{grid-template-columns:1fr}
   .cmp-pane.vuln{border-right:none;border-bottom:1px solid var(--border)}
 }
-@media(max-width:680px){
+@media(max-width:1120px){
+  .topnav{scrollbar-width:none}
+  .topnav::-webkit-scrollbar{display:none}
+  .tnav-link{padding:0 8px}
+  .topbar-inner{padding:0 12px}
+}
+@media(max-width:760px){
   .topnav{display:none}
   .hamburger{display:block}
   .topbar-inner{padding:0 16px}
+}
+@media(max-width:680px){
   .hero,.index-section,.detail-wrap,.chains-wrap,.api-wrap,.lab-wrap,.inner-head,.page,.about-section,.submit-wrap{padding-left:16px;padding-right:16px}
   .hero-title{font-size:32px}
   .tech-table .th-atlas,.tech-table .td-atlas,
@@ -931,5 +939,44 @@ mark.cmp-canary{background:none;color:var(--cobalt);font-weight:600}
 .github-corner:hover,.github-corner:focus-visible{filter:brightness(.85)}
 .github-corner:focus-visible{outline:2px solid var(--cobalt);outline-offset:-3px}
 /* Keep GitHub navigation accessible and avoid overlap on narrow screens. */
-@media(max-width:1100px){.github-corner{display:none}}
+@media(max-width:1450px){.github-corner{display:none}}
 @media(prefers-reduced-motion:reduce){.github-corner{transition:none}}
+
+/* v10.7: minimal first-step payload discovery */
+.hero-quick-search{margin:18px 0 12px;max-width:620px}
+.hero-quick-search label{display:block;font:600 12px var(--mono);margin-bottom:8px}
+.hero-search-row{display:flex;gap:8px}
+.hero-search-row input{flex:1;min-width:0;background:var(--bg-off);border:1px solid var(--border-hi);color:var(--text);padding:11px 12px;font:12px var(--mono)}
+.hero-search-row button{border:0;background:var(--cobalt);color:var(--cobalt-txt);font:600 11px var(--mono);padding:10px 14px;cursor:pointer}
+.hero-search-row button:focus-visible{outline:2px solid var(--cobalt);outline-offset:3px}
+@media(max-width:560px){.hero-search-row{flex-direction:column}.hero-search-row button{min-height:42px}}
+
+/* v10.7: First-class AI testing target entry points */
+.hero-targets{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:13px 0 16px;font:11px var(--mono)}
+.hero-targets span{color:var(--muted);margin-right:5px}
+.hero-targets button,.hero-targets a{font:inherit;color:var(--fg);background:var(--panel);border:1px solid var(--border);padding:9px 11px;border-radius:2px;cursor:pointer;text-decoration:none}
+.hero-targets button:hover,.hero-targets a:hover{border-color:var(--accent);color:var(--accent)}
+.hero-targets button:focus-visible,.hero-targets a:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+
+/* v10.8 baseline CSV export and compact actions */
+.baseline-export{font:inherit;cursor:pointer;border:1px solid var(--border, #444);background:transparent;color:inherit;padding:9px 13px;border-radius:2px}
+.baseline-export:hover,.baseline-export:focus-visible{border-color:var(--cobalt,#5376ff);outline-offset:3px}
+@media(max-width:640px){.baseline-toolbar{flex-wrap:wrap}.baseline-export{width:100%;max-width:260px}}
+
+/* v10.9: compact collapsible AITG guidance inside existing centred baseline */
+.baseline-method{border-left:2px solid var(--border);padding:8px 12px;margin:10px 0 16px;background:var(--bg-card)}
+.baseline-method summary{cursor:pointer;font:600 11px/1.6 var(--mono);color:var(--cobalt);outline-offset:3px}
+.baseline-method p{font-size:13px;line-height:1.65;margin:10px 0 0;color:var(--fg)}
+.aitg-methodology small{font:10px var(--mono);color:var(--muted)}
+.aitg-methodology p{line-height:1.7}
+
+/* v11.4: concise field-ready assessment context, no redesign. */
+.assessment-context{border-left:3px solid var(--accent,#4ea5bd);padding-left:1.1rem}
+.assessment-context p{margin:.45rem 0;overflow-wrap:anywhere}
+.assessment-procedure li{margin-bottom:.7rem;line-height:1.6}
+@media(max-width:760px){.assessment-context{padding-left:.7rem}.assessment-procedure{overflow-wrap:anywhere}}
+
+/* v11.5: understated site-wide responsible-use footer */
+.site-disclaimer{display:flex;gap:12px;align-items:center;justify-content:center;flex-wrap:wrap;padding:14px 20px;font:11px/1.6 var(--mono);color:var(--muted);border-top:1px solid var(--border);text-align:center}
+.site-disclaimer a{color:inherit;text-decoration:underline;text-underline-offset:3px}
+.site-disclaimer a:focus-visible{outline:2px solid currentColor;outline-offset:3px}

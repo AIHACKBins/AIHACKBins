@@ -1,0 +1,322 @@
+[
+  {
+    "id": "AITG-APP-01",
+    "name": "Prompt Injection",
+    "access": "Black-box / grey-box",
+    "execute": "Submit a clean legitimate task, then introduce the conflicting instruction in the intended direct or lower-trust channel.",
+    "interpret": "Observe a higher-priority instruction conflict; text echoed from a document alone is not proof of bypass.",
+    "remediate": "Examine prompt boundaries, data provenance, and application-side enforcement.",
+    "source": "OWASP AI Testing Guide v1.0 (November 2025); summarised editorially.",
+    "url": "https://github.com/OWASP/www-project-ai-testing-guide/blob/main/Document/content/tests/AITG-APP-01_Testing_for_Prompt_Injection.md"
+  },
+  {
+    "id": "AITG-APP-02",
+    "name": "Indirect Prompt Injection",
+    "access": "Black-box / grey-box",
+    "execute": "Submit a clean legitimate task, then introduce the conflicting instruction in the intended direct or lower-trust channel.",
+    "interpret": "Observe a higher-priority instruction conflict; text echoed from a document alone is not proof of bypass.",
+    "remediate": "Examine prompt boundaries, data provenance, and application-side enforcement.",
+    "source": "OWASP AI Testing Guide v1.0 (November 2025); summarised editorially.",
+    "url": "https://github.com/OWASP/www-project-ai-testing-guide/blob/main/Document/content/tests/AITG-APP-02_Testing_for_Indirect_Prompt_Injection.md"
+  },
+  {
+    "id": "AITG-APP-03",
+    "name": "Sensitive Data Leak",
+    "access": "Black-box / grey-box",
+    "execute": "Seed a known, non-sensitive canary accessible only in one security context; test isolation with a second context.",
+    "interpret": "Treat only the exact controlled canary or verified protected data crossing the boundary as disclosure.",
+    "remediate": "Apply access checks, tenant isolation, redaction and retention controls.",
+    "source": "OWASP AI Testing Guide v1.0 (November 2025); summarised editorially.",
+    "url": "https://github.com/OWASP/www-project-ai-testing-guide/blob/main/Document/content/tests/AITG-APP-03_Testing_for_Sensitive_Data_Leak.md"
+  },
+  {
+    "id": "AITG-APP-04",
+    "name": "Input Leakage",
+    "access": "Black-box / grey-box",
+    "execute": "Seed a known, non-sensitive canary accessible only in one security context; test isolation with a second context.",
+    "interpret": "Treat only the exact controlled canary or verified protected data crossing the boundary as disclosure.",
+    "remediate": "Apply access checks, tenant isolation, redaction and retention controls.",
+    "source": "OWASP AI Testing Guide v1.0 (November 2025); summarised editorially.",
+    "url": "https://github.com/OWASP/www-project-ai-testing-guide/blob/main/Document/content/tests/AITG-APP-04_Testing_for_Input_Leakage.md"
+  },
+  {
+    "id": "AITG-APP-05",
+    "name": "Unsafe Outputs",
+    "access": "Black-box / grey-box",
+    "execute": "Define a clean benchmark or labelled control dataset, change one condition, and compare outcomes with matched settings.",
+    "interpret": "Use measurable evidence and describe scope, variability and alternative explanations.",
+    "remediate": "Apply independent verification, logging, constrained permissions and repeatable regression tests.",
+    "source": "OWASP AI Testing Guide v1.0 (November 2025); summarised editorially.",
+    "url": "https://github.com/OWASP/www-project-ai-testing-guide/blob/main/Document/content/tests/AITG-APP-05_Testing_for_Unsafe_Outputs.md"
+  },
+  {
+    "id": "AITG-APP-06",
+    "name": "Agentic Behavior Limits",
+    "access": "Grey-box recommended",
+    "execute": "Use two synthetic accounts or narrowly scoped test tools; compare authorised and unauthorised invocation paths.",
+    "interpret": "Record actual tool invocation and policy decision, not just the model stating it has taken action.",
+    "remediate": "Enforce scope, approval and least privilege in the tool/API layer.",
+    "source": "OWASP AI Testing Guide v1.0 (November 2025); summarised editorially.",
+    "url": "https://github.com/OWASP/www-project-ai-testing-guide/blob/main/Document/content/tests/AITG-APP-06_Testing_for_Agentic_Behavior_Limits.md"
+  },
+  {
+    "id": "AITG-APP-07",
+    "name": "Prompt Disclosure",
+    "access": "Black-box / grey-box",
+    "execute": "Seed a known, non-sensitive canary accessible only in one security context; test isolation with a second context.",
+    "interpret": "Treat only the exact controlled canary or verified protected data crossing the boundary as disclosure.",
+    "remediate": "Apply access checks, tenant isolation, redaction and retention controls.",
+    "source": "OWASP AI Testing Guide v1.0 (November 2025); summarised editorially.",
+    "url": "https://github.com/OWASP/www-project-ai-testing-guide/blob/main/Document/content/tests/AITG-APP-07_Testing_for_Prompt_Disclosure.md"
+  },
+  {
+    "id": "AITG-APP-08",
+    "name": "Embedding Manipulation",
+    "access": "Grey-box recommended",
+    "execute": "Prepare matched clean and poisoned artefacts in a disposable test environment; verify the altered input was ingested.",
+    "interpret": "Demonstrate the difference on held-out tasks and verify the affected ingestion or provenance boundary.",
+    "remediate": "Validate artefact provenance, integrity and access controls.",
+    "source": "OWASP AI Testing Guide v1.0 (November 2025); summarised editorially.",
+    "url": "https://github.com/OWASP/www-project-ai-testing-guide/blob/main/Document/content/tests/AITG-APP-08_Testing_for_Embedding_Manipulation.md"
+  },
+  {
+    "id": "AITG-APP-09",
+    "name": "Model Extraction",
+    "access": "Grey-box recommended",
+    "execute": "Use a scoped inference query allowance or synthetic model artefact and validate permissions in a controlled environment.",
+    "interpret": "Measure surrogate agreement against a held-out set or demonstrate unauthorised artefact access.",
+    "remediate": "Constrain API usage; enforce storage/API authorisation and audit.",
+    "source": "OWASP AI Testing Guide v1.0 (November 2025); summarised editorially.",
+    "url": "https://github.com/OWASP/www-project-ai-testing-guide/blob/main/Document/content/tests/AITG-APP-09_Testing_for_Model_Extraction.md"
+  },
+  {
+    "id": "AITG-APP-10",
+    "name": "Content Bias",
+    "access": "Black-box / grey-box",
+    "execute": "Define a clean benchmark or labelled control dataset, change one condition, and compare outcomes with matched settings.",
+    "interpret": "Use measurable evidence and describe scope, variability and alternative explanations.",
+    "remediate": "Apply independent verification, logging, constrained permissions and repeatable regression tests.",
+    "source": "OWASP AI Testing Guide v1.0 (November 2025); summarised editorially.",
+    "url": "https://github.com/OWASP/www-project-ai-testing-guide/blob/main/Document/content/tests/AITG-APP-10_Testing_for_Content_Bias.md"
+  },
+  {
+    "id": "AITG-APP-11",
+    "name": "Hallucinations",
+    "access": "Black-box / grey-box",
+    "execute": "Define a clean benchmark or labelled control dataset, change one condition, and compare outcomes with matched settings.",
+    "interpret": "Use measurable evidence and describe scope, variability and alternative explanations.",
+    "remediate": "Apply independent verification, logging, constrained permissions and repeatable regression tests.",
+    "source": "OWASP AI Testing Guide v1.0 (November 2025); summarised editorially.",
+    "url": "https://github.com/OWASP/www-project-ai-testing-guide/blob/main/Document/content/tests/AITG-APP-11_Testing_for_Hallucinations.md"
+  },
+  {
+    "id": "AITG-APP-12",
+    "name": "Toxic Output",
+    "access": "Black-box / grey-box",
+    "execute": "Define a clean benchmark or labelled control dataset, change one condition, and compare outcomes with matched settings.",
+    "interpret": "Use measurable evidence and describe scope, variability and alternative explanations.",
+    "remediate": "Apply independent verification, logging, constrained permissions and repeatable regression tests.",
+    "source": "OWASP AI Testing Guide v1.0 (November 2025); summarised editorially.",
+    "url": "https://github.com/OWASP/www-project-ai-testing-guide/blob/main/Document/content/tests/AITG-APP-12_Testing_for_Toxic_Output.md"
+  },
+  {
+    "id": "AITG-APP-13",
+    "name": "Over-Reliance on AI",
+    "access": "Black-box / grey-box",
+    "execute": "Define a clean benchmark or labelled control dataset, change one condition, and compare outcomes with matched settings.",
+    "interpret": "Use measurable evidence and describe scope, variability and alternative explanations.",
+    "remediate": "Apply independent verification, logging, constrained permissions and repeatable regression tests.",
+    "source": "OWASP AI Testing Guide v1.0 (November 2025); summarised editorially.",
+    "url": "https://github.com/OWASP/www-project-ai-testing-guide/blob/main/Document/content/tests/AITG-APP-13_Testing_for_Over-Reliance_on_AI.md"
+  },
+  {
+    "id": "AITG-APP-14",
+    "name": "Explainability and Interpretability",
+    "access": "Black-box / grey-box",
+    "execute": "Define a clean benchmark or labelled control dataset, change one condition, and compare outcomes with matched settings.",
+    "interpret": "Use measurable evidence and describe scope, variability and alternative explanations.",
+    "remediate": "Apply independent verification, logging, constrained permissions and repeatable regression tests.",
+    "source": "OWASP AI Testing Guide v1.0 (November 2025); summarised editorially.",
+    "url": "https://github.com/OWASP/www-project-ai-testing-guide/blob/main/Document/content/tests/AITG-APP-14_Testing_for_Explainability_and_Interpretability.md"
+  },
+  {
+    "id": "AITG-DAT-01",
+    "name": "Training Data Exposure",
+    "access": "Black-box / grey-box",
+    "execute": "Seed a known, non-sensitive canary accessible only in one security context; test isolation with a second context.",
+    "interpret": "Treat only the exact controlled canary or verified protected data crossing the boundary as disclosure.",
+    "remediate": "Apply access checks, tenant isolation, redaction and retention controls.",
+    "source": "OWASP AI Testing Guide v1.0 (November 2025); summarised editorially.",
+    "url": "https://github.com/OWASP/www-project-ai-testing-guide/blob/main/Document/content/tests/AITG-DAT-01_Testing_for_Training_Data_Exposure.md"
+  },
+  {
+    "id": "AITG-DAT-02",
+    "name": "Runtime Exfiltration",
+    "access": "Grey-box recommended",
+    "execute": "Seed a known, non-sensitive canary accessible only in one security context; test isolation with a second context.",
+    "interpret": "Treat only the exact controlled canary or verified protected data crossing the boundary as disclosure.",
+    "remediate": "Apply access checks, tenant isolation, redaction and retention controls.",
+    "source": "OWASP AI Testing Guide v1.0 (November 2025); summarised editorially.",
+    "url": "https://github.com/OWASP/www-project-ai-testing-guide/blob/main/Document/content/tests/AITG-DAT-02_Testing_for_Runtime_Exfiltration.md"
+  },
+  {
+    "id": "AITG-DAT-03",
+    "name": "Dataset Diversity and Coverage",
+    "access": "White-box / research",
+    "execute": "Define a clean benchmark or labelled control dataset, change one condition, and compare outcomes with matched settings.",
+    "interpret": "Use measurable evidence and describe scope, variability and alternative explanations.",
+    "remediate": "Apply independent verification, logging, constrained permissions and repeatable regression tests.",
+    "source": "OWASP AI Testing Guide v1.0 (November 2025); summarised editorially.",
+    "url": "https://github.com/OWASP/www-project-ai-testing-guide/blob/main/Document/content/tests/AITG-DAT-03_Testing_for_Dataset_Diversity_and_Coverage.md"
+  },
+  {
+    "id": "AITG-DAT-04",
+    "name": "Harmful Content in Data",
+    "access": "White-box / research",
+    "execute": "Define a clean benchmark or labelled control dataset, change one condition, and compare outcomes with matched settings.",
+    "interpret": "Use measurable evidence and describe scope, variability and alternative explanations.",
+    "remediate": "Apply independent verification, logging, constrained permissions and repeatable regression tests.",
+    "source": "OWASP AI Testing Guide v1.0 (November 2025); summarised editorially.",
+    "url": "https://github.com/OWASP/www-project-ai-testing-guide/blob/main/Document/content/tests/AITG-DAT-04_Testing_for_Harmful_Content_in_Data.md"
+  },
+  {
+    "id": "AITG-DAT-05",
+    "name": "Data Minimization and Consent",
+    "access": "White-box / research",
+    "execute": "Define a clean benchmark or labelled control dataset, change one condition, and compare outcomes with matched settings.",
+    "interpret": "Use measurable evidence and describe scope, variability and alternative explanations.",
+    "remediate": "Apply independent verification, logging, constrained permissions and repeatable regression tests.",
+    "source": "OWASP AI Testing Guide v1.0 (November 2025); summarised editorially.",
+    "url": "https://github.com/OWASP/www-project-ai-testing-guide/blob/main/Document/content/tests/AITG-DAT-05_Testing_for_Data_Minimization_and_Consent.md"
+  },
+  {
+    "id": "AITG-INF-01",
+    "name": "Supply Chain Tampering",
+    "access": "Grey-box recommended",
+    "execute": "Prepare matched clean and poisoned artefacts in a disposable test environment; verify the altered input was ingested.",
+    "interpret": "Demonstrate the difference on held-out tasks and verify the affected ingestion or provenance boundary.",
+    "remediate": "Validate artefact provenance, integrity and access controls.",
+    "source": "OWASP AI Testing Guide v1.0 (November 2025); summarised editorially.",
+    "url": "https://github.com/OWASP/www-project-ai-testing-guide/blob/main/Document/content/tests/AITG-INF-01_Testing_for_Supply_Chain_Tampering.md"
+  },
+  {
+    "id": "AITG-INF-02",
+    "name": "Resource Exhaustion",
+    "access": "Grey-box recommended",
+    "execute": "Agree capped request, token, time and cost budgets before the test; observe resource usage with monitoring enabled.",
+    "interpret": "Measure consumed resources and whether quotas, throttling, or circuit breakers activated.",
+    "remediate": "Limit budgets, parallel requests and autonomous tool loops.",
+    "source": "OWASP AI Testing Guide v1.0 (November 2025); summarised editorially.",
+    "url": "https://github.com/OWASP/www-project-ai-testing-guide/blob/main/Document/content/tests/AITG-INF-02_Testing_for_Resource_Exhaustion.md"
+  },
+  {
+    "id": "AITG-INF-03",
+    "name": "Plugin Boundary Violations",
+    "access": "Grey-box recommended",
+    "execute": "Use two synthetic accounts or narrowly scoped test tools; compare authorised and unauthorised invocation paths.",
+    "interpret": "Record actual tool invocation and policy decision, not just the model stating it has taken action.",
+    "remediate": "Enforce scope, approval and least privilege in the tool/API layer.",
+    "source": "OWASP AI Testing Guide v1.0 (November 2025); summarised editorially.",
+    "url": "https://github.com/OWASP/www-project-ai-testing-guide/blob/main/Document/content/tests/AITG-INF-03_Testing_for_Plugin_Boundary_Violations.md"
+  },
+  {
+    "id": "AITG-INF-04",
+    "name": "Capability Misuse",
+    "access": "Grey-box recommended",
+    "execute": "Use two synthetic accounts or narrowly scoped test tools; compare authorised and unauthorised invocation paths.",
+    "interpret": "Record actual tool invocation and policy decision, not just the model stating it has taken action.",
+    "remediate": "Enforce scope, approval and least privilege in the tool/API layer.",
+    "source": "OWASP AI Testing Guide v1.0 (November 2025); summarised editorially.",
+    "url": "https://github.com/OWASP/www-project-ai-testing-guide/blob/main/Document/content/tests/AITG-INF-04_Testing_for_Capability_Misuse.md"
+  },
+  {
+    "id": "AITG-INF-05",
+    "name": "Fine-tuning Poisoning",
+    "access": "White-box / research",
+    "execute": "Prepare matched clean and poisoned artefacts in a disposable test environment; verify the altered input was ingested.",
+    "interpret": "Demonstrate the difference on held-out tasks and verify the affected ingestion or provenance boundary.",
+    "remediate": "Validate artefact provenance, integrity and access controls.",
+    "source": "OWASP AI Testing Guide v1.0 (November 2025); summarised editorially.",
+    "url": "https://github.com/OWASP/www-project-ai-testing-guide/blob/main/Document/content/tests/AITG-INF-05_Testing_for_Fine-tuning_Poisoning.md"
+  },
+  {
+    "id": "AITG-INF-06",
+    "name": "Dev-Time Model Theft",
+    "access": "Grey-box recommended",
+    "execute": "Use a scoped inference query allowance or synthetic model artefact and validate permissions in a controlled environment.",
+    "interpret": "Measure surrogate agreement against a held-out set or demonstrate unauthorised artefact access.",
+    "remediate": "Constrain API usage; enforce storage/API authorisation and audit.",
+    "source": "OWASP AI Testing Guide v1.0 (November 2025); summarised editorially.",
+    "url": "https://github.com/OWASP/www-project-ai-testing-guide/blob/main/Document/content/tests/AITG-INF-06_Testing_for_Dev-Time_Model_Theft.md"
+  },
+  {
+    "id": "AITG-MOD-01",
+    "name": "Evasion Attacks",
+    "access": "White-box / research",
+    "execute": "Define a clean benchmark or labelled control dataset, change one condition, and compare outcomes with matched settings.",
+    "interpret": "Use measurable evidence and describe scope, variability and alternative explanations.",
+    "remediate": "Apply independent verification, logging, constrained permissions and repeatable regression tests.",
+    "source": "OWASP AI Testing Guide v1.0 (November 2025); summarised editorially.",
+    "url": "https://github.com/OWASP/www-project-ai-testing-guide/blob/main/Document/content/tests/AITG-MOD-01_Testing_for_Evasion_Attacks.md"
+  },
+  {
+    "id": "AITG-MOD-02",
+    "name": "Runtime Model Poisoning",
+    "access": "White-box / research",
+    "execute": "Prepare matched clean and poisoned artefacts in a disposable test environment; verify the altered input was ingested.",
+    "interpret": "Demonstrate the difference on held-out tasks and verify the affected ingestion or provenance boundary.",
+    "remediate": "Validate artefact provenance, integrity and access controls.",
+    "source": "OWASP AI Testing Guide v1.0 (November 2025); summarised editorially.",
+    "url": "https://github.com/OWASP/www-project-ai-testing-guide/blob/main/Document/content/tests/AITG-MOD-02_Testing_for_Runtime_Model_Poisoning.md"
+  },
+  {
+    "id": "AITG-MOD-03",
+    "name": "Poisoned Training Sets",
+    "access": "White-box / research",
+    "execute": "Prepare matched clean and poisoned artefacts in a disposable test environment; verify the altered input was ingested.",
+    "interpret": "Demonstrate the difference on held-out tasks and verify the affected ingestion or provenance boundary.",
+    "remediate": "Validate artefact provenance, integrity and access controls.",
+    "source": "OWASP AI Testing Guide v1.0 (November 2025); summarised editorially.",
+    "url": "https://github.com/OWASP/www-project-ai-testing-guide/blob/main/Document/content/tests/AITG-MOD-03_Testing_for_Poisoned_Training_Sets.md"
+  },
+  {
+    "id": "AITG-MOD-04",
+    "name": "Membership Inference",
+    "access": "White-box / research",
+    "execute": "Use consenting, known member and non-member synthetic samples and pre-agreed measurement criteria.",
+    "interpret": "Report statistical metrics and uncertainty rather than treating a single confident prediction as proof.",
+    "remediate": "Review privacy controls, output minimisation and training protections.",
+    "source": "OWASP AI Testing Guide v1.0 (November 2025); summarised editorially.",
+    "url": "https://github.com/OWASP/www-project-ai-testing-guide/blob/main/Document/content/tests/AITG-MOD-04_Testing_for_Membership_Inference.md"
+  },
+  {
+    "id": "AITG-MOD-05",
+    "name": "Inversion Attacks",
+    "access": "White-box / research",
+    "execute": "Use consenting, known member and non-member synthetic samples and pre-agreed measurement criteria.",
+    "interpret": "Report statistical metrics and uncertainty rather than treating a single confident prediction as proof.",
+    "remediate": "Review privacy controls, output minimisation and training protections.",
+    "source": "OWASP AI Testing Guide v1.0 (November 2025); summarised editorially.",
+    "url": "https://github.com/OWASP/www-project-ai-testing-guide/blob/main/Document/content/tests/AITG-MOD-05_Testing_for_Inversion_Attacks.md"
+  },
+  {
+    "id": "AITG-MOD-06",
+    "name": "Robustness to New Data",
+    "access": "White-box / research",
+    "execute": "Define a clean benchmark or labelled control dataset, change one condition, and compare outcomes with matched settings.",
+    "interpret": "Use measurable evidence and describe scope, variability and alternative explanations.",
+    "remediate": "Apply independent verification, logging, constrained permissions and repeatable regression tests.",
+    "source": "OWASP AI Testing Guide v1.0 (November 2025); summarised editorially.",
+    "url": "https://github.com/OWASP/www-project-ai-testing-guide/blob/main/Document/content/tests/AITG-MOD-06_Testing_for_Robustness_to_New_Data.md"
+  },
+  {
+    "id": "AITG-MOD-07",
+    "name": "Goal Alignment",
+    "access": "White-box / research",
+    "execute": "Define a clean benchmark or labelled control dataset, change one condition, and compare outcomes with matched settings.",
+    "interpret": "Use measurable evidence and describe scope, variability and alternative explanations.",
+    "remediate": "Apply independent verification, logging, constrained permissions and repeatable regression tests.",
+    "source": "OWASP AI Testing Guide v1.0 (November 2025); summarised editorially.",
+    "url": "https://github.com/OWASP/www-project-ai-testing-guide/blob/main/Document/content/tests/AITG-MOD-07_Testing_for_Goal_Alignment.md"
+  }
+]

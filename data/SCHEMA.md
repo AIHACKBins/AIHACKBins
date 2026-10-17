@@ -1,6 +1,6 @@
-# AIHACKBins v10 static data structure
+# AIHACKBins v11.5 static data structure
 
-- `data/cases.json` — canonical, manually reviewed public record list (65 entries). The `techniques/*.md` files are legacy working material and do not form a complete v10 database.
+- `data/cases.json` — canonical, manually reviewed public record list (68 entries). The `techniques/*.md` files are legacy working material and do not form a complete v10 database.
 - `data/aitg_tests.json` — all 32 OWASP AI Testing Guide testing objectives, plus editorial RC cross-references. Test objectives and mappings are not proof of vulnerability or OWASP endorsement.
 - `data/lab_outcomes.json` and `lab-outcomes.js` — one authored **illustrative** success/blocked pair per technique. Never present as observed evidence.
 - `data/audit.json` — current record and coverage counts; records are Unverified unless independently supported.

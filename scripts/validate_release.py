@@ -12,6 +12,12 @@ assert set(ids)==set(labids),"Every record needs an authored lab outcome"
 assert len(testids)==len(set(testids))==32
 assert audit["current_records"]==len(ids) and audit["labs"]==len(labids)
 allowed={"file","generator","dataset","workflow","url","audio","json","text"}
+guidance=load('data/aitg_testing_guidance.json')
+assert len(guidance)==32 and {x['id'] for x in guidance}==set(testids),'OWASP testing method coverage mismatch'
+for item in guidance:
+ assert all(item.get(k) for k in ('access','execute','interpret','remediate','source','url')),item['id']
+for r in rows:
+ assert all(r.get(k) for k in ('testing_access','aitg_objective','aitg_execution','aitg_interpretation','aitg_remediation','aitg_methodology_source')),r['id']+': incomplete OWASP methodology'
 for r in rows:
  rid=r["id"]
  assert r.get("payload","").strip(),rid+": no input"
@@ -20,7 +26,7 @@ for r in rows:
  assert isinstance(r.get("references",[]),list) and r["references"],rid+": missing source"
  assert r.get("source_support") and r.get("independent_verification"),rid+": provenance absent"
  assert set(r.get("aitg_ids",[])).issubset(testids),rid+": invalid AITG IDs"
- assert r.get("independent_verification")=="Not independently reproduced",rid+": unsupported independent verification claim"
+ assert r.get("independent_verification")=="Not independently reproduced by AIHACKBins",rid+": unsupported independent verification claim"
  artifact=r.get("artifact_path")
  if artifact:
   assert re.fullmatch(r"fixtures/[A-Za-z0-9_.\-/]+",artifact),rid+": unsafe path"

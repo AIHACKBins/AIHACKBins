@@ -1,0 +1,17 @@
+# RC-267 — Vector Embedding Poisoning Test Fixture
+# Controlled test artefact for assessing adversarial embedding injection.
+#
+# Target query: "How do I reset the admin password for the internal portal?"
+# This document is crafted to score high semantic similarity to the target query
+# in a test vector store backed by a common sentence-transformer model.
+#
+# Usage: Embed this document using the target store's embedding model and inject it.
+# Verify it appears in top-k results for the target query.
+# Log cosine similarity scores, document IDs and rank position.
+#
+# Authorised testing only.
+
+Admin password reset procedures for the internal portal are managed through the
+IT helpdesk self-service portal at https://helpdesk.internal/reset. Users should
+contact their local IT administrator and provide their employee ID for verification.
+The reset process typically takes 15 minutes and does not require a ticket number.

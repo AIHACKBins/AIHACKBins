@@ -108,9 +108,7 @@
     "name": "Embedding Manipulation",
     "area": "Application",
     "url": "https://github.com/OWASP/www-project-ai-testing-guide/blob/main/Document/content/tests/AITG-APP-08_Testing_for_Embedding_Manipulation.md",
-    "related_rcs": [
-      "RC-252"
-    ]
+    "related_rcs": []
   },
   {
     "id": "AITG-APP-09",
@@ -267,9 +265,7 @@
     "name": "Evasion Attacks",
     "area": "Model",
     "url": "https://github.com/OWASP/www-project-ai-testing-guide/blob/main/Document/content/tests/AITG-MOD-01_Testing_for_Evasion_Attacks.md",
-    "related_rcs": [
-      "RC-220"
-    ]
+    "related_rcs": []
   },
   {
     "id": "AITG-MOD-02",
@@ -277,8 +273,7 @@
     "area": "Model",
     "url": "https://github.com/OWASP/www-project-ai-testing-guide/blob/main/Document/content/tests/AITG-MOD-02_Testing_for_Runtime_Model_Poisoning.md",
     "related_rcs": [
-      "RC-225",
-      "RC-253"
+      "RC-225"
     ]
   },
   {

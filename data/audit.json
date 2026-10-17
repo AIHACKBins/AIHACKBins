@@ -1,12 +1,12 @@
 {
-  "edition": "v10.0 \u2014 coverage and credibility",
-  "source_package": "AIHACKBins-v9.9.3-Cloudflare-upload.zip",
-  "previous_records": 59,
-  "current_records": 65,
-  "labs": 65,
-  "authored_illustration_pairs": 65,
+  "edition": "v11.5 \u2014 verification and reporting",
+  "source_package": "v11.4 assessment-readiness",
+  "previous_records": 68,
+  "current_records": 68,
+  "labs": 68,
+  "authored_illustration_pairs": 68,
   "independently_reproduced": 0,
   "owasp_aitg_tests": 32,
-  "aitg_tests_with_related_rcs": 23,
-  "note": "Statuses do not imply reproduction. Original 59 catalogue records preserved; 4 assessment candidates added. Existing 34 legacy Markdown files are archive material; cases.json is the canonical source. AITG mappings are editorial coverage links, not OWASP endorsements."
+  "aitg_tests_with_related_rcs": 21,
+  "note": "Labs are simulations. Baseline objective existence is not direct technique coverage. ATLAS/LLM mappings are editorial and not independent validations."
 }
