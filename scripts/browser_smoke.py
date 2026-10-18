@@ -73,6 +73,14 @@ try:
             with page.expect_download(timeout=5000) as dl:
                 page.locator('#tech-evidence-export').click()
             assert dl.value.suggested_filename == 'AIHACKBins-RC-221-evidence-note.md'
+            page.goto(base+'#/submit')
+            proposal=page.locator('#submit-proposal')
+            proposal.wait_for(timeout=5000)
+            assert 'template=technique_submission.yml' in proposal.get_attribute('href')
+            assert proposal.get_attribute('target')=='_blank'
+            assert page.locator('#submit-contributing').get_attribute('href').endswith('/CONTRIBUTING.md')
+            assert 'not a complete valid catalogue record' in page.locator('#main').inner_text()
+            assert page.locator('#schema-copy-btn').is_visible()
             page.goto(base+'#/about')
             assert 'Responsible use and disclaimer' in page.locator('#main').inner_text()
             assert page.locator('.site-disclaimer a').count() == 1

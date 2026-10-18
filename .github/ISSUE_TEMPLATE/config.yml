@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: AIHACKBins contribution guide
+    url: https://aihackbins.org/#/submit
+    about: Read the contribution requirements before proposing a technique.

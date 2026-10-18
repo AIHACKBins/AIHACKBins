@@ -1,3 +1,5 @@
+> **v11.6 research corrections:** All 68 records have undergone a documentary mechanism/mapping review. Incorrect sources and unsupported mappings were corrected or explicitly downgraded. **No AIHACKBins payload has been independently reproduced or certified as successful.** See [V11.6_RESEARCH_CORRECTIONS.md](V11.6_RESEARCH_CORRECTIONS.md) and [audit/CONSOLIDATED_AUDIT_LEDGER.csv](audit/CONSOLIDATED_AUDIT_LEDGER.csv).
+
 # AIHACKBins
 
 **Find a technique. Copy the payload. Test the boundary.**
@@ -17,7 +19,7 @@ The project has two tracks: **Hacking AI systems** (LLMs, agents, MCP, RAG, mode
 
 ## Scope and evidence
 
-- 65 documented technique records and 65 *illustrative* lab outcome pairs.
+- 68 documented technique records and 68 *illustrative* lab outcome pairs.
 - 32 OWASP AI Testing Guide (AITG) test objectives in the Baseline; this does **not** mean all objectives have corresponding practical payloads.
 - Applicable MITRE ATLAS and OWASP LLM Top 10 (2025) mappings, not MITRE/OWASP endorsements.
 - Research provenance is separate from independent reproduction. The adapted inputs have **not** been independently reproduced by AIHACKBins.
@@ -64,3 +66,7 @@ The site provides an authorisation-first disclaimer in About and the footer; see
 ## Assessment notes
 
 The Baseline offers target-focused editorial checklists and locally generated Markdown notes; technique pages offer downloadable evidence-note templates. These contain placeholders, not observed exploit results, and require a human tester to insert separately collected authorised evidence.
+
+## v11.7 community contributions
+
+Start at [Submit a technique](https://aihackbins.org/#/submit) or the [structured GitHub proposal form](https://github.com/AIHACKBins/AIHACKBins/issues/new?template=technique_submission.yml). New ideas are reviewed as issues before code PRs. See [CONTRIBUTING.md](CONTRIBUTING.md) and the accompanying templates in `.github/`. The issue-form and PR links are checked offline; actual GitHub issue creation and branch protection require a signed-in acceptance test.

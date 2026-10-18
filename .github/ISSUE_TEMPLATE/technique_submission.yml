@@ -1,0 +1,104 @@
+name: New AI security technique proposal
+description: Propose an authorised, reproducible technique for maintainer review (not automatic publication).
+title: "[Technique proposal] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for contributing to AIHACKBins. This opens a public GitHub issue for review, **not** a published technique. Do not submit secrets, private client data, credentials or unauthorised target details. A maintainer will review sources, applicability and evidence before inviting a pull request.
+  - type: input
+    id: name
+    attributes:
+      label: Technique name
+      placeholder: Short, descriptive technique name
+    validations:
+      required: true
+  - type: dropdown
+    id: target
+    attributes:
+      label: Assessment target
+      options:
+        - AI chatbot
+        - AI application
+        - AI agent / MCP
+        - RAG / retrieval system
+        - Model / training pipeline
+        - AI-assisted authorised security assessment
+        - Other
+    validations:
+      required: true
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Input or attack surface
+      options:
+        - Direct chat / prompt
+        - Retrieved document or web content
+        - Tool response / MCP metadata
+        - Code repository / developer workflow
+        - Uploaded file / image / audio
+        - Data / vector store / training pipeline
+        - API / webhook / integration
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: mechanism
+    attributes:
+      label: Mechanism and prerequisite
+      description: Describe the trust boundary, the access required, and exactly where the input is placed.
+      placeholder: The authorised agent must read a lower-trust test document ...
+    validations:
+      required: true
+  - type: textarea
+    id: input
+    attributes:
+      label: Concrete test input or reproducible procedure
+      description: Use harmless synthetic markers; file-based or experimental techniques may supply a procedure. Never paste real credentials or private information.
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: comparison
+    attributes:
+      label: Clean control, test steps and expected evidence
+      description: Explain baseline/control, actions, what is observable, and what DOES NOT count as a finding.
+    validations:
+      required: true
+  - type: textarea
+    id: provenance
+    attributes:
+      label: Research and original-source URLs
+      description: Provide direct research/disclosure references. Distinguish original examples, adaptations and hypotheses.
+      placeholder: https://...
+    validations:
+      required: true
+  - type: dropdown
+    id: reproduced
+    attributes:
+      label: Reproduction status
+      options:
+        - Not reproduced; documentary proposal
+        - Tested in an authorised local lab (details below)
+        - Published demonstration by original researchers (not independently reproduced)
+    validations:
+      required: true
+  - type: textarea
+    id: observations
+    attributes:
+      label: Observed evidence / environment (if tested)
+      description: Model/build, software versions, clean vs injected runs, and redacted traces or links. No customer data.
+  - type: textarea
+    id: mappings
+    attributes:
+      label: Candidate framework mappings (optional)
+      description: MITRE ATLAS and OWASP identifiers are suggestions for review, not endorsements or proof of exploitability.
+  - type: checkboxes
+    id: attestation
+    attributes:
+      label: Contribution requirements
+      options:
+        - label: I have permission for any tests described and have excluded secrets and private client data.
+          required: true
+        - label: I understand this issue is a proposal; inclusion and published verification claims require maintainer review.
+          required: true

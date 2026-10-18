@@ -1,7 +1,0 @@
-[
-  {"date":"2026-10-12","type":"new","id":"RC-101","title":"Multimodal image instruction testing","summary":"Added a documented assessment pattern for instruction bearing images. No product verification claimed."},
-  {"date":"2026-10-12","type":"new","id":"RC-103","title":"RAG retrieved document poisoning","summary":"Added a controlled retrieval poisoning assessment with clean control guidance."},
-  {"date":"2026-10-12","type":"new","id":"RC-106","title":"Agent tool result injection","summary":"Added JSON tool result manipulation probe and expected observable evidence."},
-  {"date":"2026-10-12","type":"new","id":"RC-111","title":"Many shot format manipulation","summary":"Added a benign boundary test for long context instruction saturation."},
-  {"date":"2026-10-12","type":"update","id":"RC-010","title":"Unicode severity triage testing","summary":"Retained encoded payload and fictional researcher while preserving research attribution."}
-]

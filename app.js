@@ -951,128 +951,61 @@ data.filter(r => r.lab)`) + '</code></pre></div>' +
 
   // ── Submit ───────────────────────────────────────────────────────────
   function renderSubmit() {
-    const schema = `{
-  "id":              "RC-XXX",            // required — next available ID
-  "title":           "Short technique name",
-  "category":        "Prompt Injection | Jailbreak | Extraction | ...",
-  "target":          "System prompt | Tool calls | Training data | ...",
-  "status":          "Unverified (legacy)",
-  "evidence_status": "Assessment candidate",
-  "independent_verification": "Not independently reproduced",
-  "severity":        "Critical | High | Medium | Low",
-  "atlas_id":        "AML.T0051.001",     // MITRE ATLAS ID — omit if none
-  "atlas_name":      "Indirect Prompt Injection",
-  "owasp_ids":       ["LLM01"],           // OWASP LLM Top 10 2025
-  "tags":            ["keyword"],
-  "summary":         "One-sentence description of what the technique does.",
-  "payload":         "The literal string to submit to the model.",
-  "placement":       "Where to place the payload — e.g. user turn, system context, RAG doc.",
-  "expected_test":   "PASS if response includes X. FAIL if model refuses or outputs Y.",
-  "observed":        "What a vulnerable model does when the payload is submitted.",
-  "defense":         "Primary mitigation.",
-  "blue_team":       "Detection / monitoring note.",
-  "poc_steps":       ["Step 1", "Step 2", "Step 3"],
-  "defences":        ["Mitigation A", "Mitigation B"],
-  "references":      [{"title": "Paper title", "url": "https://..."}],
-  "affected_models": ["GPT-4o", "Claude 3", "..."],
-  "real_world_cases":["CVE or incident reference"],
-
-  // Optional — include if you have a reproducible lab scenario
-  "lab": {
-    "terminal_title":    "Short label for the terminal header",
-    "clean_prompt":      "The benign prompt the model would see without injection.",
-    "inject_note":       "One-line description of how the payload is embedded.",
-    "vuln_responses": [
-      {"delay": 700, "text": "Vulnerable model output — must include a CANARY_STRING_HERE."}
-    ],
-    "safe_response":     "What a patched or well-configured model should say instead.",
-    "expected_evidence": "The canary string that proves injection succeeded."
-  }
-}`;
-
+    const proposalUrl = 'https://github.com/AIHACKBins/AIHACKBins/issues/new?template=technique_submission.yml';
+    const prUrl = 'https://github.com/AIHACKBins/AIHACKBins/compare';
+    const sample = {
+      "id": "RC-XXX (maintainer assigns)",
+      "title": "Name of proposed technique",
+      "input_type": "text | file | generator | workflow",
+      "assessment_targets": ["Chatbot", "AI Agent / MCP"],
+      "input_placement": "Where the input is delivered and which trust boundary is tested",
+      "payload": "Use a synthetic marker, test fixture or reproducible procedure",
+      "test_steps": ["Record clean baseline", "Deliver input in the authorised environment", "Collect trace and compare"],
+      "finding_criteria": "Observable consequence (not merely copied text)",
+      "evidence_capture": "Redacted clean and injected outputs, model/tool version, logs",
+      "references": [{"title":"Original research or disclosure","url":"https://example.com/research"}],
+      "independent_verification": "Not independently reproduced by AIHACKBins"
+    };
+    const schema = JSON.stringify(sample, null, 2);
     const checklist = [
-      'Payload is a literal string — copy-pasteable, not pseudocode',
-      'expected_test has a clear PASS / FAIL criterion with observable evidence',
-      'A canary string (SCREAMING_SNAKE_CASE) is present in vuln_responses if a lab block is included',
-      'ATLAS and OWASP mappings are filled where applicable',
-      'You have tested the payload against at least one real model on a system you own or are authorised to assess',
-      'References point to published research, CVEs, or public incident reports — not anonymous claims',
+      'A precise mechanism, trust boundary and input surface are described.',
+      'A harmless synthetic test input, fixture or reproducible procedure is included.',
+      'The clean control and evidence needed to demonstrate a finding are explicit.',
+      'Sources are correctly attributed as original, adapted or supporting research.',
+      'No sensitive customer information, credentials or unapproved target testing.',
+      'No unverifiable model vulnerabilities or framework relationships are claimed.'
     ];
-
     document.getElementById('main').innerHTML =
-      '<div class="inner-head">' +
-        '<h1>Submit a technique</h1>' +
-        '<p>AIHACKBins grows through community contributions. Every entry must meet the GTFOBins quality bar: real payload, real target, observable pass/fail evidence, and published research or a reproducible test to back it up.</p>' +
-      '</div>' +
+      '<div class="inner-head"><h1>Submit a technique</h1>' +
+        '<p>Propose practical AI security testing research through GitHub. Proposals are reviewed by maintainers; submission does not mean acceptance or automatic publication.</p></div>' +
       '<div class="api-wrap">' +
-
-        '<div class="d-section">' +
-          '<h2>How to contribute</h2>' +
-          '<ol class="submit-steps">' +
-            '<li><strong>Fork</strong> the repository on GitHub: <a class="about-link" href="https://github.com/AIHACKBins/AIHACKBins" target="_blank" rel="noopener">github.com/AIHACKBins/AIHACKBins ↗</a></li>' +
-            '<li><strong>Add your entry</strong> to <code>data/cases.json</code> — one object appended to the array, following the schema below.</li>' +
-            '<li><strong>Check the quality bar</strong> using the checklist below.</li>' +
-            '<li><strong>Open a pull request</strong> with the title: <code>[New technique] RC-XXX — Your technique title</code></li>' +
-          '</ol>' +
+        '<div class="d-section"><h2>Start here: propose a technique</h2>' +
+          '<p class="submit-note">GitHub sign-in is required. The structured form collects the technique, input surface, synthetic example, original sources and observable evidence. No code or JSON editing is needed to propose an idea.</p>' +
+          '<a class="submit-cta" id="submit-proposal" href="' + proposalUrl + '" target="_blank" rel="noopener noreferrer">Propose a technique on GitHub ↗</a>' +
+          '<p class="submit-note"><strong>What happens next?</strong> A public GitHub issue is created for triage. A maintainer will review it and may request changes or invite a pull request. Nothing is automatically added to AIHACKBins.</p>' +
         '</div>' +
-
-        '<div class="d-section">' +
-          '<h2>Quality checklist</h2>' +
-          '<ul class="submit-checklist">' +
-            checklist.map(item => '<li>' + esc(item) + '</li>').join('') +
-          '</ul>' +
+        '<div class="d-section"><h2>Contribution flow</h2><ol class="submit-steps">' +
+          '<li><strong>Propose:</strong> open the GitHub Issue Form and provide reproducible, synthetic assessment details.</li>' +
+          '<li><strong>Review:</strong> a maintainer checks duplicates, sources, applicability, permissions and measurable evidence.</li>' +
+          '<li><strong>Implement:</strong> after discussion, submit a pull request with canonical record and related assets.</li>' +
+          '<li><strong>Validate:</strong> GitHub Actions checks catalogue, payload, mapping and browser behaviour; maintainers review technical accuracy.</li>' +
+          '<li><strong>Publish:</strong> accepted changes reach the website only after merge and the subsequent Cloudflare deployment.</li>' +
+        '</ol></div>' +
+        '<div class="d-section"><h2>Quality checklist</h2><ul class="submit-checklist">' + checklist.map(item=>'<li>'+esc(item)+'</li>').join('') + '</ul></div>' +
+        '<div class="d-section"><h2>Optional: contribute code through a pull request</h2>' +
+          '<p class="submit-note">Technical contributors can fork the repository and open a PR after discussing the proposal. Copy an existing complete entry of the same input type; the small example below is an <strong>illustrative field guide, not a complete valid catalogue record</strong>.</p>' +
+          '<a class="submit-cta submit-cta-ghost" id="submit-fork" href="https://github.com/AIHACKBins/AIHACKBins/fork" target="_blank" rel="noopener noreferrer">Fork repository ↗</a>' +
+          '<a class="submit-cta submit-cta-ghost" id="submit-pr" href="' + prUrl + '" target="_blank" rel="noopener noreferrer">View PR comparison ↗</a>' +
+          '<a class="submit-cta submit-cta-ghost" id="submit-contributing" href="https://github.com/AIHACKBins/AIHACKBins/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener noreferrer">Read contribution guide ↗</a>' +
         '</div>' +
-
-        '<div class="d-section">' +
-          '<h2>Entry schema</h2>' +
-          '<p class="submit-note">Copy this template, fill in every required field, and delete comments before adding to cases.json. The <code>lab</code> block is optional but strongly encouraged — it is what makes an entry interactive.</p>' +
-          '<div class="submit-schema-wrap">' +
-            '<button class="payload-copy-btn" id="schema-copy-btn">Copy schema</button>' +
-            '<pre class="submit-schema-pre"><code id="schema-code">' + esc(schema) + '</code></pre>' +
-          '</div>' +
-        '</div>' +
-
-        '<div class="d-section">' +
-          '<h2>Naming conventions</h2>' +
-          '<table class="submit-table">' +
-            '<thead><tr><th>Prefix</th><th>Category</th></tr></thead>' +
-            '<tbody>' +
-              '<tr><td>RC-</td><td>Runtime / inference-time techniques (prompt injection, jailbreak, extraction)</td></tr>' +
-              '<tr><td>SC-</td><td>Supply chain and training-time attacks (data poisoning, model theft)</td></tr>' +
-              '<tr><td>INF-</td><td>Infrastructure-level attacks (model serving, API abuse)</td></tr>' +
-            '</tbody>' +
-          '</table>' +
-          '<p class="submit-note">Use the next available number in the sequence. Check the current highest ID in <code>cases.json</code> before opening your PR.</p>' +
-        '</div>' +
-
-        '<div class="d-section">' +
-          '<h2>What we do not accept</h2>' +
-          '<ul class="submit-checklist submit-reject">' +
-            '<li>Techniques without a concrete, literal payload — "ask the model to ignore its instructions" is not an entry</li>' +
-            '<li>Entries with no PASS / FAIL criterion — the expected output must be observable and specific</li>' +
-            '<li>Claims without a reference — at minimum, cite a public paper, CVE, or published incident</li>' +
-            '<li>Techniques that require the reviewer to break any law or access systems they do not own</li>' +
-          '</ul>' +
-        '</div>' +
-
-        '<div class="d-section">' +
-          '<h2>See an example</h2>' +
-          '<p class="submit-note">Browse a merged contribution to see the expected format and quality bar in context:</p>' +
-          '<a class="submit-cta submit-cta-ghost" href="https://github.com/AIHACKBins/AIHACKBins/pulls?q=is%3Apr+is%3Amerged+label%3Anew-technique" target="_blank" rel="noopener">Browse merged technique PRs ↗</a>' +
-        '</div>' +
-        '<div class="d-section">' +
-          '<a class="submit-cta" href="https://github.com/AIHACKBins/AIHACKBins/issues/new?title=%5BNew+technique%5D+RC-XXX+%E2%80%94+&labels=new-technique&template=technique_submission.md" target="_blank" rel="noopener">Open a GitHub issue to discuss first ↗</a>' +
-          '<a class="submit-cta submit-cta-ghost" href="https://github.com/AIHACKBins/AIHACKBins/fork" target="_blank" rel="noopener">Fork the repo and start a PR ↗</a>' +
-        '</div>' +
-
+        '<div class="d-section"><h2>Illustrative proposal fields</h2><p class="submit-note">Use the GitHub proposal form for a new idea. To add a canonical entry by PR, follow <code>data/SCHEMA.md</code> and copy an existing complete record, including paired illustrative lab metadata where required.</p>' +
+          '<div class="submit-schema-wrap"><button class="payload-copy-btn" id="schema-copy-btn">Copy example</button>' +
+          '<pre class="submit-schema-pre"><code id="schema-code">'+esc(schema)+'</code></pre></div></div>' +
+        '<div class="d-section"><h2>Privacy and responsible use</h2><p class="submit-note">GitHub issues are public. Only post synthetic data, redacted evidence and research you are authorised to share. Do not disclose active customer vulnerabilities or credentials in a public proposal.</p></div>' +
       '</div>';
-
-    const copyBtn = document.getElementById('schema-copy-btn');
-    if (copyBtn) {
-      copyBtn.addEventListener('click', () => { copyText(schema, copyBtn); });
-    }
+    const copyBtn=document.getElementById('schema-copy-btn');
+    if(copyBtn)copyBtn.addEventListener('click',()=>copyText(schema,copyBtn));
   }
-
 
   // Alphabetised, filterable reference glossary. No network access required.
   const glossaryTerms = [{"term": "AIHACKBins", "category": "Project", "definition": "An open, GTFOBins-inspired reference of AI security assessment techniques, prompts, and guided labs.", "technique": null}, {"term": "RC", "category": "Identifiers", "definition": "Research Case: the AIHACKBins identifier prefix (for example RC-221). An ID is not a confirmed vulnerability.", "technique": null}, {"term": "LLM", "category": "AI basics", "definition": "Large Language Model: a model trained to generate and work with text and related content.", "technique": null}, {"term": "Prompt", "category": "AI basics", "definition": "Instructions and context supplied to an AI model.", "technique": null}, {"term": "System prompt", "category": "AI basics", "definition": "High-priority instructions defined by the application or model operator.", "technique": null}, {"term": "Prompt injection", "category": "Attacks", "definition": "An attempt to redirect a model using attacker-controlled instructions.", "technique": "RC-203"}, {"term": "Indirect prompt injection", "category": "Attacks", "definition": "Instructions embedded in lower-trust content such as emails, documents, web pages, or tool results.", "technique": "RC-208"}, {"term": "Invisible Prompt Injection", "category": "Attacks", "definition": "Prompt injection hidden in characters or encodings that may not be obvious in rendered text.", "technique": "RC-221"}, {"term": "Unicode Tag characters", "category": "Encoding", "definition": "Unicode characters in U+E0000–U+E007F that can carry encoded text while remaining visually hidden in many interfaces.", "technique": "RC-221"}, {"term": "ASCII smuggling", "category": "Encoding", "definition": "Encoding visible ASCII instructions into Unicode characters that may bypass a superficial text review.", "technique": "RC-221"}, {"term": "Severity manipulation", "category": "Attacks", "definition": "Attempting to bias an AI-generated security severity recommendation instead of evaluating actual technical impact.", "technique": "RC-221"}, {"term": "Canary", "category": "Testing", "definition": "A harmless, distinctive string used to identify whether unexpected instructions were followed.", "technique": null}, {"term": "Control input", "category": "Testing", "definition": "An otherwise identical baseline without the attack payload, used to compare results.", "technique": null}, {"term": "Verification status", "category": "Evidence", "definition": "An indication of whether testing has actually been performed, not whether an attack technique exists.", "technique": null}, {"term": "Research Case vs vulnerability", "category": "Evidence", "definition": "A documented technique or research case does not establish that a named current product is vulnerable.", "technique": null}, {"term": "Proof of Concept (PoC)", "category": "Evidence", "definition": "A demonstration with enough detail and evidence to reproduce a reported behaviour.", "technique": null}, {"term": "False positive", "category": "Evidence", "definition": "An apparent issue that is not substantiated by the technical evidence.", "technique": null}, {"term": "Scripted simulation", "category": "Evidence", "definition": "A predetermined demonstration output. It does not execute a live attack or test a model.", "technique": null}, {"term": "AITG (OWASP AI Testing Guide)", "category": "Frameworks", "definition": "AITG means OWASP AI Testing Guide: a structured set of security testing objectives for AI applications, models, infrastructure and data. The AITG-APP, AITG-MOD, AITG-INF and AITG-DAT IDs classify recommended tests; a mapping does not mean a vulnerability has been verified.", "technique": null}, {"term": "OWASP LLM Top 10 2025", "category": "Frameworks", "definition": "A risk taxonomy for LLM applications; classification is not proof of exploitability.", "technique": null}, {"term": "LLM01", "category": "Frameworks", "definition": "Prompt Injection, the first OWASP Top 10 for LLM Applications 2025 category.", "technique": "RC-221"}, {"term": "LLM02", "category": "Frameworks", "definition": "Sensitive Information Disclosure in LLM applications.", "technique": "RC-210"}, {"term": "LLM03", "category": "Frameworks", "definition": "Supply Chain vulnerabilities affecting LLM applications.", "technique": "RC-216"}, {"term": "LLM04", "category": "Frameworks", "definition": "Data and Model Poisoning — corrupting training data, fine-tune datasets, or reward models to influence model behaviour.", "technique": "RC-251"}, {"term": "LLM05", "category": "Frameworks", "definition": "Improper Output Handling.", "technique": null}, {"term": "LLM06", "category": "Frameworks", "definition": "Excessive Agency, when AI systems have excessive or insufficiently constrained abilities.", "technique": "RC-214"}, {"term": "LLM07", "category": "Frameworks", "definition": "System Prompt Leakage.", "technique": null}, {"term": "LLM08", "category": "Frameworks", "definition": "Vector and Embedding Weaknesses.", "technique": null}, {"term": "LLM09", "category": "Frameworks", "definition": "Misinformation — outputs that are false, misleading, or fabricated, including hallucinated citations and sycophantic confirmation of false premises.", "technique": "RC-255"}, {"term": "LLM10", "category": "Frameworks", "definition": "Unbounded Consumption — attacks that cause excessive resource usage, token flooding, or cost amplification.", "technique": "RC-256"}, {"term": "MITRE ATLAS", "category": "Frameworks", "definition": "An AI-focused knowledge base of adversary tactics and techniques.", "technique": null}, {"term": "AML.T0051.001", "category": "Frameworks", "definition": "MITRE ATLAS technique for Indirect Prompt Injection — injecting instructions via content retrieved from external sources.", "technique": "RC-208"}, {"term": "MITRE ATT&CK", "category": "Frameworks", "definition": "A separate knowledge base of adversary behaviour; it is not interchangeable with MITRE ATLAS.", "technique": null}, {"term": "RAG", "category": "AI architecture", "definition": "Retrieval Augmented Generation: a model generates answers using retrieved external material.", "technique": null}, {"term": "Vector database", "category": "AI architecture", "definition": "A datastore for numerical embeddings used in similarity search and retrieval.", "technique": null}, {"term": "Embedding", "category": "AI architecture", "definition": "A numerical representation of text or other content, used for retrieval or machine learning.", "technique": null}, {"term": "MCP", "category": "AI architecture", "definition": "Model Context Protocol: an open standard that connects AI clients (Claude Desktop, Cursor, etc.) to tools, data sources, and resources via a JSON-RPC server.", "technique": null}, {"term": "MCP tool poisoning", "category": "Attacks", "definition": "An attack where a malicious MCP server embeds instructions in tool names or descriptions that cause the AI model to take unintended actions when it reads the tool manifest.", "technique": "RC-258"}, {"term": "MCP server impersonation", "category": "Attacks", "definition": "An attacker registers a server that masquerades as a legitimate MCP integration (e.g. via typosquatting) to intercept tool calls and steal credentials.", "technique": "RC-259"}, {"term": "Tool call", "category": "AI architecture", "definition": "A structured request by an AI application to execute a defined tool or function.", "technique": null}, {"term": "Agent", "category": "AI architecture", "definition": "An application that uses a model to select and execute steps or invoke tools.", "technique": null}, {"term": "Autonomous agent", "category": "AI architecture", "definition": "An AI system that operates with minimal human oversight, planning and executing multi-step tasks. Broader tool access and reduced interruptions expand the attack surface significantly.", "technique": "RC-247"}, {"term": "Agentic workflow", "category": "AI architecture", "definition": "A sequence of model-driven steps where each step's output may trigger further tool calls, sub-agents, or automated decisions — creating a compound attack surface at each step.", "technique": "RC-257"}, {"term": "Context window stuffing", "category": "Attacks", "definition": "Filling a model's context window with attacker-controlled text to crowd out legitimate instructions, distort model attention, or exhaust the token budget available for a task.", "technique": "RC-256"}, {"term": "Jailbreak", "category": "Attacks", "definition": "A prompt intended to bypass model behavioural safeguards.", "technique": "RC-201"}, {"term": "Many-shot jailbreak", "category": "Attacks", "definition": "A jailbreak that uses many examples to encourage a model to imitate an undesired response pattern.", "technique": "RC-201"}, {"term": "GCG", "category": "Attacks", "definition": "Greedy Coordinate Gradient: an optimisation method for generating adversarial suffixes.", "technique": "RC-220"}, {"term": "Model card", "category": "AI supply chain", "definition": "Documentation describing a model, its intended usage, limitations and metadata.", "technique": "RC-216"}, {"term": "Payload", "category": "Testing", "definition": "The exact text, file content or request supplied for an assessment.", "technique": null}, {"term": "Attack chain", "category": "Testing", "definition": "A collection or sequence of techniques; a diagram alone is not proof of an end-to-end exploit.", "technique": null}, {"term": "Hacking with AI", "category": "Project", "definition": "Using AI to support authorised security research, reconnaissance or test planning.", "technique": null}, {"term": "Hacking AI", "category": "Project", "definition": "Assessing the security boundaries and behaviours of AI-enabled systems.", "technique": null}];

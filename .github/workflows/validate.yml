@@ -18,6 +18,8 @@ jobs:
           python scripts/validate_mapping_policy.py
           python scripts/test_payload_integrity.py
       - run: python scripts/validate_assessment.py
+      - name: Community contribution flow checks
+        run: python scripts/validate_contributions.py
       - name: JavaScript syntax
         run: |
           node --check app.js
